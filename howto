@@ -1,0 +1,10 @@
+prep_datexml
+prep_intxml
+ 
+-> run run_ints
+
+collect_slcs
+-> run "commands" and make sure works
+
+run_mycors
+  -> runs mycor_slcs_downlook.
