@@ -17,3 +17,6 @@ else
     wgts             = exp((wgts-1)*5); %scalar makes near 0.1 at synth=0.5;
 end
 cr=mymed(crs,wgts);
+crsnew=-abs(crs-(-abs(repmat(cr,nd,1)-repmat(cr',1,nd))-repmat(cr',1,nd)'));
+cr=mymed(crsnew,wgts);
+

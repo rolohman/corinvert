@@ -48,7 +48,7 @@ if(pth==47)
     disp('not using last date for path 47')
     dates=dates(1:end-1);
 end
-
+nd     = length(dates);
 %assume all ints made
 ints=[];
 for j=1:nd-1
@@ -61,8 +61,7 @@ id1    = [ints.id1]';
 id2    = [ints.id2]';
 diags  = find(id2==id1+1);
 ni     = length(ints);
-nd     = length(dates);
-bp     = [dates.bp];
+
 dn     = [dates.dn];
 dn1    = dn(id1);
 dn2    = dn(id2);

@@ -1,19 +1,15 @@
-function [crm,cp]=flatten(cmed,alpha,cp,cpmin)
+function [crm,cp]=flatten_back(cmed,alpha,cp,cpmin)
 nd=length(cmed);
 for i=1:nd
-    crm1(i)=mymax(cmed(i:end),alpha);
-    crm2(i)=mymax(cmed(1:i),alpha);
+    crm(i)=mymax(cmed(i:end),alpha);
 end
 
-crm1=cummax(crm1,'reverse');
-crm2=cummax(crm2);
-crm=crm1+crm2;
+crm=cummax(crm,'reverse');
+
 crm(end)=crm(end-1);
 crm(1)=crm(2);
-
-cdif=diff(crm);
-
-cdif=-abs(cdif);
+cdif=-abs(diff(crm));
+cdif(isnan(cdif))=0;
 
 if(nargin>2)
     testcp=cp+cdif;

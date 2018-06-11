@@ -49,8 +49,8 @@ for j=online+1:newny
         t2=nan(nd,length(goodid));
         t3=nan(1,length(goodid));
         t4=nan(1,length(goodid));
-        alpha=100;
-
+    
+        tic
         parfor i=1:length(goodid)
             
             data  = cors(:,goodid(i));
@@ -63,28 +63,42 @@ for j=online+1:newny
             derr=dlmax-d;
                
             [gooddat,Grstat,Gistat]=find_bad(d-derr,diags,permbad(:,goodid(i)),Gr0,Gi0);
-
-            c0=mymax(d(gooddat),100);
-            cpmin=zeros(1,nd-1);
+            
+            c0    = mymax(d(gooddat),100);
+            cpmin = zeros(1,nd-1);
             for k=1:nd-1
-                id=Gi0(:,k)==1;
-                cpmin(k)=mymax(dlmin(id),100);
+                id       = Gi0(:,k)==1;
+                cpmin(k) = mymax(dlmin(id),100);
             end
-            cpmin(~Gistat)=d(diags(~Gistat));
-            cpmin=min(0,cpmin-c0);
-            [cp,c0]=est_ct_c0(d,Gi0,cpmin);
-            cp(~Gistat)=d(diags(~Gistat));
+            cpmin(~Gistat) = d(diags(~Gistat)-c0);
+            cpmin          = min(0,cpmin);
+            [cp1]          = est_ct(d,Gi0,cpmin);
+            cp1(~Gistat)   = min(0,d(diags(~Gistat))-c0);
             
-            synp=Gi0*cp';
-            cres=d-c0-synp;
+            synp           = Gi0*cp1';
+            synp(~gooddat) = NaN;
+            c0             = min(0,mymax(d-synp,25));
+            cres           = d-synp-c0;
+            cr1            = est_cr(cres,exp(synp),nd,cidl);
+            cr1(~Grstat)   = NaN;
+            [cshifts1,cp2] = flatten_front(cr1,25,cp1,cpmin);
+            cp2(~Gistat)   = min(0,d(diags(~Gistat))-c0);
             
-            cr=est_cr(cres,exp(synp),nd,cidl);
-            [cshifts,cp2]=flatten(cr,alpha,cp,cpmin);
-            cr=cr-cshifts;
-            cp=cp2;
-            res=d-Gi0*cp'+abs(Gr0*cr')-c0;
+            synp           = Gi0*cp2';
+            synp(~gooddat) = NaN;
+            cres           = d-synp-c0;
+            cr2            = est_cr(cres,exp(synp),nd,cidl);
+            cr2(~Grstat)   = NaN;
+            [cshifts2,cp]  = flatten_back(cr2,25,cp2,cpmin);
+            cp(~Gistat)    = min(0,d(diags(~Gistat))-c0);
             
-            cr=cr-mymax(cr,25);
+            synp           = Gi0*cp';
+            synp(~gooddat) = NaN;
+            cres           = d-synp-c0;
+            cr             = est_cr(cres,exp(synp),nd,cidl);
+            
+            res            = d-Gi0*cp'+abs(Gr0*cr')-c0;           
+            cr             = cr-mymax(cr,50);
             
             t0(i)   = exp(c0);
             t1(:,i) = exp(cp');

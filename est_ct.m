@@ -1,6 +1,6 @@
-function [ct_est,c0_est]=est_ct_c0(d,Gi,cpmin)
+function [ct_est]=est_ct(d,Gi,cpmin)
 d_orig=d;
-[ni,nd]=size(Gi);
+[~,nd]=size(Gi);
 nd=nd+1;
 alpha=100;
 cidl   = tril(ones(nd),-1)==1;
@@ -9,15 +9,11 @@ jnk(cidl)=d;
 jumps=median(diff(jnk)','omitnan');
 
 ct_est=zeros(1,nd-1);
-c0_est=mymax(d,alpha);
-
-notdone=1;
 
 [s,sortid]=sort(jumps);
 sortid=sortid(s<0.01);
 
 for i=sortid
-
         id  = and(isfinite(d),Gi(:,i)==1); %box
         idn=~id;
         n   = sum(id);
@@ -36,12 +32,8 @@ for i=sortid
         ct_est(i)=max(cpmin(i),ct_est(i));
         
         syn=Gi*ct_est';
-        d=d_orig-syn;
-    
+        d=d_orig-syn;   
 end
 
-
-alpha=25;
-c0_est=mymax(d,alpha);
 
 

@@ -1,6 +1,8 @@
 function value=mymed(crs,wgts)
 
 [nd,nx]    = size(crs);
+cutoff=0.02; %cutoff weight
+wgts(wgts<cutoff)=NaN;
 
 if(nd==1)
     value=crs;
