@@ -1,4 +1,4 @@
-parpool(7);
+parpool(6);
 decide_ints
 %now assume all ints made
 ints=[];
