@@ -1,4 +1,4 @@
-function [ct_est,c0_est]=est_ct_c0_new(d,Gi,cpmin)
+function [ct_est,c0_est]=est_ct_c0(d,Gi,cpmin)
 d_orig=d;
 [ni,nd]=size(Gi);
 nd=nd+1;

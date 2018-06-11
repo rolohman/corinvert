@@ -72,7 +72,7 @@ for j=online+1:newny
             end
             cpmin(~Gistat)=d(diags(~Gistat));
             cpmin=min(0,cpmin-c0);
-            [cp,c0]=est_ct_c0_new(d,Gi0,cpmin);
+            [cp,c0]=est_ct_c0(d,Gi0,cpmin);
             cp(~Gistat)=d(diags(~Gistat));
             
             synp=Gi0*cp';
