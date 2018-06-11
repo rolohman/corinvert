@@ -49,56 +49,27 @@ if(pth==47)
     dates=dates(1:end-1);
 end
 
-
-dn=[dates.dn];
-
-nd=length(dn);
+%assume all ints made
 ints=[];
-if(exist('masterdate','var'))
-    dn_master = datenum(masterdate,'yyyymmdd');
-    testid    = find(dn==dn_master);
-    if(length(testid)==1)
-        j     = testid;
-    else
-        disp(['no date found matching ' masterdate]);
+for j=1:nd-1
+    for i=j+1:nd
+        ints(end+1).id1=j;
+        ints(end).id2=i;
     end
-else
-    j=1;
 end
-testid=j
-disp(['using master date=' dates(j).name])
-  
-for i=[1:testid-1 testid+1:nd]
-    ints(end+1).id1=testid;
-    ints(end).id2=i;
-end
-id1=[ints.id1];
-id2=[ints.id2];
-ni=length(id1);
-
-
-for i=1:nd
-    dates(i).bp=0;
-    %dates(i).bpstd=0;
-    if(i~=testid) %master date
-        filedir=[dates(testid).name '/int_' dates(testid).name '_' dates(i).name];
-        file=[filedir '/isce.log'];
-        if(exist(filedir,'dir'))
-            [a,b]=grep('-s','Bperp',file);
-            if(length(a)>0)
-                tmp=regexp(b.match,'=\s*([^A-Za-Z]+)','tokens','once');
-                for j=1:length(tmp)
-                    jnk(j)=str2num(char(tmp{j}));
-                end
-                dates(i).bp=mean(jnk);
-                %dates(i).bpstd=std(jnk);
-            else
-                disp(['bp not found in ' file]);
-            end
-        else
-            disp([dates(testid).name '-' dates(i).name ' not processed yet']);
-        end
-    end   
-end
-bp=[dates.bp];
+id1    = [ints.id1]';
+id2    = [ints.id2]';
+diags  = find(id2==id1+1);
+ni     = length(ints);
+nd     = length(dates);
+bp     = [dates.bp];
+dn     = [dates.dn];
+dn1    = dn(id1);
+dn2    = dn(id2);
+intdt  = diff(dn); %intervals between dates (not interferograms)
+rlooks = 7;
+alooks = 3;
+n      = rlooks*alooks;
+newnx  = floor(nx/rlooks)
+newny  = floor(ny/alooks);
 
