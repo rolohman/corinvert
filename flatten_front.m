@@ -22,7 +22,7 @@ if(nargin>2)
         cdif(badi)=cdif(badi)+bdif;
         
         for i=1:length(badi)
-            crm(badi(i)+1:end)=crm(badi(i)+1:end)+bdif(i);
+            crm(1:badi(i))=crm(1:badi(i))+bdif(i);
         end
     end
     cp=cp+cdif;

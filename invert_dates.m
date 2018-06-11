@@ -1,4 +1,4 @@
-parpool(5);
+%parpool(5);
 decide_ints
 
 adir     = 'results_dates/';
@@ -51,7 +51,7 @@ for j=online+1:newny
         t4=nan(1,length(goodid));
     
         tic
-        parfor i=1:length(goodid)
+        for i=1:length(goodid)
             
             data  = cors(:,goodid(i));
             
@@ -70,7 +70,7 @@ for j=online+1:newny
                 id       = Gi0(:,k)==1;
                 cpmin(k) = mymax(dlmin(id),100);
             end
-            cpmin(~Gistat) = d(diags(~Gistat)-c0);
+            cpmin(~Gistat) = d(diags(~Gistat))-c0;
             cpmin          = min(0,cpmin);
             [cp1]          = est_ct(d,Gi0,cpmin);
             cp1(~Gistat)   = min(0,d(diags(~Gistat))-c0);
@@ -96,6 +96,13 @@ for j=online+1:newny
             synp(~gooddat) = NaN;
             cres           = d-synp-c0;
             cr             = est_cr(cres,exp(synp),nd,cidl);
+            %final, no more inverts
+            [cshifts,cp] = flatten_front(cr,25,cp,cpmin);
+            cr=cr-cshifts;
+            cp(~Gistat)   = min(0,d(diags(~Gistat))-c0);
+            [cshifts,cp]  = flatten_back(cr,25,cp,cpmin);
+            cr=cr-cshifts;
+            cp(~Gistat)    = min(0,d(diags(~Gistat))-c0);
             
             res            = d-Gi0*cp'+abs(Gr0*cr')-c0;           
             cr             = cr-mymax(cr,50);
