@@ -1,4 +1,4 @@
-%parpool(5);
+parpool(5);
 decide_ints
 
 adir     = 'results_dates/';
@@ -51,7 +51,7 @@ for j=online+1:newny
         t4=nan(1,length(goodid));
     
         tic
-        for i=1:length(goodid)
+        parfor i=1:length(goodid)
             
             data  = cors(:,goodid(i));
             
