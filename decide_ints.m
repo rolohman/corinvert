@@ -3,6 +3,11 @@ if(regexp(home,'156'))
     pth=156;
     nx=50206;%swaths 2&3
     ny=13123;
+elseif(regexp(home,'28'))
+pth=28;
+nx=67718; %swath 1 and 2 and 3
+ny=19818;
+masterdate='20180107';
 elseif(regexp(home,'54'))
     pth=54;
     nx=22502;%swath 1

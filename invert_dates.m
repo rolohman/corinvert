@@ -35,7 +35,7 @@ for j=online+1:newny
     cors(cors>1)=1;
     cors(~good)=NaN;
     ngood  = sum(good,1);
-    goodid = find(ngood>=100);
+    goodid = find(ngood>=10);
     gcount = sum(cors>mncor,'omitnan');
     
     allm0  = NaN(nd*2+2,newnx); %c0,ct,cr,rms,max,min
