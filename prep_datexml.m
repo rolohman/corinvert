@@ -48,6 +48,6 @@ end
 
 download_orbits(dn,dat_ab,sentime);
 if(~exist('params.m','file'))
-     system(['echo ''masterdate=''' datestr(dn(i),'yyyymmdd') ''';'' >params.m']);
+     system(['echo ''masterdate=''' datestr(dn(1),'yyyymmdd') ''';'' >params.m']);
 end
     
