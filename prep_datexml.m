@@ -1,5 +1,4 @@
 home=pwd;
-params
 datapath=[home '/data/'];
 
 datafiles=dir([datapath 'S*zip']);
@@ -48,3 +47,7 @@ for i=1:length(dn)
 end
 
 download_orbits(dn,dat_ab,sentime);
+if(~exist('params.m','file'))
+     system(['echo ''masterdate=''' datestr(dn(i),'yyyymmdd') ''';'' >params.m']);
+end
+    
