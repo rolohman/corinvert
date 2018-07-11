@@ -96,7 +96,9 @@ for i=1:nd-1
         fprintf(fid_run,command);
         command=['imageMath.py -e=''a*b'' -o ' ramp ' -t cfloat --a=tmpint --b=' flatint '\n'];
         fprintf(fid_run,command);
-        command=['imageMath.py -e=''a*b'' -o ' flatslc ' -t cfloat --a=' secondary ' --b=' ramp '\n'];
+        command=['imageMath.py -e=''a*b'' -o tmpint -t cfloat --a=' secondary ' --b=' ramp '\n'];
+        fprintf(fid_run,command);
+        command=['imageMath.py -e=''abs(a)*exp(1.0*J*arg(b))'' -o ' flatslc ' -t cfloat --a=' secondary ' --b=tmpint\n'];
         fprintf(fid_run,command);
         if(i>1)
             fprintf(fid_run,'rm -r %s\n',intdir);

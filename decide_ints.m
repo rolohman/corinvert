@@ -46,7 +46,9 @@ else
             newny  = floor(ny/alooks);
             system(['echo ''nx=' num2str(nx) ';'' >>params.m']);
             system(['echo ''ny=' num2str(ny) ';'' >>params.m']);
-            
+            system(['echo ''newnx=' num2str(newnx) ';'' >>params.m']);
+            system(['echo ''newny=' num2str(newny) ';'' >>params.m']);
+
         else
             disp(['no match for width/length in: ' b]);
         end
