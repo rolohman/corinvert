@@ -45,15 +45,14 @@ for i=1:nd-1
             fprintf(fid,'  <component name="topsinsar">\n');
             fprintf(fid,'    <property name="Sensor name">SENTINEL1</property>\n');
             fprintf(fid,'    <component name="master">\n');
-            fprintf(fid,'      <catalog>../../%s_tops.xml</catalog>\n',d1);
+            fprintf(fid,'      <catalog>../../datexml/%s_tops.xml</catalog>\n',d1);
             fprintf(fid,'    </component>\n');
             fprintf(fid,'    <component name="slave">\n');
-            fprintf(fid,'      <catalog>../../%s_tops.xml</catalog>\n',d2);
+            fprintf(fid,'      <catalog>../../datexml/%s_tops.xml</catalog>\n',d2);
             fprintf(fid,'    </component>\n');
             if(usedem)
                 fprintf(fid,'    <property name="demFilename">%s</property>\n',demfile);
             end
-            fprintf(fid,'    <property name="filter strength">0.1</property>\n');
             fprintf(fid,'    <property name="swaths">[');
             for j=1:length(swaths)
                 fprintf(fid,'%d ',swaths(j));
@@ -80,7 +79,7 @@ for i=1:nd-1
     
         
         fprintf(fid_run,['cd ' intdir '\n']);
-        fprintf(fid_run,['ln -s ' home '/dem/*dem*wgs84* .\n']);
+        fprintf(fid_run,['ln -s ' pwd '/dem/*dem*wgs84* .\n']);
         fprintf(fid_run,['topsApp.py ' intname '.xml --steps --end=mergebursts\n']);
         fprintf(fid_run,'cd ../..\n');
         
@@ -100,7 +99,7 @@ for i=1:nd-1
         command=['imageMath.py -e=''a*b'' -o ' flatslc ' -t cfloat --a=' secondary ' --b=' ramp '\n'];
         fprintf(fid_run,command);
         if(i>1)
-            fprintf(fid_run,'rm -r %2\n',intdir);
+            fprintf(fid_run,'rm -r %s\n',intdir);
         end
     end
 end 

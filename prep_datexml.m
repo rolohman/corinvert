@@ -30,11 +30,15 @@ for i=1:length(dn)
     fid = fopen(['datexml/' date,'_tops.xml'],'w');
     id=find(dnall==dn(i));
     
+    if(length(id)>1)
     files='"';
     for j=1:length(id)-1
-        files=[files datapath datafiles(j).name '","'];
+        files=[files datapath datafiles(id(j)).name '","'];
     end
-    files=[files datapath datafiles(j+1).name '"'];
+    files=[files datapath datafiles(id(j+1)).name '"'];
+    else
+        files=[datapath datafiles(id).name];
+    end
     
     fprintf(fid,'<?xml version="1.0" encoding="UTF-8"?> \n');
     fprintf(fid,'<component name="master"> \n');

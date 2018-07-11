@@ -1,6 +1,6 @@
 function download_orbits(dn,dat_ab,sentime)
 %first look for precise orbits
-orbitdir='/data/Sentinel/precise';
+orbitdir='/data/Sentinel/precise/';
 
 dat_sat(dat_ab==1)='A';
 dat_sat(dat_ab==2)='B';
