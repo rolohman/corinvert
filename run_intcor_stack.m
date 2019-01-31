@@ -2,7 +2,7 @@
 pol='_VV';
 decide_ints_stack
 slcdir=['merged/SLC' pol '/'];
-
+skips=1;  %1=sequential, larger=longer time pairs
 for i=1:nd
     dates(i).name    = files(i).name(1:8);    
     dates(i).slc     = [slcdir dates(i).name '/' dates(i).name '.slc.full'];
@@ -24,9 +24,9 @@ for i=1:nd-1
         mkdir(intdir)
     end
     if(i==1)
-        tot=nd;
+        tot=nd;  %do all pairs vs. master date
     else
-        tot=i+2;%sequential only
+        tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
     end
     for j=i+1:tot
         corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
