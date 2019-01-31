@@ -1,5 +1,5 @@
 function [cors,allrels,allmodp,allc0,synth]= plot_fit(xpt,ypt,tdir)
-decide_ints
+decide_ints_stack
 
 if(nargin==2)
     tdir='results_dates';

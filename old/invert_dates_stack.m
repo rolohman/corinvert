@@ -1,5 +1,5 @@
-parpool(5);
-decide_ints
+parpool(6);
+decide_ints_stack
 
 adir     = 'results_dates/';
 open_files

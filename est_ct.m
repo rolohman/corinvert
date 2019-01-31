@@ -7,6 +7,7 @@ cidl   = tril(ones(nd),-1)==1;
 jnk=nan(nd);
 jnk(cidl)=d;
 jumps=median(diff(jnk)','omitnan');
+jumps(1)=0;
 
 ct_est=zeros(1,nd-1);
 
@@ -18,6 +19,7 @@ for i=sortid
         idn=~id;
         n   = sum(id);
         if(n>1)
+           
             c1    = mymax(d(id),alpha);
             c2    = mymax(d(idn),alpha);
         elseif(sum(id)==0)

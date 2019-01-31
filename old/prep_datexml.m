@@ -1,6 +1,10 @@
+function prep_datexml
 home=pwd;
 datapath=[home '/data/'];
-
+xmlpath=[home '/datexml/'];
+if(~exist(xmlpath,'dir'))
+    mkdir(xmlpath)
+end
 datafiles=dir([datapath 'S*zip']);
 nfiles=length(datafiles);
 
