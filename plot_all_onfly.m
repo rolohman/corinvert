@@ -286,19 +286,21 @@ if(plotflag)
     
     
     figure
+    subplot(1,2,1)
     for i=1:length(output)
-        subplot(1,3,i)
+        
         dn=[output(i).dn];
         nd=length(dn);
         jnk=nan(nd);
         jnk([output(i).cids])=exp(im*output(i).phs);
         jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
-        plot(dn(2:end-1),angle(jnkang(1:end-1)));
+        plot(dn(2:end-1),angle(jnkang(1:end-1)),'-','color',cols{i});
+        hold on
         datetick('x','mmmYY')
         title(['shortest phase triplet closure, ' pols{i}]);
     end
     if(length(output)==2)
-        subplot(1,3,3)
+        subplot(1,2,2)
         
         dn1        = output(1).dn;
         dn2        = output(2).dn;
