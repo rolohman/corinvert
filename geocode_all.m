@@ -1,4 +1,4 @@
-pol='VV';
+params
 dem='/data/rlohman/Sentinel/Chile/dem/demLat_S26_S23_Lon_W071_W067.dem.wgs84';
 bbox='-25.86 -23.00 -70.7 -68.1';
 
@@ -21,3 +21,34 @@ for i=1:nfiles
     end
 end
 
+
+if(exist([geodir '/rows.geo'],'file'))
+    disp('rows already geocoded')
+else
+    fid=fopen([resdir 'rows'],'w');
+    for i=1:newny
+        fwrite(fid,i*ones(1,newnx),'real*4');
+    end
+    fclose(fid);
+    geocoder('rows','',resdir,bbox,dem,geodir);
+    movefile([resdir 'rows.geo'],[geodir '/rows.geo']);
+end
+
+
+if(exist([geodir '/cols.geo'],'file'))
+    disp('rows already geocoded')
+else
+    fid=fopen([resdir 'cols'],'w');
+    for i=1:newny
+        fwrite(fid,1:newnx,'real*4');
+    end
+    fclose(fid);
+    geocoder('cols','',resdir,bbox,dem,geodir);
+    movefile([resdir 'cols.geo'],[geodir '/cols.geo']);
+end
+
+
+
+
+
+    
