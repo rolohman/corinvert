@@ -2,7 +2,7 @@
 pol='_VV';
 decide_ints_stack
 slcdir=['merged/SLC' pol '/'];
-skips=1;  %1=sequential, larger=longer time pairs
+skips=2;  %1=sequential, larger=longer time pairs
 for i=1:nd
     dates(i).name    = files(i).name(1:8);    
     dates(i).slc     = [slcdir dates(i).name '/' dates(i).name '.slc.full'];

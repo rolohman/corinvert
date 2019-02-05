@@ -208,94 +208,109 @@ end
 if(plotflag)
     
     badi=[];
-    if(plotflag)
-        figure('name',[num2str(xpt(k)) ' ' num2str(ypt(k))])
-        colormap('jet')
-        for l=1:length(output)
-            subplot(3,4,l*2-1)
-            badi=[];
-            dn=[output(l).dn];
-            nd=length(dn);
-            jnk=nan(nd);
-            
-            jnk([output(l).cids])=[output(l).cors];
-            pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
-            hold on
-            fixplot
-            
-            title(['cors' pols{l}])
-        end
-        subplot(3,1,2)
+    
+    figure('name',[num2str(xpt(k)) ' ' num2str(ypt(k))])
+    colormap('jet')
+    for l=1:length(output)
+        subplot(3,4,l*2-1)
+        badi=[];
+        dn=[output(l).dn];
+        nd=length(dn);
+        jnk=nan(nd);
+        
+        jnk([output(l).cids])=[output(l).cors];
+        pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
         hold on
-        cols={'k','r'};
-        for i=1:length(output)
-            plot([output(i).dn],[output(i).mags],cols{k})
+        fixplot
+        
+        title(['cors' pols{l}])
+    end
+    subplot(3,1,2)
+    hold on
+    cols={'k','r'};
+    for i=1:length(output)
+        plot([output(i).dn],[output(i).mags],cols{k})
+    end
+    axis tight
+    ax=axis;
+    datetick('x','mmmYY')
+    axis(ax);
+    for l=1:length(output)
+        dn=[output(l).dn];
+        id1=[output(l).id1];
+        id2=[output(l).id2];
+        rels=[output(l).rels];
+        modp=[output(l).modp];
+        c0=[output(l).c0];
+        nd=length(dn);
+        ni=length(id1);
+        
+        Gi=zeros(ni,nd-1); %intervals, perm cor loss
+        for i=1:ni
+            Gi(i,id1(i):id2(i)-1)=1;
         end
-        axis tight
-        ax=axis;
-        datetick('x','mmmYY')
-        axis(ax);
-        for l=1:length(output)
-            dn=[output(l).dn];
-            id1=[output(l).id1];
-            id2=[output(l).id2];
-            rels=[output(l).rels];
-            modp=[output(l).modp];
-            c0=[output(l).c0];
-            nd=length(dn);
-            ni=length(id1);
-            
-            Gi=zeros(ni,nd-1); %intervals, perm cor loss
-            for i=1:ni
-                Gi(i,id1(i):id2(i)-1)=1;
-            end
-            
-            Gr=zeros(ni,nd); %rel cor on dates
-            for i=1:ni
-                Gr(i,id1(i))=1;
-                Gr(i,id2(i))=-1;
-            end
-            
-            goodrel = isfinite(rels);
-            s2=exp(Gi*log(modp));
-            s3=exp(-abs(Gr(:,goodrel)*log(rels(goodrel))));
-            synth=c0*s2.*s3;
-            subplot(3,4,l*2)
-            jnk=nan(nd);
-            jnk([output(l).cids])=synth;
-            pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
-            hold on
-            fixplot
-            
-            title(['synth' pols{l}])
-            
-            
-            dni   = dn(1:nd-1)+diff(dn)/2;
-            
-            subplot(3,1,3)
-            plot(dn,rels,'-','color',cols{l});
-            hold on
-            plot(dni,modp,'--','color',cols{l});
-            plot(dn,c0*ones(size(dn)),':','color',cols{l});
-            
+        
+        Gr=zeros(ni,nd); %rel cor on dates
+        for i=1:ni
+            Gr(i,id1(i))=1;
+            Gr(i,id2(i))=-1;
         end
-        axis tight
-        ax=axis;
+        
+        goodrel = isfinite(rels);
+        s2=exp(Gi*log(modp));
+        s3=exp(-abs(Gr(:,goodrel)*log(rels(goodrel))));
+        synth=c0*s2.*s3;
+        subplot(3,4,l*2)
+        jnk=nan(nd);
+        jnk([output(l).cids])=synth;
+        pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
+        hold on
+        fixplot
+        
+        title(['synth' pols{l}])
+        
+        
+        dni   = dn(1:nd-1)+diff(dn)/2;
+        
+        subplot(3,1,3)
+        plot(dn,rels,'-','color',cols{l});
+        hold on
+        plot(dni,modp,'--','color',cols{l});
+        plot(dn,c0*ones(size(dn)),':','color',cols{l});
+        
+    end
+    axis tight
+    ax=axis;
+    datetick('x','mmmYY')
+    axis(ax);
+    
+    
+    figure
+    for i=1:length(output)
+        subplot(1,3,i)
+        jnk=nan(nd);
+        jnk([output(l).cids])=exp(im*ouput(l).phs);
+        jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
+        plot(output(l).dn(2:end-1),angle(jnkang(1:end-1)));
         datetick('x','mmmYY')
-        axis(ax);
+        title('shortest phase triplet closure');
     end
     if(length(output)==2)
-        im=sqrt(-1);
-        dn1=output(1).dn;
-        dn2=output(2).dn;
-        [dn,i1,i2]=intersect(dn1,dn2);
-        ints=[output(1).id1 output(1).id2];
-        gint=sum(ismember(ints,i1),2)==2;
-        phs1=exp(im*output(1).phs(gint));
-        phs2=exp(im*output(2).phs);
-        phsdiff=angle(phs1.*conj(phs2));
-        figure
+        subplot(1,3,3)
+        
+        dn1        = output(1).dn;
+        dn2        = output(2).dn;
+        [dn,i1,i2] = intersect(dn1,dn2);
+        ints    = [output(1).id1 output(1).id2];
+        gint    = sum(ismember(ints,i1),2)==2;
+        phs1    = exp(im*output(1).phs(gint));
+        phs2    = exp(im*output(2).phs);
+        phsdiff = angle(phs1.*conj(phs2));
+        
         triplot(phsdiff,dn2)
+        fixplot
+        caxis([-pi pi])
+        title('VV VH phs diff')
     end
 end
 
