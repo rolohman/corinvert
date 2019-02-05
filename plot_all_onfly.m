@@ -289,7 +289,7 @@ if(plotflag)
     for i=1:length(output)
         subplot(1,3,i)
         jnk=nan(nd);
-        jnk([output(l).cids])=exp(im*ouput(l).phs);
+        jnk([output(l).cids])=exp(im*output(l).phs);
         jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
         plot(output(l).dn(2:end-1),angle(jnkang(1:end-1)));
         datetick('x','mmmYY')
