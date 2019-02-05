@@ -22,5 +22,6 @@ In that example, I was only using swaths 1 and 2.
 9:invert_dates_stack  -> change pol in first bit to run for vv or vh versions.  this makes the results_dates_VV or _VH dirs and populations with c0, cmin, rel_date and perm_date1_date2 files
 
 %now plot_all_onfly should also show the synthetic cor and timeseries when you run it.
+10: geocode all, then look_geo (downlooks by 4x4 to make next step more reasonable)
 
-10: fit_expfun -> this fits exponential decays to time intervals between rain events that are currently hardwired.   When done, can plot with plot_fit_latlon.m
+11: fit_expfun -> this fits exponential decays to time intervals between rain events that are currently hardwired.   When done, can plot with plot_fit_latlon.m
