@@ -286,8 +286,8 @@ if(plotflag)
     
     
     figure
-    for i=1:length(output)
-        subplot(1,3,i)
+    for l=1:length(output)
+        subplot(1,3,l)
         jnk=nan(nd);
         jnk([output(l).cids])=exp(im*output(l).phs);
         jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
