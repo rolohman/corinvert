@@ -150,7 +150,7 @@ for j=online+1:newny
             sm   = abs(cpx3);
             sm(isnan(sm))=0;
             
-            cors(count,:)=sm(rangevec);
+            cors(count,:)=sm;
         end
     end
     
