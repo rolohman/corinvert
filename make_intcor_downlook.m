@@ -64,8 +64,8 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         slc2(1,:)=cpx2;
 
      else
-        slc1(1,:)=cpx1;
-        slc2(1,:)=cpx2;
+        slc1(1,:)=z;
+        slc2(1,:)=z;
     end    
 end
 
@@ -90,8 +90,8 @@ for j=1:ny
         slc2(1,:)=z;
     end
     if(ismember(j,azvec))
-        a   = slc1;
-        b   = slc2;
+        a   = slc1.*conj(slc1);
+        b   = slc2.*conj(slc2);
         c   = slc1.*conj(slc2);
         a   = windy*a;
         b   = windy*b;
