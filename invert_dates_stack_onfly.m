@@ -141,8 +141,10 @@ for j=online+1:newny
         a2=abs(cpx2);
         cpx=cpx1.*conj(cpx2);
         am=sqrt(a1.*a2);
-        goodid=am>0;
-        cpx(goodid)=cpx(goodid)./am(goodid);
+        goodid=am==0;
+        cpx=cpx./am;
+        cpx(goodid)=0;
+        %cpx(goodid)=cpx(goodid)./am(goodid);
         
         rea=real(cpx)';
         ima=imag(cpx)';
