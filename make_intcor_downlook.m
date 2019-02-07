@@ -45,7 +45,7 @@ ry=floor(length(windy)/2);
 
 z    = zeros(1,nx);
 slc1  = zeros(ry*2+1,nx);
-slc2  = rea;
+slc2  = slc1;
 %amp1 = rea;
 %amp2 = rea;
 
