@@ -2,7 +2,7 @@
 pol='_VV';
 decide_ints_stack
 slcdir=['merged/SLC' pol '/'];
-skips=2;  %1=sequential, larger=longer time pairs
+skips=1;  %1=sequential, larger=longer time pairs
 for i=1:nd
     dates(i).name    = files(i).name(1:8);    
     dates(i).slc     = [slcdir dates(i).name '/' dates(i).name '.slc.full'];
@@ -33,7 +33,7 @@ for i=1:nd-1
         intfile_small=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
         if(~exist(corfile_small,'file'))
             disp(['running ' corfile_small])
-            make_intcor_downlook(dates(i).slc,dates(j).slc,corfile_small,intfile_small,nx,ny,rlooks,alooks,0)
+            make_intcor_downlook(dates(i).slc,dates(j).slc,corfile_small,intfile_small,nx,ny,rlooks,alooks,0,2)
         else
             disp([corfile_small ' already made'])
         end

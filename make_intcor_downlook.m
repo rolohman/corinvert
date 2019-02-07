@@ -1,4 +1,4 @@
-function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype)
+function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,ampflag)
 
 % outfile=cor file
 % nx = width
@@ -43,10 +43,11 @@ windx=windx/sum(windx);
 windy=windy/sum(windy);
 ry=floor(length(windy)/2);
 
-z   = zeros(1,nx);
-rea = zeros(ry*2+1,nx);
-ima = zeros(ry*2+1,nx);
-
+z    = zeros(1,nx);
+rea  = zeros(ry*2+1,nx);
+ima  = rea;
+amp1 = rea;
+amp2 = rea;
 
 %load first ry lines
 for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -62,15 +63,21 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         a1=abs(cpx1);
         a2=abs(cpx2);
         cpx=cpx1.*conj(cpx2);
-        am=sqrt(a1.*a2);
-        goodid=am>0;
-        cpx(goodid)=cpx(goodid)./am(goodid);
+        if(ampflag==1)
+            am=sqrt(a1.*a2);
+            goodid=am==0;
+            cpx=cpx./am;
+            cpx(goodid)=0;
+        end
         rea(1,:)=real(cpx);
         ima(1,:)=imag(cpx);
-    else
+        amp1(1,:)=a1;
+        amp2(1,:)=a2;
+     else
         rea(1,:)=z;
         ima(1,:)=z;
-
+        amp1(1,:)=z;
+        amp2(1,:)=z;
     end    
 end
 
@@ -91,45 +98,57 @@ for j=1:ny
         a1=abs(cpx1);
         a2=abs(cpx2);
         cpx=cpx1.*conj(cpx2);
-        am=sqrt(a1.*a2);
-        goodid=am>0;
-        cpx(goodid)=cpx(goodid)./am(goodid);
-        
+        if(ampflag==1)
+            am=sqrt(a1.*a2);
+            goodid=am==0;
+            cpx=cpx./am;
+            cpx(goodid)=0;
+        end
         rea(1,:)=real(cpx);
         ima(1,:)=imag(cpx);
+        amp1(1,:)=a1;
+        amp2(1,:)=a2;
     else
         rea(1,:)=z;
         ima(1,:)=z;
-        am=z;
+        amp1(1,:)=z;
+        amp2(1,:)=z;
     end
     if(ismember(j,azvec))
-        mag  = sqrt(rea.^2+ima.^2);
-        
         r2   = rea;
         i2   = ima;
         r2   = windy*r2;
         i2   = windy*i2;
-        m2   = windy*mag;
-        
         r2(isnan(r2))=0;
         i2(isnan(i2))=0;
-        m2(isnan(m2))=1;
         rsum = conv(r2,windx,'same');
         isum = conv(i2,windx,'same');
-        msum = conv(m2,windx,'same');
         cpx3 = rsum+im*isum;
         cpx3 = cpx3(rangevec);
-        pm=angle(cpx3);
-        pm(isnan(pm))=0;
-        
-        
+
+        if(ampflag==1)            
+            mag  = sqrt(rea.^2+ima.^2);
+            m2   = windy*mag;
+            m2(isnan(m2))=0;
+            msum = conv(m2,windx,'same');
+        else
+           a1  = windy*amp1;
+           a2  = windy*amp2;
+           a1(isnan(a1))=0;
+           a2(isnan(a2))=0;
+           a1sum=conv(a1,windx,'same');
+           a2sum=conv(a2,windx,'same');
+           msum=sqrt(a1sum.*a2sum);
+        end
+          
         cpx3=cpx3./msum(rangevec);
         sm   = abs(cpx3);
         sm(isnan(sm))=0;
-
-
-        fwrite(fid4,pm,'real*4');
-        fwrite(fid3,sm,'real*4');
+        pm=angle(cpx3);
+        pm(isnan(pm))=0;
+        
+        fwrite(fid3,sm,'real*4'); %cor
+        fwrite(fid4,pm,'real*4'); %int
     end
 
 end
