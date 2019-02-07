@@ -137,9 +137,9 @@ for j=online+1:newny
             a   = slc1.*conj(slc1);
             b   = slc2.*conj(slc2);
             c   = slc1.*conj(slc2);
-            a   = windy*a;
-            b   = windy*b;
-            c   = windy*c;
+            a   = windy*a';
+            b   = windy*b';
+            c   = windy*c';
             
             asum = conv(a,windx,'same');
             bsum = conv(b,windx,'same');
