@@ -1,4 +1,4 @@
-parpool(10);
+%parpool(10);
 pol='_VV';
 decide_ints_stack
 
@@ -130,11 +130,13 @@ for j=online+1:newny
         slcs(i,:,:)=cpx;
 
     end
-  
-    for i=1:ni
+  count=0;
+    for i=1:nd-1
         
-        cpx1=shiftdim(slcs(id1(i),:,:));
-        cpx2=shiftdim(slcs(id2(i),:,:));
+        cpx1=shiftdim(slcs(i,:,:));
+       for k=i+1:nd
+        count=count+1;
+        cpx2=shiftdim(slcs(k,:,:));
         a1=abs(cpx1);
         a2=abs(cpx2);
         cpx=cpx1.*conj(cpx2);
@@ -164,7 +166,8 @@ for j=online+1:newny
         sm   = abs(cpx3);
         sm(isnan(sm))=0;
         
-        cors(i,:)=sm(rangevec);
+        cors(count,:)=sm(rangevec);
+       end
     end
    
     
@@ -188,8 +191,8 @@ for j=online+1:newny
         t4=nan(1,length(goodid));
     
         tic
-        parfor i=1:length(goodid)
-        %for i=1:length(goodid)
+        %parfor i=1:length(goodid)
+        for i=1:length(goodid)
             
             data  = cors(:,goodid(i));
             
