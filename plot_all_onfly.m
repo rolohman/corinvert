@@ -180,7 +180,7 @@ for l=1:length(pols)
                 
                 r2(isnan(r2))=0;
                 i2(isnan(i2))=0;
-                m2(isnan(m2))=1;
+                m2(isnan(m2))=0;
                 rsum = conv(r2,windx,'same');
                 isum = conv(i2,windx,'same');
                 msum = conv(m2,windx,'same');

@@ -44,15 +44,15 @@ windy=windy/sum(windy);
 ry=floor(length(windy)/2);
 
 z    = zeros(1,nx);
-rea  = zeros(ry*2+1,nx);
-ima  = rea;
-amp1 = rea;
-amp2 = rea;
+slc1  = zeros(ry*2+1,nx);
+slc2  = rea;
+%amp1 = rea;
+%amp2 = rea;
 
 %load first ry lines
 for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    rea=circshift(rea,1);
-    ima=circshift(ima,1);
+    slc1=circshift(slc1,1);
+    slc2=circshift(slc2,1);
     
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
@@ -60,22 +60,12 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         cpx1=a(1:2:end)+im*a(2:2:end);
         cpx2=b(1:2:end)+im*b(2:2:end);
           
-        a1=abs(cpx1);
-        a2=abs(cpx2);
-        cpx=cpx1.*conj(cpx2);
-        if(ampflag==1)
-            am=sqrt(a1.*a2);
-            cpx=cpx./am;
-        end
-        rea(1,:)=real(cpx);
-        ima(1,:)=imag(cpx);
-        amp1(1,:)=a1;
-        amp2(1,:)=a2;
+        slc1(1,:)=cpx1;
+        slc2(1,:)=cpx2;
+
      else
-        rea(1,:)=z;
-        ima(1,:)=z;
-        amp1(1,:)=z;
-        amp2(1,:)=z;
+        slc1(1,:)=cpx1;
+        slc2(1,:)=cpx2;
     end    
 end
 
@@ -84,8 +74,8 @@ end
 
 for j=1:ny
 
-    rea=circshift(rea,1);
-    ima=circshift(ima,1);
+    slc1=circshift(slc1,1);
+    slc2=circshift(slc2,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
 
@@ -93,58 +83,52 @@ for j=1:ny
         cpx1=a(1:2:end)+im*a(2:2:end);
         cpx2=b(1:2:end)+im*b(2:2:end);
         
-        a1=abs(cpx1);
-        a2=abs(cpx2);
-        cpx=cpx1.*conj(cpx2);
-        if(ampflag==1)
-            am=a1.*a2;
-            cpx=cpx./am;
-        end
-        rea(1,:)=real(cpx);
-        ima(1,:)=imag(cpx);
-        amp1(1,:)=a1;
-        amp2(1,:)=a2;
+        slc1(1,:)=cpx1;
+        slc2(1,:)=cpx2;
     else
-        rea(1,:)=z;
-        ima(1,:)=z;
-        amp1(1,:)=z;
-        amp2(1,:)=z;
+        slc1(1,:)=z;
+        slc2(1,:)=z;
     end
     if(ismember(j,azvec))
-        r2   = rea;
-        i2   = ima;
-        r2   = windy*r2;
-        i2   = windy*i2;
-        r2(isnan(r2))=0;
-        i2(isnan(i2))=0;
-        rsum = conv(r2,windx,'same');
-        isum = conv(i2,windx,'same');
-        cpx3 = rsum+im*isum;
-        cpx3 = cpx3(rangevec);
+        a   = slc1;
+        b   = slc2;
+        c   = slc1.*conj(slc2);
+        a   = windy*a;
+        b   = windy*b;
+        c   = windy*c;
+ %       a(~isfinite(a))=0;
+ %       b(~isfinite(b))=0;
+ %       r2(~isfinite(r2))=0;
+ %       i2(~isfinite(i2))=0;
+        asum = conv(a,windx,'same');
+        bsum = conv(b,windx,'same');
+        csum = conv(c,windx,'same');
+        cpx3 = csum./sqrt(asum.*bsum);
+         cpx3 = cpx3(rangevec);
 
-        if(ampflag==1)            
-            mag  = sqrt(rea.^2+ima.^2);
-            m2   = windy*mag;
-            m2(isnan(m2))=0;
-            msum = conv(m2,windx,'same');
-        else
-           a1  = windy*amp1;
-           a2  = windy*amp2;
-           a1(isnan(a1))=0;
-           a2(isnan(a2))=0;
-           a1sum=conv(a1,windx,'same');
-           a2sum=conv(a2,windx,'same');
-           msum=sqrt(a1sum.^2.*a2sum.^2);
-        end
+%         if(ampflag==1)            
+%             mag  = sqrt(rea.^2+ima.^2);
+%             m2   = windy*mag;
+%             m2(~isfinite(m2))=1; %don't divide by zero
+%             msum = conv(m2,windx,'same');
+%         else
+%            a1  = windy*amp1;
+%            a2  = windy*amp2;
+%            a1(isnan(a1))=0;
+%            a2(isnan(a2))=0;
+%            a1sum=conv(a1,windx,'same');
+%            a2sum=conv(a2,windx,'same');
+%            msum=sqrt(a1sum.^2.*a2sum.^2);
+%         end
           
-        cpx3=cpx3./msum(rangevec);
-        sm   = abs(cpx3);
-        sm(isnan(sm))=0;
-        pm=angle(cpx3);
-        pm(isnan(pm))=0;
+        %cpx3=cpx3./msum(rangevec);
+        %sm   = abs(cpx3);
+       % sm(isnan(sm))=0;
+        %pm=angle(cpx3);
+        %pm(isnan(pm))=0;
         
-        fwrite(fid3,sm,'real*4'); %cor
-        fwrite(fid4,pm,'real*4'); %int
+        fwrite(fid3,abs(cpx3),'real*4'); %cor
+        fwrite(fid4,angle(cpx3),'real*4'); %int
     end
 
 end
