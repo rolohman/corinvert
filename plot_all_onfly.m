@@ -155,6 +155,7 @@ for l=1:length(pols)
             mags=reshape(slcs,nd,(rx*2+1)*(ry*2+1));
             mags=abs(mags);
             mags=median(mags,2,'omitnan');
+            output(l,k).slcs=slcs;
             output(l,k).mags=mags;
             for i=1:ni
                 cpx1=squeeze(slcs(id1(i),:,:));

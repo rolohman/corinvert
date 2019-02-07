@@ -1,4 +1,4 @@
-function [allcors]= plot_data_onfly(xpt,ypt,pol,plotflag)
+function [allcors,dat]= plot_data_onfly(xpt,ypt,pol,plotflag)
 if(pol==1)
 	pol='_VV';
 else
@@ -91,6 +91,7 @@ for k=1:length(xpt)
         slcs(i,bx,:)=cpx;
 
     end
+    dat=slcs;
     for i=1:ni
         
         cpx1=squeeze(slcs(id1(i),:,:));

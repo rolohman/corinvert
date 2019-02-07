@@ -65,9 +65,7 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         cpx=cpx1.*conj(cpx2);
         if(ampflag==1)
             am=sqrt(a1.*a2);
-            goodid=am==0;
             cpx=cpx./am;
-            cpx(goodid)=0;
         end
         rea(1,:)=real(cpx);
         ima(1,:)=imag(cpx);
@@ -100,9 +98,7 @@ for j=1:ny
         cpx=cpx1.*conj(cpx2);
         if(ampflag==1)
             am=sqrt(a1.*a2);
-            goodid=am==0;
             cpx=cpx./am;
-            cpx(goodid)=0;
         end
         rea(1,:)=real(cpx);
         ima(1,:)=imag(cpx);
