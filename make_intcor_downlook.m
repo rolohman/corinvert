@@ -138,7 +138,7 @@ for j=1:ny
            a2(isnan(a2))=0;
            a1sum=conv(a1,windx,'same');
            a2sum=conv(a2,windx,'same');
-           msum=sqrt(a1sum.*a2sum);
+           msum=sqrt(a1sum.^2.*a2sum.^2);
         end
           
         cpx3=cpx3./msum(rangevec);
