@@ -26,9 +26,6 @@ windy=windy/sum(windy);
 
 ry=floor(length(windy)/2);
 
-z   = zeros(1,nx);
-rea = zeros(ry*2+1,nx);
-ima = zeros(ry*2+1,nx);
 
 dni   = dn(1:nd-1)+diff(dn)/2;
 %dni=dni(1:end-1);
@@ -133,37 +130,23 @@ for j=online+1:newny
     count=0;
     for i=1:nd-1
         
-        cpx1=shiftdim(slcs(i,:,:));
+        slc1=shiftdim(slcs(i,:,:));
         for k=i+1:nd
             count=count+1;
-            cpx2=shiftdim(slcs(k,:,:));
-            a1=abs(cpx1);
-            a2=abs(cpx2);
-            cpx=cpx1.*conj(cpx2);
-            am=sqrt(a1.*a2);
-            goodid=am==0;
-            cpx=cpx./am;
-            cpx(goodid)=0;
+            slc2=shiftdim(slcs(k,:,:));
+            a   = slc1.*conj(slc1);
+            b   = slc2.*conj(slc2);
+            c   = slc1.*conj(slc2);
+            a   = windy*a;
+            b   = windy*b;
+            c   = windy*c;
             
-            rea=real(cpx)';
-            ima=imag(cpx)';
+            asum = conv(a,windx,'same');
+            bsum = conv(b,windx,'same');
+            csum = conv(c,windx,'same');
+            cpx3 = csum./sqrt(asum.*bsum);
+            cpx3 = cpx3(rangevec);
             
-            mag  = sqrt(rea.^2+ima.^2);
-            
-            r2   = rea;
-            i2   = ima;
-            r2   = windy*r2;
-            i2   = windy*i2;
-            m2   = windy*mag;
-            
-            r2(isnan(r2))=0;
-            i2(isnan(i2))=0;
-            m2(isnan(m2))=1;
-            rsum = conv(r2,windx,'same');
-            isum = conv(i2,windx,'same');
-            msum = conv(m2,windx,'same');
-            cpx3 = rsum+im*isum;
-            cpx3 = cpx3./msum;
             sm   = abs(cpx3);
             sm(isnan(sm))=0;
             

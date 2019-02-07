@@ -33,7 +33,7 @@ for i=1:nd-1
         intfile_small=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
         if(~exist(corfile_small,'file'))
             disp(['running ' corfile_small])
-            make_intcor_downlook(dates(i).slc,dates(j).slc,corfile_small,intfile_small,nx,ny,rlooks,alooks,0,1)
+            make_intcor_downlook(dates(i).slc,dates(j).slc,corfile_small,intfile_small,nx,ny,rlooks,alooks,0)
         else
             disp([corfile_small ' already made'])
         end

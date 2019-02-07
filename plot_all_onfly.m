@@ -34,8 +34,8 @@ for l=1:length(pols)
         ry=floor(length(windy)/2);
         
         z   = zeros(1,nx);
-        rea = zeros(ry*2+1,nx);
-        ima = zeros(ry*2+1,nx);
+        slc1 = zeros(ry*2+1,nx);
+        slc2 = slc1;
         
         
         dni   = dn(1:nd-1)+diff(dn)/2;
@@ -148,44 +148,30 @@ for l=1:length(pols)
                     cpx(:,end+1:ry*2+1)=NaN;
                 elseif(ypt(k)==1)
                     cpx=[nan(stopx-startx+1,ry+1) cpx];
-                end
-                
+                end              
                 slcs(i,bx,:)=cpx;
             end
             mags=reshape(slcs,nd,(rx*2+1)*(ry*2+1));
             mags=abs(mags);
             mags=median(mags,2,'omitnan');
-            output(l,k).slcs=slcs;
             output(l,k).mags=mags;
             for i=1:ni
-                cpx1=squeeze(slcs(id1(i),:,:));
-                cpx2=squeeze(slcs(id2(i),:,:));
-                a1=abs(cpx1);
-                a2=abs(cpx2);
-                cpx=cpx1.*conj(cpx2);
-                am=sqrt(a1.*a2);
-                goodid=am>0;
-                cpx(goodid)=cpx(goodid)./am(goodid);
+                slc1=squeeze(slcs(id1(i),:,:));
+                slc2=squeeze(slcs(id2(i),:,:));
                 
-                rea=real(cpx)';
-                ima=imag(cpx)';
+                a   = slc1.*conj(slc1);
+                b   = slc2.*conj(slc2);
+                c   = slc1.*conj(slc2);
+                a   = windy*a;
+                b   = windy*b;
+                c   = windy*c;
                 
-                mag  = sqrt(rea.^2+ima.^2);
-                
-                r2   = rea;
-                i2   = ima;
-                r2   = windy*r2;
-                i2   = windy*i2;
-                m2   = windy*mag;
-                
-                r2(isnan(r2))=0;
-                i2(isnan(i2))=0;
-                m2(isnan(m2))=0;
-                rsum = conv(r2,windx,'same');
-                isum = conv(i2,windx,'same');
-                msum = conv(m2,windx,'same');
-                cpx3 = rsum+im*isum;
-                cpx3 = cpx3./msum;
+                asum = conv(a,windx,'same');
+                bsum = conv(b,windx,'same');
+                csum = conv(c,windx,'same');
+                cpx3 = csum./sqrt(asum.*bsum);
+                cpx3 = cpx3(rangevec);
+  
                 sm   = abs(cpx3);
                 sm(isnan(sm))=0;
                 

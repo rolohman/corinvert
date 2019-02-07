@@ -1,4 +1,4 @@
-function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,ampflag)
+function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype)
 
 % outfile=cor file
 % nx = width
@@ -46,8 +46,7 @@ ry=floor(length(windy)/2);
 z    = zeros(1,nx);
 slc1  = zeros(ry*2+1,nx);
 slc2  = slc1;
-%amp1 = rea;
-%amp2 = rea;
+
 
 %load first ry lines
 for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -96,37 +95,13 @@ for j=1:ny
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
- %       a(~isfinite(a))=0;
- %       b(~isfinite(b))=0;
- %       r2(~isfinite(r2))=0;
- %       i2(~isfinite(i2))=0;
+
         asum = conv(a,windx,'same');
         bsum = conv(b,windx,'same');
         csum = conv(c,windx,'same');
         cpx3 = csum./sqrt(asum.*bsum);
-         cpx3 = cpx3(rangevec);
-
-%         if(ampflag==1)            
-%             mag  = sqrt(rea.^2+ima.^2);
-%             m2   = windy*mag;
-%             m2(~isfinite(m2))=1; %don't divide by zero
-%             msum = conv(m2,windx,'same');
-%         else
-%            a1  = windy*amp1;
-%            a2  = windy*amp2;
-%            a1(isnan(a1))=0;
-%            a2(isnan(a2))=0;
-%            a1sum=conv(a1,windx,'same');
-%            a2sum=conv(a2,windx,'same');
-%            msum=sqrt(a1sum.^2.*a2sum.^2);
-%         end
-          
-        %cpx3=cpx3./msum(rangevec);
-        %sm   = abs(cpx3);
-       % sm(isnan(sm))=0;
-        %pm=angle(cpx3);
-        %pm(isnan(pm))=0;
-        
+        cpx3 = cpx3(rangevec);
+  
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
     end
