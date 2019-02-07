@@ -130,48 +130,47 @@ for j=online+1:newny
         slcs(i,:,:)=cpx;
 
     end
-  count=0;
+    count=0;
     for i=1:nd-1
         
         cpx1=shiftdim(slcs(i,:,:));
-       for k=i+1:nd
-        count=count+1;
-        cpx2=shiftdim(slcs(k,:,:));
-        a1=abs(cpx1);
-        a2=abs(cpx2);
-        cpx=cpx1.*conj(cpx2);
-        am=sqrt(a1.*a2);
-        goodid=am==0;
-        cpx=cpx./am;
-        cpx(goodid)=0;
-        %cpx(goodid)=cpx(goodid)./am(goodid);
-        
-        rea=real(cpx)';
-        ima=imag(cpx)';
-        
-        mag  = sqrt(rea.^2+ima.^2);
-        
-        r2   = rea;
-        i2   = ima;
-        r2   = windy*r2;
-        i2   = windy*i2;
-        m2   = windy*mag;
-        
-        r2(isnan(r2))=0;
-        i2(isnan(i2))=0;
-        m2(isnan(m2))=1;
-        rsum = conv(r2,windx,'same');
-        isum = conv(i2,windx,'same');
-        msum = conv(m2,windx,'same');
-        cpx3 = rsum+im*isum;
-        cpx3 = cpx3./msum;
-        sm   = abs(cpx3);
-        sm(isnan(sm))=0;
-        
-        cors(count,:)=sm(rangevec);
-       end
+        for k=i+1:nd
+            count=count+1;
+            cpx2=shiftdim(slcs(k,:,:));
+            a1=abs(cpx1);
+            a2=abs(cpx2);
+            cpx=cpx1.*conj(cpx2);
+            am=sqrt(a1.*a2);
+            goodid=am==0;
+            cpx=cpx./am;
+            cpx(goodid)=0;
+            
+            rea=real(cpx)';
+            ima=imag(cpx)';
+            
+            mag  = sqrt(rea.^2+ima.^2);
+            
+            r2   = rea;
+            i2   = ima;
+            r2   = windy*r2;
+            i2   = windy*i2;
+            m2   = windy*mag;
+            
+            r2(isnan(r2))=0;
+            i2(isnan(i2))=0;
+            m2(isnan(m2))=1;
+            rsum = conv(r2,windx,'same');
+            isum = conv(i2,windx,'same');
+            msum = conv(m2,windx,'same');
+            cpx3 = rsum+im*isum;
+            cpx3 = cpx3./msum;
+            sm   = abs(cpx3);
+            sm(isnan(sm))=0;
+            
+            cors(count,:)=sm(rangevec);
+        end
     end
-   
+    
     
     good   = cors>0;
     cors(cors>1)=1;
@@ -186,7 +185,7 @@ for j=online+1:newny
         doperm=find(and(gcount>0,gcount<ni*0.98));
         permbad(:,doperm)=countrows(id1,id2,cors(:,doperm),mncorl,mncor);
         
-        t0=nan(1,length(goodid)); 
+        t0=nan(1,length(goodid));
         t1=nan(nd-1,length(goodid));
         t2=nan(nd,length(goodid));
         t3=nan(1,length(goodid));
