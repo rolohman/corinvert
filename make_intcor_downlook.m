@@ -97,7 +97,7 @@ for j=1:ny
         a2=abs(cpx2);
         cpx=cpx1.*conj(cpx2);
         if(ampflag==1)
-            am=sqrt(a1.*a2);
+            am=a1.*a2;
             cpx=cpx./am;
         end
         rea(1,:)=real(cpx);
