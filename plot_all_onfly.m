@@ -175,8 +175,8 @@ for l=1:length(pols)
                 sm   = abs(cpx3);
                 sm(isnan(sm))=0;
                 
-                phs(i)=angle(cpx3(rx+1));
-                cors(i)=sm(rx+1);
+                phs(i)=angle(cpx3);
+                cors(i)=sm;
             end
             
             good        = cors>0;
