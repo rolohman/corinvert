@@ -158,7 +158,7 @@ for l=1:length(pols)
             for i=1:ni
                 slc1=squeeze(slcs(id1(i),:,:));
                 slc2=squeeze(slcs(id2(i),:,:));
-                
+                whos slc1
                 a   = slc1.*conj(slc1);
                 b   = slc2.*conj(slc2);
                 c   = slc1.*conj(slc2);
