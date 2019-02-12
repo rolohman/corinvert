@@ -15,7 +15,7 @@ for i=1:nd-1
     slc2=[dates(i+1).name '/' dates(i+1).name '.slc.full'];
     out=[difdir '/' dates(i).name '-' dates(i+1).name 'diff.int'];
     if(~exist(out,'file'))
-        command=['imageMath.py -e=''a*conj(b)*conj(c)*f'' -t cfloat -o ' out ' --a=SLC_VV/' slc1 ' --b=SLC_VV/' slc2 ' --c=SLC_VH/' slc1 ' --f=SLC_VH/' slc2];
+        command=['imageMath.py -e=''a*conj(b)*conj(c)*f'' -t cfloat -o ' out ' --a=merged/SLC_VV/' slc1 ' --b=merged/SLC_VV/' slc2 ' --c=merged/SLC_VH/' slc1 ' --f=merged/SLC_VH/' slc2];
         system(command)
     else
         disp([out ' already made'])
