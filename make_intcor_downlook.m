@@ -84,6 +84,7 @@ for j=1:ny
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
     [w,count1]=fread(fidw,nx,'real*4');
+    w(isnan(w))=0;
     if(count1==nx*2)
         cpx1=a(1:2:end)+im*a(2:2:end);
         cpx2=b(1:2:end)+im*b(2:2:end);

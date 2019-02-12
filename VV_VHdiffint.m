@@ -32,9 +32,8 @@ for i=1:ny
         tmp=fread(fid(j),nx*2,'real*4');
         cpx(j,:)=tmp(1:2:end)+im*tmp(2:2:end);
     end
-    cpx=cpx./abs(cpx); 
-    cpxm=mean(cpx,1,'omitnan');
-    %cpxm=mean(cpx,1,'omitnan')./mean(abs(cpx),1,'omitnan');
+
+    cpxm=mean(cpx,1,'omitnan')./mean(abs(cpx),1,'omitnan');
     output=zeros(1,nx*2);
     output(1:2:end)=real(cpxm);
     output(2:2:end)=imag(cpxm);
