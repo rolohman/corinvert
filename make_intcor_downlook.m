@@ -61,7 +61,7 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
-    [w,count1]=fread(fidw,nx,'real*4');
+    [w,count]=fread(fidw,nx,'real*4');
     w(~isfinite(w))=0;
     if(count1==nx*2)
         cpx1=a(1:2:end)+im*a(2:2:end);
@@ -86,7 +86,7 @@ for j=1:ny
     slc2=circshift(slc2,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
-    [w,count1]=fread(fidw,nx,'real*4');
+    [w,count]=fread(fidw,nx,'real*4');
     w(~isfinite(w))=0;
     if(count1==nx*2)
         cpx1=a(1:2:end)+im*a(2:2:end);
