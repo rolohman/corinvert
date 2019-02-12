@@ -58,7 +58,7 @@ wgts  = slc1;
 for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     slc1=circshift(slc1,1);
     slc2=circshift(slc2,1);
-    
+    wgts=circshift(wgts,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
     [w,count]=fread(fidw,nx,'real*4');
@@ -84,6 +84,7 @@ for j=1:ny
 
     slc1=circshift(slc1,1);
     slc2=circshift(slc2,1);
+    wgts=circshift(wgs,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
     [w,count]=fread(fidw,nx,'real*4');
