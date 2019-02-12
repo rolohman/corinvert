@@ -104,7 +104,9 @@ for j=1:ny
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
-
+length(isnan(a))
+length(isnan(b))
+length(isnan(c))
         asum = conv(a,windx,'same');
         bsum = conv(b,windx,'same');
         csum = conv(c,windx,'same');
