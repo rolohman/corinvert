@@ -1,4 +1,4 @@
-function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype)
+function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,wgtfile)
 
 % outfile=cor file
 % nx = width
@@ -6,6 +6,7 @@ function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,wind
 % rx,ry half width of averaging window
 % windowtype - 0=triangular weight, 1 = constant weight
 % ampflag - 1: use amplitude file, 0: just phase
+% wgtfile: must be 0-1.
 
 newnx=floor(nx/rx);
 newny=floor(ny/ry);
@@ -22,6 +23,11 @@ if(exist(slcfile2,'file'))
 else
     disp([slcfile2 ' does not exist'])
     return
+end
+if(exist(wgtfile,'file'))
+    fidw=fopen(wgtfile,'r');
+else
+    disp([wgfile ' does not exist']);
 end
 
 fid3=fopen(corfile,'w');
@@ -77,21 +83,23 @@ for j=1:ny
     slc2=circshift(slc2,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
-
+    [w,count1]=fread(fidw,nx,'real*4');
     if(count1==nx*2)
         cpx1=a(1:2:end)+im*a(2:2:end);
         cpx2=b(1:2:end)+im*b(2:2:end);
         
         slc1(1,:)=cpx1;
         slc2(1,:)=cpx2;
+        wgts(1,:)=w;
     else
         slc1(1,:)=z;
         slc2(1,:)=z;
+        wgts(1,:)=z;
     end
     if(ismember(j,azvec))
-        a   = slc1.*conj(slc1);
-        b   = slc2.*conj(slc2);
-        c   = slc1.*conj(slc2);
+        a   = slc1.*conj(slc1).*wgts;
+        b   = slc2.*conj(slc2).*wgts;
+        c   = slc1.*conj(slc2).*wgts;
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
