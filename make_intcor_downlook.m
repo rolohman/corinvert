@@ -24,12 +24,17 @@ else
     disp([slcfile2 ' does not exist'])
     return
 end
-if(exist(wgtfile,'file'))
-    fidw=fopen(wgtfile,'r');
+if(defined('wgtfile'))
+    uwgt=1;
+    if(exist(wgtfile,'file'))
+        fidw=fopen(wgtfile,'r');
+    else
+        disp([wgtfile ' does not exist']);
+    end
 else
-    disp([wgtfile ' does not exist']);
+    uwgt=0;
+    disp('not using external wgt file')
 end
-
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
 im=sqrt(-1);
@@ -58,37 +63,8 @@ wgts  = slc1;
 for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     slc1=circshift(slc1,1);
     slc2=circshift(slc2,1);
-    wgts=circshift(wgts,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
-    [w,count]=fread(fidw,nx,'real*4');
-    w(~isfinite(w))=0;
-    if(count1==nx*2)
-        cpx1=a(1:2:end)+im*a(2:2:end);
-        cpx2=b(1:2:end)+im*b(2:2:end);
-        
-        slc1(1,:)=cpx1;
-        slc2(1,:)=cpx2;
-        wgts(1,:)=w;
-     else
-        slc1(1,:)=z;
-        slc2(1,:)=z;
-        wgts(1,:)=z;
-    end    
-end
-
-%now go to end (passing end by ry lines, filling in with zeros. "active"
-%line is at ry+1th row
-
-for j=1:ny
-
-    slc1=circshift(slc1,1);
-    slc2=circshift(slc2,1);
-    wgts=circshift(wgts,1);
-    [a,count1]=fread(fid1,nx*2,'real*4');
-    [b,count1]=fread(fid2,nx*2,'real*4');
-    [w,count]=fread(fidw,nx,'real*4');
-    w(~isfinite(w))=0;
     if(count1==nx*2)
         cpx1=a(1:2:end)+im*a(2:2:end);
         cpx2=b(1:2:end)+im*b(2:2:end);
@@ -101,12 +77,58 @@ for j=1:ny
         slc2(1,:)=z;
         wgts(1,:)=z;
     end
-    %wgts(wgts<0.2)=0;
+    if(uwgt)
+        wgts=circshift(wgts,1);        
+        [w,count]=fread(fidw,nx,'real*4');
+        w(~isfinite(w))=0;
+        if(count==nx)
+            wgts(1,:)=w;
+        else
+            wgts(1,:)=z;
+        end       
+    end
+
+%now go to end (passing end by ry lines, filling in with zeros. "active"
+%line is at ry+1th row
+
+for j=1:ny
+
+    slc1=circshift(slc1,1);
+    slc2=circshift(slc2,1);
+    [a,count1]=fread(fid1,nx*2,'real*4');
+    [b,count1]=fread(fid2,nx*2,'real*4');
+    if(count1==nx*2)
+        cpx1=a(1:2:end)+im*a(2:2:end);
+        cpx2=b(1:2:end)+im*b(2:2:end);
+        
+        slc1(1,:)=cpx1;
+        slc2(1,:)=cpx2;
+    else
+        slc1(1,:)=z;
+        slc2(1,:)=z;
+    end
+    if(uwgt)
+        wgts=circshift(wgts,1);
+        [w,count]=fread(fidw,nx,'real*4');
+        w(~isfinite(w))=0;
+        if(count==nx)
+            wgts(1,:)=w;
+        else
+            wgts(1,:)=z;
+        end
+        wgts(wgts<0.2)=0;
+    end
     if(ismember(j,azvec))
         
-        a   = slc1.*conj(slc1).*wgts;
-        b   = slc2.*conj(slc2).*wgts;
-        c   = slc1.*conj(slc2).*wgts;
+        if(uwgt)
+            a   = slc1.*conj(slc1).*wgts;
+            b   = slc2.*conj(slc2).*wgts;
+            c   = slc1.*conj(slc2).*wgts;
+        else
+            a   = slc1.*conj(slc1);
+            b   = slc2.*conj(slc2);
+            c   = slc1.*conj(slc2);
+        end
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
