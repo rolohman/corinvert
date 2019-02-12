@@ -102,6 +102,7 @@ for j=1:ny
     end
     %wgts(wgts<0.2)=0;
     if(ismember(j,azvec))
+        
         a   = slc1.*conj(slc1).*wgts;
         b   = slc2.*conj(slc2).*wgts;
         c   = slc1.*conj(slc2).*wgts;
