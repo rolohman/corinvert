@@ -71,12 +71,10 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         slc1(1,:)=cpx1;
         slc2(1,:)=cpx2;
-        wgts(1,:)=w;
-    else
+   else
         slc1(1,:)=z;
         slc2(1,:)=z;
-        wgts(1,:)=z;
-    end
+   end
     if(uwgt)
         wgts=circshift(wgts,1);        
         [w,count]=fread(fidw,nx,'real*4');
