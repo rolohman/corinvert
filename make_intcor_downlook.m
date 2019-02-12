@@ -100,10 +100,11 @@ for j=1:ny
         slc2(1,:)=z;
         wgts(1,:)=z;
     end
+    wgts(wgts<0.2)=0;
     if(ismember(j,azvec))
-        a   = slc1.*conj(slc1);
-        b   = slc2.*conj(slc2);
-        c   = slc1.*conj(slc2);
+        a   = slc1.*conj(slc1).*wgts;
+        b   = slc2.*conj(slc2).*wgts;
+        c   = slc1.*conj(slc2).*wgts;
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
