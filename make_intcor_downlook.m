@@ -87,7 +87,7 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             wgts(1,:)=z;
         end       
     end
-
+end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
 
