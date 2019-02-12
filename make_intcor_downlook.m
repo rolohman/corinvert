@@ -98,9 +98,9 @@ for j=1:ny
         wgts(1,:)=z;
     end
     if(ismember(j,azvec))
-        a   = slc1.*conj(slc1).*wgts;
-        b   = slc2.*conj(slc2).*wgts;
-        c   = slc1.*conj(slc2).*wgts;
+        a   = slc1.*conj(slc1);
+        b   = slc2.*conj(slc2);
+        c   = slc1.*conj(slc2);
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
