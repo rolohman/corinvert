@@ -24,7 +24,7 @@ else
     disp([slcfile2 ' does not exist'])
     return
 end
-if(defined('wgtfile'))
+if(exist('wgtfile','var'))
     uwgt=1;
     if(exist(wgtfile,'file'))
         fidw=fopen(wgtfile,'r');
