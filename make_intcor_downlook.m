@@ -1,4 +1,4 @@
-function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype)
+function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,wgtfile)
 
 % outfile=cor file
 % nx = width
@@ -24,11 +24,11 @@ else
     disp([slcfile2 ' does not exist'])
     return
 end
-% if(exist(wgtfile,'file'))
-%     fidw=fopen(wgtfile,'r');
-% else
-%     disp([wgtfile ' does not exist']);
-% end
+if(exist(wgtfile,'file'))
+    fidw=fopen(wgtfile,'r');
+else
+    disp([wgtfile ' does not exist']);
+end
 
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
@@ -52,7 +52,7 @@ ry=floor(length(windy)/2);
 z    = zeros(1,nx);
 slc1  = zeros(ry*2+1,nx);
 slc2  = slc1;
-
+wgts  = slc1;
 
 %load first ry lines
 for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -61,16 +61,19 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
-     if(count1==nx*2)
+    [w,count1]=fread(fidw,nx,'real*4');
+    w(~isfinite(w))=0;
+    if(count1==nx*2)
         cpx1=a(1:2:end)+im*a(2:2:end);
         cpx2=b(1:2:end)+im*b(2:2:end);
-          
+        
         slc1(1,:)=cpx1;
         slc2(1,:)=cpx2;
-
+        wgts(1,:)=w;
      else
         slc1(1,:)=z;
         slc2(1,:)=z;
+        wgts(1,:)=z;
     end    
 end
 
@@ -83,19 +86,19 @@ for j=1:ny
     slc2=circshift(slc2,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
     [b,count1]=fread(fid2,nx*2,'real*4');
- %   [w,count1]=fread(fidw,nx,'real*4');
-  %  w(isnan(w))=0;
+    [w,count1]=fread(fidw,nx,'real*4');
+    w(~isfinite(w))=0;
     if(count1==nx*2)
         cpx1=a(1:2:end)+im*a(2:2:end);
         cpx2=b(1:2:end)+im*b(2:2:end);
         
         slc1(1,:)=cpx1;
         slc2(1,:)=cpx2;
-   %     wgts(1,:)=w;
+        wgts(1,:)=w;
     else
         slc1(1,:)=z;
         slc2(1,:)=z;
-    %    wgts(1,:)=z;
+        wgts(1,:)=z;
     end
     if(ismember(j,azvec))
         a   = slc1.*conj(slc1);
