@@ -196,11 +196,12 @@ for j=online+1:newny
             dw=dlmin.*w;
             
             for k=1:nd-1
-                id       = Gi0(:,k)==1;
+                id       = and(isfinite(dw),Gi0(:,k)==1);
                 cpmin(k) = sum(dw(id))/sum(w(id));
             end
             cpmin(~Gistat) = d(diags(~Gistat))-c0;
             cpmin          = min(0,cpmin);
+            
             [cp1]          = est_ct(d,Gi0,cpmin);
             cp1(~Gistat)   = min(0,d(diags(~Gistat))-c0);
             
