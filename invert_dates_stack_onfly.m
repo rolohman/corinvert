@@ -110,7 +110,7 @@ for j=online+1:newny
         startbit=starty*nx*8; %end of line before buffer
     end
     
-    slcs=nan(nd,nx,ry*2+1);
+    slcs=nan(nx,ry*2+1,nd);
     for i=1:nd
         fseek(fidi(i),startbit,-1);
         tmp=fread(fidi(i),[nx*2,readl],'real*4');
@@ -124,18 +124,16 @@ for j=online+1:newny
             cpx=[nan(nx,ry+1) cpx];
         end
        
-        slcs(i,:,:)=cpx;
+        slcs(:,:,i)=cpx;
 
     end
     count=0;
     cors=nan(ni,newnx);
-    slc0=permute(slcs,[2,3,1]);
     for i=1:nd-1    
-        slc1=shiftdim(slcs(i,:,:));
+        slc1=shiftdim(slcs(:,:,i));
         for k=i+1:nd
             count=count+1;
-            slc2=shiftdim(slcs(k,:,:));
-            slc2=shiftdim(slc0(:,:,k));
+            slc2=shiftdim(slcs(:,:,k));
             a   = slc1.*conj(slc1);
             b   = slc2.*conj(slc2);
             c   = slc1.*conj(slc2);
