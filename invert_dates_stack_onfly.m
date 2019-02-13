@@ -128,14 +128,14 @@ for j=online+1:newny
 
     end
     count=0;
-    for i=1:nd-1
-        
+    cors=nan(ni,newnx);
+    slc0=permute(slcs,[2,3,1];
+    for i=1:nd-1    
         slc1=shiftdim(slcs(i,:,:));
         for k=i+1:nd
             count=count+1;
             slc2=shiftdim(slcs(k,:,:));
-            slc2=(slcs(k,:,:));
-            slc2=squeeze(slc2);
+            slc2=shiftdif(slc0(:,:,k));
             a   = slc1.*conj(slc1);
             b   = slc2.*conj(slc2);
             c   = slc1.*conj(slc2);
