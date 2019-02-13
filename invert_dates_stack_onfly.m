@@ -129,7 +129,7 @@ for j=online+1:newny
     end
     count=0;
     cors=nan(ni,newnx);
-    slc0=permute(slcs,[2,3,1];
+    slc0=permute(slcs,[2,3,1]);
     for i=1:nd-1    
         slc1=shiftdim(slcs(i,:,:));
         for k=i+1:nd
