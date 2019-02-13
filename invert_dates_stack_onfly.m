@@ -1,4 +1,4 @@
-%parpool(10);
+parpool(8);
 pol='_VV';
 decide_ints_stack
 
@@ -175,8 +175,8 @@ for j=online+1:newny
         t4=nan(1,length(goodid));
     
         tic
-        %parfor i=1:length(goodid)
-        for i=1:length(goodid)
+        parfor i=1:length(goodid)
+        %for i=1:length(goodid)
             
             data  = cors(:,goodid(i));
             
