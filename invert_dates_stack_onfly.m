@@ -192,9 +192,12 @@ for j=online+1:newny
             c0    = mymax(d(gooddat),100);
             
             cpmin = zeros(1,nd-1);
+            w=exp(100*dlmin);
+            dw=dlmin.*w;
+            
             for k=1:nd-1
                 id       = Gi0(:,k)==1;
-                cpmin(k) = mymax(dlmin(id),100);
+                cpmin(k) = sum(dw(id))/sum(w(id));
             end
             cpmin(~Gistat) = d(diags(~Gistat))-c0;
             cpmin          = min(0,cpmin);
