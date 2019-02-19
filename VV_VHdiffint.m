@@ -1,3 +1,4 @@
+pol='_VH';
 decide_ints_stack
 
 
