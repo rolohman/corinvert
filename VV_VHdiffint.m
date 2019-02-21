@@ -21,6 +21,13 @@ for i=1:nd-1
     end
 end
 
+%downlook
+for i=1:nd-1
+    name=[difdir '/' dates(i).name '-' dates(i+1).name 'diff.int'];
+    command=['looks.py -i ' name ' -r ' num2str(rlooks) ' -a ' num2str(alooks)];
+    system(command);
+end
+
 %now look at avg.
 for i=1:nd-1
     out=[difdir '/' dates(i).name '-' dates(i+1).name 'diff.int'];
