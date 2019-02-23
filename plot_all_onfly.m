@@ -1,4 +1,10 @@
-function [output]= plot_all_onfly(xpt,ypt,plotflag)
+function [output]= plot_all_onfly(xpt,ypt,plotflag,slcflag)
+if(~exist('slcflag','var'))
+    slcflag=0;
+end
+if(~exist('plotflag','var'))
+    plotflag=0;
+end
 
 pols={'_VV','_VH'};
 for l=1:length(pols)
@@ -155,6 +161,9 @@ for l=1:length(pols)
             mags=abs(mags);
             mags=median(mags,2,'omitnan');
             output(l,k).mags=mags;
+            if(slcflag)
+                output(l,k).slcs=slcs;
+            end
             for i=1:ni
                 slc1=squeeze(slcs(id1(i),:,:));
                 slc2=squeeze(slcs(id2(i),:,:));
@@ -291,7 +300,7 @@ if(plotflag)
         
         dn1        = output(1).dn;
         dn2        = output(2).dn;
-        [dn,i1,i2] = intersect(dn1,dn2);
+        [~,i1,~] = intersect(dn1,dn2);
         ints    = [output(1).id1 output(1).id2];
         gint    = sum(ismember(ints,i1),2)==2;
         phs1    = exp(im*output(1).phs(gint));
