@@ -1,7 +1,9 @@
 params
 dem='/data/rlohman/Sentinel/Chile/dem/demLat_S26_S23_Lon_W071_W067.dem.wgs84';
 bbox='-25.86 -23.00 -70.7 -68.1';
-
+%T130
+dem='/data/rlohman/Sentinel/Saudi/dem/demLat_N17_N22_Lon_E054_E058.dem.wgs84';
+bbox='17.75 21.93 54.4 57.91';
 geodir=['geo_' pol];
 
 if(~exist(geodir,'dir'))
