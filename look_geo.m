@@ -24,6 +24,9 @@ for i=1:length(dirs)
             end
             movefile('tmp',files(j).name);
             fclose('all');
+            command=['gdal_translate ' files(j).name '.vrt ' files(j).name '.tif'];
+            system(command);
+
             command=['looks.py -i ' files(j).name ' -o ' newfile ' -r ' num2str(r) ' -a ' num2str(a)];
             system(command);
         else
