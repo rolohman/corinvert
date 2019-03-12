@@ -14,6 +14,8 @@ for l=1:length(pols)
     if(nd==0)
         disp(['no dates for ' pol])
     else
+        output(l,1).x=xpt;
+        output(l,1).y=ypt;
         output(l,1).dn=dn;
         output(l,1).id1=id1;
         output(l,1).id2=id2;
