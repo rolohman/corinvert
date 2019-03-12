@@ -6,18 +6,8 @@ if(~exist('plotflag','var'))
     plotflag=0;
 end
       
-lonfile=['merged/geom_master/lon.rdr.4alks_15rlks.full'];
-latfile=['merged/geom_master/lat.rdr.4alks_15rlks.full'];
-if(exist(lonfile,'file'))
-    fid=fopen(lonfile,'r');
-    fseek(fid,(newnx*(ypt(k)-1)+xpt(k)-1)*8,-1);
-    output(1,1).lon=fread(fid,1,'real*8');
-    fid=fopen(latfile,'r');
-    fseek(fid,(newnx*(ypt(k)-1)+xpt(k)-1)*8,-1);
-    output(1,1).lat=fread(fid,1,'real*8');
-end
-output(1,1).x=xpt;
-output(1,1).y=ypt;
+lonfile='merged/geom_master/lon.rdr.4alks_15rlks.full';
+latfile='merged/geom_master/lat.rdr.4alks_15rlks.full';
 
 
 
@@ -90,6 +80,17 @@ for l=1:length(pols)
             lines=d.bytes/newnx/4;
             disp(['processed inversion up to line ' num2str(lines)]);
             for k=1:length(xpt)
+                if(exist(lonfile,'file'))
+                    fid=fopen(lonfile,'r');
+                    fseek(fid,(newnx*(ypt(k)-1)+xpt(k)-1)*8,-1);
+                    output(l,k).lon=fread(fid,1,'real*8');
+                    fid=fopen(latfile,'r');
+                    fseek(fid,(newnx*(ypt(k)-1)+xpt(k)-1)*8,-1);
+                    output(l,k).lat=fread(fid,1,'real*8');
+                end
+                output(l,k).x=xpt(k);
+                output(l,k).y=ypt(k);
+
                 rels=zeros(nd,1);
                 modp=zeros(nd-1,1);
                 if(lines>=ypt(k))
