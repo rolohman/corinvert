@@ -5,6 +5,21 @@ end
 if(~exist('plotflag','var'))
     plotflag=0;
 end
+      
+lonfile=['merged/geom_master/lon.rdr.4alks_15rlks.full'];
+latfile=['merged/geom_master/lat.rdr.4alks_15rlks.full'];
+if(exist(lonfile,'file'))
+    fid=fopen(lonfile,'r');
+    fseek(fid,(newnx*(ypt(k)-1)+xpt(k)-1)*8,-1);
+    output(1,1).lon=fread(fid,1,'real*8');
+    fid=fopen(latfile,'r');
+    fseek(fid,(newnx*(ypt(k)-1)+xpt(k)-1)*8,-1);
+    output(1,1).lat=fread(fid,1,'real*8');
+end
+output(1,1).x=xpt;
+output(1,1).y=ypt;
+
+
 
 pols={'_VV','_VH'};
 for l=1:length(pols)
@@ -14,12 +29,10 @@ for l=1:length(pols)
     if(nd==0)
         disp(['no dates for ' pol])
     else
-        output(l,1).x=xpt;
-        output(l,1).y=ypt;
         output(l,1).dn=dn;
         output(l,1).id1=id1;
         output(l,1).id2=id2;
-        
+                 
         rx=rlooks;
         ry=alooks;
         
