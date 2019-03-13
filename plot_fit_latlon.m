@@ -81,6 +81,7 @@ end
 synth=exp(-synth);
 
 for i=1:nd
+    dates(i).synth=synth(i);
     fid=fopen(dates(i).name,'r');
     fseek(fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
     dates(i).rel=fread(fid,1,'real*4');
