@@ -38,7 +38,7 @@ for i=1:nd-1
         intfile_small=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
          wgtfile=['wgtdir/' dates(i).name '_' dates(j).name '.wgt'];
         if(~exist(wgtfile,'file'))
-            command=['imageMath.py -e=''abs(arg(a*conj(b)*conj(c)*f))'' -o ' wgtfile ' --a=''' dates(i).slc ''' --b=''' dates(j).slc ''' --c=''' dates(i).slcVH ''' --f=''' dates(j).slcVH ''''];
+            command=['imageMath.py -e=''1/abs(arg(a*conj(b)*conj(c)*f))'' -o ' wgtfile ' --a=''' dates(i).slc ''' --b=''' dates(j).slc ''' --c=''' dates(i).slcVH ''' --f=''' dates(j).slcVH ''''];
             system(command);
         end
         if(~exist(corfile_small,'file'))
