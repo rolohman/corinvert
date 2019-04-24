@@ -114,7 +114,7 @@ for j=1:ny
         else
             wgts(1,:)=z;
         end
-        wgts(wgts<0.2)=0;
+        %wgts(wgts<0.2)=0;
     end
     if(ismember(j,azvec))
         
