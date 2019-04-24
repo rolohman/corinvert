@@ -184,7 +184,7 @@ for i=1:nd-1
             system(command);
             command=['snaphu -f snaphu.conf'];
             system(command);
-            command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -o snaphu.2pi --a=''snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+            command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -n -o snaphu.2pi --a=''snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
             system(command);
             movefile('snaphu.2pi',['../' intfile_2pi]);
             chdir('..');
