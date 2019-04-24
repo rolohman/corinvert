@@ -166,28 +166,34 @@ for i=1:nd-1
     for j=i+1:tot
         intfile_small=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int']; 
         intfile_filt=[intdir dates(i).name '_' dates(j).name '_filt_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
+        intfile_2pi=[intdir dates(i).name '_' dates(j).name '_2pi_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
         intfile_filtunw=[intdir dates(i).name '_' dates(j).name '_filt_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
         intfile_unw=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
-        %filter
-        command=['imageMath.py -e=''exp(I*a)'' -t cfloat -o tmp --a=''' intfile_small  ';' num2str(newnx) ';float;1;BSQ'''];
-        system(command);
-        command=['remove_nan tmp tmp2 ' num2str(newnx) ' ' num2str(newny) ' > /dev/null'];
-        system(command);
-        movefile('tmp2','tmp');
-        command=['psfilt tmp ' intfile_filt ' ' num2str(newnx)];
-        system(command);
-        %unwrap filtered
-        chdir('snaphu')
-        command=['psfilt ../' intfile_filt ' snaphu.in ' num2str(newnx)]; %filtfilt
-        system(command);
-        %command=['remove_nan ' corfile_small ' snaphu.corr.in ' num2str(newnx) ' ' num2str(newny) ' > /dev/null'];
-        %system(command);
-        command=['snaphu -f snaphu.conf'];
-        system(command);
-        movefile('snaphu.out',['../' intfile_filtunw]);
-        chdir('..');
-        %get add 2pis to unfiltered
-        command=['imageMath.py -e=''arg(exp(I*a)*b*conj(c)'' -o tmp2.unw --a=''' intfile_small ''' --b=''' intfile_filtunw ''' --c=''' intfile_filt ''''];
-        system(command)
+        if(~exist(intfile_unw,'file'))
+            %filter
+            command=['imageMath.py -e=''exp(I*a)'' -t cfloat -o tmp --a=''' intfile_small  ';' num2str(newnx) ';float;1;BSQ'''];
+            system(command);
+            command=['remove_nan tmp tmp2 ' num2str(newnx) ' ' num2str(newny) ' > /dev/null'];
+            system(command);
+            movefile('tmp2','tmp');
+            command=['psfilt tmp ' intfile_filt ' ' num2str(newnx)];
+            system(command);
+            %unwrap filtered
+            chdir('snaphu')
+            command=['psfilt ../' intfile_filt ' snaphu.in ' num2str(newnx)]; %filtfilt
+            system(command);
+            command=['snaphu -f snaphu.conf'];
+            system(command);
+            command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -o snaphu.2pi --a=''snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+            system(command);
+            movefile('snaphu.2pi',['../' intfile_2pi]);
+            chdir('..');
+            %add 2pis to unfiltered
+            command=['imageMath.py -e=''a+2*PI*b'' -o tmpunw -t float --a=''' intfile_small ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
+            system(command);
+            command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -o ' intfile_unw ' -t float --a=tmpunw --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+            system(command);
+        end
+
     end
 end
