@@ -204,3 +204,29 @@ for i=1:nd-1
 
     end
 end
+
+
+if(1)
+    %TEMPORARY mask based on downlooked geoms
+    geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
+    for i=1:nd-1
+        cordir=(['cordir' pol '/' dates(i).name '/']);
+        intdir=(['intdir' pol '/' dates(i).name '/']);
+        tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
+        for j=i+1:tot
+            intfile_unw=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
+            fidm=fopen(geomfile,'r');
+            fid1=fopen(intfile_unw,'r');
+            fido1=fopen('tmp1','w');
+            for k=1:newny
+                a=fread(fidm,newnx,'real*8');
+                b=fread(fid1,newnx,'real*4');
+                b(a<0)=0;
+                fwrite(fido1,b,'real*4');
+            end
+            fclose('all');
+            movefile('tmp1',intfile_unw);
+        end
+    end
+end
+
