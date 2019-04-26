@@ -50,7 +50,13 @@ end
 for i=1:nd-1
       cordir=(['cordir' pol '/' dates(i).name '/']);
     intdir=(['intdir' pol '/' dates(i).name '/']);
-  
+      if(~exist(cordir,'dir'))
+        mkdir(cordir)
+    end
+    if(~exist(intdir,'dir'))
+        mkdir(intdir)
+    end
+
     tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
     for j=i+1:tot
         corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
@@ -97,6 +103,7 @@ if(1)
         end
     end
 end
+
 %average cors
 avgcorfile='cordir_VV/average.cor';
 fido=fopen(avgcorfile,'w');
