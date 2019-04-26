@@ -9,8 +9,8 @@ for i=1:nd
 end
 dn=[dates.dn];
 
-maskfile='cordir_VV/average.cor';
-maskthresh=0.7;
+maskfile='wgtdir/average.1alk_3rlk.amp';
+maskthresh=0.1;
 
 tsdir='tsdir/';
 if(~exist(tsdir,'dir'))
