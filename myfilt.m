@@ -48,11 +48,11 @@ for j=1:newny
     in=circshift(in,1);
     switch ftype
         case 1 %r4
-            a=fread(fidi,[newnx,ry],'real*4');
+            a=fread(fidi,newnx,'real*4');
             a = exp(im*a);
         case 2 %int
-            a=fread(fidi,[newnx*2, ry],'real*4');
-            a=a(1:2:end,:)+im*a(2:2:end,:);
+            a=fread(fidi,newnx*2,'real*4');
+            a=a(1:2:end)+im*a(2:2:end);
     end
     a(isnan(a))=0;
     if(count1==newnx)
