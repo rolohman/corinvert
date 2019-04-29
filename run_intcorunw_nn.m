@@ -194,8 +194,8 @@ for i=1:nd-1
 
     intfile_2pi     = [intdir name '_2pi.unw'];
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
-    intfile_long    = [intdir name '_long.unw'];  %long-wavelength component
-    intfile_deramp  = [intdir name '_noramp.unw']; %unfiltered unwrapped
+    intfile_long    = [intdir name '_low.unw'];  %long-wavelength component
+    intfile_deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
  
     if(~exist(intfile_unw,'file'))
         %make mask
@@ -237,12 +237,14 @@ for i=1:nd-1
         command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -n -o ' intfile_unw ' -t float --a=''tmpunw;' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
         system(command);
         
+        
         %filter long wavelengths
-        myfilt(intfile_unw,intmask,intfile_long,500,500,newnx,newny,2,3,4);
+        myfilt(intfile_unw,intmask,intfile_long,250,250,newnx,newny,2,3,4);
         
         %remove long wavelength from unw
-        command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
-        system(command); 
+        command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
+        system(command);
+        
     end
 end
 

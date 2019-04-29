@@ -96,13 +96,13 @@ for j=1:newny
             msk      = mask(ry+1,:);
             out(msk) = orig(msk);
             fwrite(fido,angle(out),'real*4');
-        case 3 %output orig in - filtered phase
+        case 3 %output orig in - filtered phase %need to fix this so that it works for unmasked
             orig     = in(:,ry+1);
             dif      = orig*conj(out);
             fwrite(fido,angle(dif),'real*4');
         case 4 %output filtered, unwrapped input and output
             fwrite(fido,out,'real*4');
-        case 5 %output unwrapped-filtered
+        case 5 %output unwrapped-filtered %need to fix this so that it works for unmasked
             orig     = in(ry+1,:);
             fwrite(fido,orig-out,'real*4');
     end
