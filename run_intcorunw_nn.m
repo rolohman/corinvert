@@ -47,97 +47,6 @@ for i=1:nd-1
     end
 end
 
-
-
-for i=1:nd-1
-    cordir=(['cordir' pol '/' dates(i).name '/']);
-    intdir=(['intdir' pol '/' dates(i).name '/']);
-    cordir2=(['cordir2' pol '/' dates(i).name '/']);
-    intdir2=(['intdir2' pol '/' dates(i).name '/']);
-    if(~exist(cordir,'dir'))
-        mkdir(cordir)
-    end
-    if(~exist(intdir,'dir'))
-        mkdir(intdir)
-    end
-    
-    tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
-    for j=i+1:tot
-        corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
-        intfile_small=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
-        corfile2_small=[cordir2 dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
-        intfile2_small=[intdir2 dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
-        %wgtfile=['wgtdir/' dates(i).name '_' dates(j).name '.wgt'];
-        wgtfile='wgtdir/average.amp';
-        if(~exist(corfile_small,'file'))
-            disp(['running ' corfile_small])
-            make_intcor_downlook(dates(i).slc,dates(j).sl,corfile_small,intfile_small,nx,ny,rlooks,alooks,1,wgtfile)
-            make_intcor_anyposting(dates(i).slc,dates(j).slc,corfile2_small,intfile2_mapp,nx,ny,px,py,rlooks,alooks,1,wgtfile)           
-            for x=1:1
-                geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
-                fidm=fopen(geomfile,'r');
-                fid1=fopen(intfile_small,'r');
-                fid2=fopen(corfile_small,'r');
-                fid1=fopen(intfile2_small,'r');
-                fid2=fopen(corfile2_small,'r');
-                fido1=fopen('tmp1','w');
-                fido2=fopen('tmp2','w');
-                fido3=fopen('tmp3','w');
-                fido4=fopen('tmp4','w');
-                for k=1:newny
-                    a=fread(fidm,newnx,'real*8');
-                    b=fread(fid1,newnx,'real*4');
-                    c=fread(fid2,newnx,'real*4');
-                    d=fread(fid1,newnx,'real*4');
-                    e=fread(fid2,newnx,'real*4');
-                    b(a<0)=0;
-                    c(a<0)=0;
-                    d(a<0)=0;
-                    e(a<0)=0;
-                    fwrite(fido1,b,'real*4');
-                    fwrite(fido2,c,'real*4');
-                    fwrite(fido3,d,'real*4');
-                    fwrite(fido4,e,'real*4');
-                end
-                fclose('all');
-                movefile('tmp1',intfile_small);
-                movefile('tmp2',corfile_small);
-                movefile('tmp3',intfile2_small);
-                movefile('tmp4',corfile2_small);
-                else
-                    disp([corfile_small ' already made'])
-            end
-        end
-    end
-end
-
-%average cors
-avgcorfile='cordir_VV/average.cor';
-if(~exist(avgcorfile,'file'))
-    fido=fopen(avgcorfile,'w');
-    for j=1:newny
-        fwrite(fido,zeros(newnx,1),'real*4');
-    end
-    fclose(fido)
-    
-    for i=1:nd-1
-        i
-        j=i+1;
-        cordir=(['cordir' pol '/' dates(i).name '/']);
-        corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
-        fid1=fopen(avgcorfile,'r');
-        fid2=fopen(corfile_small,'r');
-        fido=fopen('tmpcor','w');
-        for j=1:newny
-            tmp1=fread(fid1,newnx,'real*4');
-            tmp2=fread(fid2,newnx,'real*4');
-            fwrite(fido,tmp1+tmp2/(nd-1),'real*4');
-        end
-        fclose('all');
-        movefile('tmpcor',avgcorfile);
-    end
-end
-
 %average wgts
 avgwgtfile='wgtdir/average.wgt';
 if(~exist(avgwgtfile,'file'))
@@ -170,6 +79,105 @@ if(~exist(avgwgtfile,'file'))
         movefile('tmpwgt',avgwgtfile);
     end
 end
+avgwgtfile='wgtdir/average.1alks_3rlks.amp'; %need to add splitting and downlooking
+
+
+
+for i=1:nd-1
+    cordir=(['cordir' pol '/' dates(i).name '/']);
+    intdir=(['intdir' pol '/' dates(i).name '/']);
+    cordir2=(['cordir2' pol '/' dates(i).name '/']);
+    intdir2=(['intdir2' pol '/' dates(i).name '/']);
+    if(~exist(cordir,'dir'))
+        mkdir(cordir)
+    end
+    if(~exist(intdir,'dir'))
+        mkdir(intdir)
+    end
+    if(~exist(cordir2,'dir'))
+        mkdir(cordir2)
+    end
+    if(~exist(intdir2,'dir'))
+        mkdir(intdir2)
+    end
+    
+    tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
+    for j=i+1:tot
+        corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
+        intfile_small=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
+        corfile2_small=[cordir2 dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
+        intfile2_small=[intdir2 dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
+        %wgtfile=['wgtdir/' dates(i).name '_' dates(j).name '.wgt'];
+        wgtfile='wgtdir/average.amp';
+        if(~exist(corfile_small,'file'))
+            disp(['running ' corfile_small])
+            make_intcor_downlook(dates(i).slc,dates(j).slc,corfile_small,intfile_small,nx,ny,rlooks,alooks,1,wgtfile)
+            make_intcor_anyposting(dates(i).slc,dates(j).slc,corfile2_small,intfile2_small,nx,ny,rlooks,alooks,px,py,1,wgtfile)
+            for x=1:1
+                geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
+                fidm=fopen(geomfile,'r');
+                fid1=fopen(intfile_small,'r');
+                fid2=fopen(corfile_small,'r');
+                fid3=fopen(intfile2_small,'r');
+                fid4=fopen(corfile2_small,'r');
+                fido1=fopen('tmp1','w');
+                fido2=fopen('tmp2','w');
+                fido3=fopen('tmp3','w');
+                fido4=fopen('tmp4','w');
+                for k=1:newny
+                    a=fread(fidm,newnx,'real*8');
+                    b=fread(fid1,newnx,'real*4');
+                    c=fread(fid2,newnx,'real*4');
+                    d=fread(fid3,newnx,'real*4');
+                    e=fread(fid4,newnx,'real*4');
+                    b(a<0)=0;
+                    c(a<0)=0;
+                    d(a<0)=0;
+                    e(a<0)=0;
+                    fwrite(fido1,b,'real*4');
+                    fwrite(fido2,c,'real*4');
+                    fwrite(fido3,d,'real*4');
+                    fwrite(fido4,e,'real*4');
+                end
+                fclose('all');
+                movefile('tmp1',intfile_small);
+                movefile('tmp2',corfile_small);
+                movefile('tmp3',intfile2_small);
+                movefile('tmp4',corfile2_small);
+            end
+        else
+            disp([corfile_small ' already made'])
+        end
+    end
+end
+
+
+%average cors
+avgcorfile='cordir_VV/average.cor';
+if(~exist(avgcorfile,'file'))
+    fido=fopen(avgcorfile,'w');
+    for j=1:newny
+        fwrite(fido,zeros(newnx,1),'real*4');
+    end
+    fclose(fido)
+    
+    for i=1:nd-1
+        i
+        j=i+1;
+        cordir=(['cordir' pol '/' dates(i).name '/']);
+        corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
+        fid1=fopen(avgcorfile,'r');
+        fid2=fopen(corfile_small,'r');
+        fido=fopen('tmpcor','w');
+        for j=1:newny
+            tmp1=fread(fid1,newnx,'real*4');
+            tmp2=fread(fid2,newnx,'real*4');
+            fwrite(fido,tmp1+tmp2/(nd-1),'real*4');
+        end
+        fclose('all');
+        movefile('tmpcor',avgcorfile);
+    end
+end
 
 
 for i=1:nd-1
@@ -196,10 +204,10 @@ for i=1:nd-1
         mask2     = fread(fid,[newnx newny],'real*4');
         mask      = and(mask1>0.15,mask2>0.4);
         fid       = fopen(intmask,'w');
-        fwrite(fid,mask,'bit1');
+        fwrite(fid,mask,'integer*1');
         fclose('all');
         
-        
+        myfilt(intfile,intmask,intfile_long,500,500,newnx,newny,1,1)
         %filter long wavelengths
         
 

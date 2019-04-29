@@ -11,7 +11,7 @@ fidi    = fopen(infile,'r');
 fidm    = fopen(maskfile,'r');
 fido    = fopen(outfile,'w');
 
-mask=fread(fidm,[newnx,ry],'byte1');
+mask=fread(fidm,[newnx,ry],'integer*1');
 mask=mask==1;
 mask=[flipud(mask');false(ry+1,newnx)];
 
