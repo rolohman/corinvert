@@ -208,7 +208,7 @@ for i=1:nd-1
         fclose('all');
         
         %filter long wavelengths
-        myfilt(intfile,intmask,intfile_long,500,500,newnx,newny,1,1);
+        myfilt(intfile,intmask,intfile_long,500,500,newnx,newny,2,1,1);
         
 
         %remove long wavelength from int, temporarily
@@ -217,7 +217,7 @@ for i=1:nd-1
      
         
          %filter short wavelengths and fill masked area
-        myfilt(intfile,intmask,intfile_filt1,30,30,newnx,newny,1,2);
+        myfilt(intfile,intmask,intfile_filt1,30,30,newnx,newny,2,1,2);
       
         
         %filter

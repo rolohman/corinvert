@@ -48,6 +48,7 @@ in(~mask)=0;
 for j=1:newny
     mask=circshift(mask,1);
     [a,count1]=fread(fidm,newnx,'integer*1');
+    a=a==1;
     a(isnan(a))=false;
     if(count1==newnx)
         
