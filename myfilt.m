@@ -90,8 +90,8 @@ for j=1:newny
             fwrite(fido,angle(out),'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
         case 2 %output filtered phase only at unmasked points, original elsewhere
 
-            orig=in(:,ry+1);
-            msk = mask(:,ry+1);
+            orig=in(ry+1,:);
+            msk = mask(ry+1,:);
             if(j==350)
     whos orig msk out
     sum(msk);
