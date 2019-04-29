@@ -207,45 +207,49 @@ for i=1:nd-1
         fwrite(fid,mask,'integer*1');
         fclose('all');
         
-        %filter long wavelengths
-        myfilt(intfile,intmask,intfile_long,500,500,newnx,newny,2,1,1);
-        
-
-        %remove long wavelength from int, temporarily
-   command=['imageMath.py -e=''exp(I*a)*conj(exp(I*b))'' -t float -n -o tmp --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ''''];
-        system(command);
-     
-        
-         %filter short wavelengths and fill masked area
+              
+        %filter short wavelengths and fill masked area
         myfilt(intfile,intmask,intfile_filt1,30,30,newnx,newny,2,1,2);
-      
         
+            
         %filter
-        command=['imageMath.py -e=''exp(I*a)'' -t cfloat -o tmp --a=''' intfile_small  ';' num2str(newnx) ';float;1;BSQ'''];
+        command=['imageMath.py -e=''exp(I*a)'' -t cfloat -n -o tmp --a=''' intfile_filt1  ';' num2str(newnx) ';float;1;BSQ'''];
         system(command);
         command=['remove_nan tmp tmp2 ' num2str(newnx) ' ' num2str(newny) ' > /dev/null'];
-            system(command);
-            movefile('tmp2','tmp');
-            command=['psfilt tmp ' intfile_filt ' ' num2str(newnx)];
-            system(command);
-            %unwrap filtered
-            chdir('snaphu')
-            command=['psfilt ../' intfile_filt ' snaphu.in ' num2str(newnx)]; %filtfilt
-            system(command);
-            command=['snaphu -f snaphu.conf'];
-            system(command);
-            command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -n -o snaphu.2pi --a=''snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
-            system(command);
-            movefile('snaphu.2pi',['../' intfile_2pi]);
-            chdir('..');
-            %add 2pis to unfiltered
-            command=['imageMath.py -e=''a+2*PI*b'' -o tmpunw -t float --a=''' intfile_small ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
-            system(command);
-            command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -o ' intfile_unw ' -t float --a=tmpunw --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
-            system(command);
-        end
-
+        system(command);
+       
+        command=['psfilt tmp2 ' intfile_filt2 ' ' num2str(newnx)];
+        system(command);
+        %unwrap filtered
+        copyfile(intfile_filt2,'snaphu/snaphu.in')
+  
+        chdir('snaphu')
+        command=['snaphu -f snaphu.conf'];
+        system(command);
+        
+        
+        command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -n -o snaphu.2pi --a=''snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+        system(command);
+        movefile('snaphu.2pi',['../' intfile_2pi]);
+        chdir('..');
+        %add 2pis to unfiltered
+        command=['imageMath.py -e=''a+2*PI*b'' -o tmpunw -n -t float --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
+        system(command);
+        command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -n -o ' intfile_unw ' -t float --a=''tmpunw;' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+        system(command);
+        
+        
+        %filter long wavelengths
+        myfilt(intfile_unw,intmask,intfile_long,500,500,newnx,newny,2,1,1);
+        
+        %remove long wavelength from int, temporarily
+        command=['imageMath.py -e=''exp(I*a)*conj(exp(I*b))'' -t float -n -o tmp --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
+        system(command);
+    
+    
     end
+
+
 end
 
 

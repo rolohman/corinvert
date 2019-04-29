@@ -32,9 +32,11 @@ switch ftype
     case 1 %r4
         in=fread(fidi,[newnx,ry],'real*4');
         in = exp(im*in);
-    case 2 %int
+    case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
         in=in(1:2:end,:)+im*in(2:2:end,:);
+    case 3 %unw r4
+        in=fread(fidi,[newnx,ry],'real*4');
 end
 
 in = [flipud(in');nan(ry+1,newnx)];
@@ -50,8 +52,7 @@ for j=1:newny
     [a,count1]=fread(fidm,newnx,'integer*1');
     a=a==1;
     a(isnan(a))=false;
-    if(count1==newnx)
-        
+    if(count1==newnx)       
         mask(1,:)=a;
     else
         mask(1,:)=z;
@@ -66,6 +67,8 @@ for j=1:newny
         case 2 %int
             a=fread(fidi,newnx*2,'real*4');
             a=a(1:2:end)+im*a(2:2:end);
+        case 3 %unw r4
+            in=fread(fidi,newnx,'real*4');
     end
     a(isnan(a))=0;
     if(count1==newnx)
@@ -92,20 +95,14 @@ for j=1:newny
 
             orig=in(ry+1,:);
             msk = mask(ry+1,:);
-            if(j==350)
-    whos orig msk out
-    sum(msk);
-    msk(500)
-    orig(500)
-    out(500)
-    
-end
             out(msk)=orig(msk);
             fwrite(fido,angle(out),'real*4');
         case 3 %output orig in - filtered phase
             orig=in(:,ry+1);
             dif=orig*conj(out);
             fwrite(fido,angle(dif),'real*4');
+        case 4 %output filtered, unwrapped input and output
+            fwrite(fido,out,'real*4');
     end
     
 end
