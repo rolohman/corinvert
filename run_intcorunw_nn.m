@@ -188,12 +188,12 @@ for i=1:nd-1
     intfile         = [intdir name '.int'];
     corfile         = [cordir name '.cor'];
     intmask         = [intdir name '.msk'];
-    intfile_long    = [intdir name 'lonw.int'];  %long-wavelength component
-    intfile_filt1   = [intdir name 'filt.int'];  %masked infilled with filtered
-    intfile_filt2   = [intdir name 'psfilt.int']; %psfilt version for unwrapping
-    intfile_filtunw = [intdir name 'psfilt.unw']; %psfilt version for unwrapping
+    intfile_long    = [intdir name '_long.int'];  %long-wavelength component
+    intfile_filt1   = [intdir name '_filt.int'];  %masked infilled with filtered
+    intfile_filt2   = [intdir name '_psfilt.int']; %psfilt version for unwrapping
+    intfile_filtunw = [intdir name '_psfilt.unw']; %psfilt version for unwrapping
 
-    intfile_2pi     = [intdir name '2pi.unw'];
+    intfile_2pi     = [intdir name '_2pi.unw'];
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
     
     if(~exist(intfile_unw,'file'))
@@ -207,68 +207,18 @@ for i=1:nd-1
         fwrite(fid,mask,'integer*1');
         fclose('all');
         
-        myfilt(intfile,intmask,intfile_long,500,500,newnx,newny,1,1)
         %filter long wavelengths
+        myfilt(intfile,intmask,intfile_long,500,500,newnx,newny,1,1);
         
 
-        ry=500;
-        windx=ones(1,ry*2+1);
-        windy=ones(1,ry*2+1);
-        windx=windx/sum(windx);
-        windy=windy/sum(windy);
-        for i=1:nd-1
-            i
-            if(~exist(ints(i).filt,'file'))
-                
-                z       = zeros(1,newnx);
-                fidi    = fopen(ints(i).unw,'r');
-                fido    = fopen(ints(i).filt,'w');
-                
-                mskunw=fread(fidi,[newnx,ry],'real*4');
-                mskunw(~mask(:,1:ry))=0; %mask on fly
-                mskunw = [flipud(mskunw');nan(ry+1,newnx)];
-                mskunw(isnan(mskunw))=0;
-                
-                %now go to end (passing end by ry lines, filling in with zeros. "active"
-                %line is at ry+1th row
-                
-                for j=1:newny
-                    
-                    mskunw=circshift(mskunw,1);
-                    [a,count1]=fread(fidi,newnx,'real*4');
-                    a(isnan(a))=0;
-                    if(count1==newnx)
-                        a(~mask(:,ry+j))=0;
-                        mskunw(1,:)=a;
-                    else
-                        mskunw(1,:)=z;
-                    end
-                    good = mskunw~=0;
-                    a    = good;
-                    c    = mskunw;
-                    
-                    a    = windy*a;
-                    c    = windy*c;
-                    
-                    asum = conv(a,windx,'same');
-                    csum = conv(c,windx,'same');
-                    out  = csum./asum;
-                    
-                    fwrite(fido,out,'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
-                end
-                fclose(fidi);
-                fclose(fido);
-                fidi1   = fopen(ints(i).unw,'r');
-                fidi2   = fopen(ints(i).filt,'r');
-                fido    = fopen(ints(i).fixunw,'w');
-                for j=1:newny
-                    a=fread(fidi1,newnx,'real*4');
-                    b=fread(fidi2,newnx,'real*4');
-                    fwrite(fido,a-b,'real*4');
-                end
-            end
-        end
-
+        %remove long wavelength from int, temporarily
+   command=['imageMath.py -e=''exp(I*a)*conj(exp(I*b))'' -t float -n -o tmp --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ''''];
+        system(command);
+     
+        
+         %filter short wavelengths and fill masked area
+        myfilt(intfile,intmask,intfile_filt1,30,30,newnx,newny,1,2);
+      
         
         %filter
         command=['imageMath.py -e=''exp(I*a)'' -t cfloat -o tmp --a=''' intfile_small  ';' num2str(newnx) ';float;1;BSQ'''];

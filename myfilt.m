@@ -1,10 +1,22 @@
-function myfilt(infile,maskfile,outfile,rx,ry,newnx,newny,ftype,outtype)
+function myfilt(infile,maskfile,outfile,rx,ry,newnx,newny,windowtype,ftype,outtype)
 im=sqrt(-1);
-windx=ones(1,rx*2+1);
-windy=ones(1,ry*2+1);
+
+
+
+switch windowtype
+    case 0
+        windx=[1/(rx+1):1/(rx+1):1 (1-1/(rx+1)):-1/(rx+1):1/(rx+1)];
+        windy=[1/(ry+1):1/(ry+1):1 (1-1/(ry+1)):-1/(ry+1):1/(ry+1)];
+    case 1
+        windx=zeros(1,rx*2+1); windx((1:rx)+ceil(rx/2))=1;
+        windy=zeros(1,ry*2+1); windy((1:ry)+ceil(ry/2))=1;
+    case 2
+        windx=exp(-(-rx:rx).^2/2/(rx/2)^2);
+        windy=exp(-(-ry:ry).^2/2/(ry/2)^2);
+end
 windx=windx/sum(windx);
 windy=windy/sum(windy);
-
+ry=floor(length(windy)/2);
 
 z       = zeros(1,newnx);
 fidi    = fopen(infile,'r');
@@ -75,7 +87,7 @@ for j=1:newny
     switch(outtype)
         case 1 %just output filtered phase at all points
             fwrite(fido,angle(out),'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
-        case 2 %output filtered phase only at unmasked points
+        case 2 %output filtered phase only at unmasked points, original elsewhere
             orig=in(:,ry+1);
             msk = mask(:,ry+1);
             out(msk)=orig(msk);
