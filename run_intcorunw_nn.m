@@ -222,6 +222,7 @@ for i=1:nd-1
         system(command);
         %unwrap filtered
         copyfile(intfile_filt2,'snaphu/snaphu.in')
+        copyfile(intmask,'snaphu/snaphu.msk')
   
         chdir('snaphu')
         command=['snaphu -f snaphu.conf'];

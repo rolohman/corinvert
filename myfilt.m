@@ -68,7 +68,7 @@ for j=1:newny
             a=fread(fidi,newnx*2,'real*4');
             a=a(1:2:end)+im*a(2:2:end);
         case 3 %unw r4
-            in=fread(fidi,newnx,'real*4');
+            a=fread(fidi,newnx,'real*4');
     end
     a(isnan(a))=0;
     if(count1==newnx)
