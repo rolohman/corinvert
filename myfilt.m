@@ -89,6 +89,9 @@ for j=1:newny
         case 1 %just output filtered phase at all points
             fwrite(fido,angle(out),'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
         case 2 %output filtered phase only at unmasked points, original elsewhere
+if(j==350)
+    disp('hi')
+end
             orig=in(:,ry+1);
             msk = mask(:,ry+1);
             out(msk)=orig(msk);
