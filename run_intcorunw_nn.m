@@ -241,11 +241,11 @@ for i=1:nd-1
         
         
         %filter long wavelengths
-        myfilt(intfile_unw,intmask,intfile_long,500,500,newnx,newny,2,1,1);
+%         myfilt(intfile_unw,intmask,intfile_long,500,500,newnx,newny,2,3,4);
         
         %remove long wavelength from int, temporarily
-        command=['imageMath.py -e=''exp(I*a)*conj(exp(I*b))'' -t float -n -o tmp --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
-        system(command);
+%         command=['imageMath.py -e=''exp(I*a)*conj(exp(I*b))'' -t float -n -o tmp --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
+%         system(command);
     
     
     end
