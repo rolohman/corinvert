@@ -29,15 +29,20 @@ mask=[flipud(mask');false(ry+1,newnx)];
 
 
 switch ftype
-    case 1 %r4
+    case 1 %r4 phs
         in=fread(fidi,[newnx,ry],'real*4');
         in = exp(im*in);
+     imagesc(in(5000:5700,:));
+
     case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
         in=in(1:2:end,:)+im*in(2:2:end,:);
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
+    imagesc(in(5000:5700,:));
 end
+
+figure
 
 in = [flipud(in');nan(ry+1,newnx)];
 

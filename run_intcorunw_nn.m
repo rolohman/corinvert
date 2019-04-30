@@ -183,9 +183,9 @@ end
 for i=1:nd-1
     j=i+1;
     cordir = (['cordir2' pol '/' dates(i).name '/']);
-    intdir = (['intdir' pol '/' dates(i).name '/']);
+    intdir = (['intdir' pol '/' dates(i).name '_test/']);
     name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
-    intfile         = [intdir name '.int'];
+    intfile         = [intdir name '.int']
     corfile         = [cordir name '.cor'];
     intmask         = [intdir name '.msk'];
     intfile_filt1   = [intdir name '_filt.int'];  %masked infilled with filtered
