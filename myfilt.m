@@ -79,9 +79,9 @@ for j=1:newny
              if(j==ry)
                 figure
                 subplot(1,3,1)
-                imagesc((in(5100:5300,:)));
+                imagesc((in(:,5100:5300)));
                 subplot(1,3,2)
-                imagesc(mask(5100:5300,:));
+                imagesc(mask(:,5100:5300));
             end
    end
     a(isnan(a))=0;
@@ -106,14 +106,14 @@ for j=1:newny
         switch ftype
             case 1 %r4 cpx
                 
-                plot(angle(asum))
+                plot(angle(asum(5100:5300)))
                 hold on
-                plot(angle(csum))
+                plot(angle(csum(5100:5300)))
             case 3 %r4
                 
-                plot(asum)
+                plot(asum(5100:5300))
                 hold on
-                plot(csum)
+                plot(csum(5100:5300))
         end
         return
     end
