@@ -240,19 +240,16 @@ for i=1:nd-1
         system(command);
         command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -n -o ' intfile_unw ' -t float --a=''tmpunw;' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
         system(command);
-        
-        
+              
         %filter long wavelengths
         myfilt(intfile_unw,intmask,intfile_long,250,250,newnx,newny,2,3,4);
         
         %remove long wavelength from unw
-        command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
+        command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
         system(command);
         
     end
 end
-
-
 
 
 return
