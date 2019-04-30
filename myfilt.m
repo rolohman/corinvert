@@ -41,7 +41,7 @@ figure
 hold on
 switch ftype
     case 1
-        plot(angle(in(5100:5150,ry))');
+        plot(in(5100:5150,ry)');
     case 3
         plot(in(5100:5150,ry)');
 end
