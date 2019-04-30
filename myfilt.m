@@ -32,14 +32,11 @@ switch ftype
     case 1 %r4 phs
         in=fread(fidi,[newnx,ry],'real*4');
         in = exp(im*in);
-        imagesc(angle(in(5000:5700,:)));
-
     case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
         in=in(1:2:end,:)+im*in(2:2:end,:);
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
-    imagesc(in(5000:5700,:));
 end
 
 return
@@ -68,12 +65,26 @@ for j=1:newny
         case 1 %r4
             a=fread(fidi,newnx,'real*4');
             a = exp(im*a);
+            if(j==ry)
+                figure
+                subplot(1,3,1)
+                imagesc(angle(in(5100:5300,:)));
+                subplot(1,3,2)
+                imagesc(mask(5100:5300,:));
+            end
         case 2 %int
             a=fread(fidi,newnx*2,'real*4');
             a=a(1:2:end)+im*a(2:2:end);
         case 3 %unw r4
             a=fread(fidi,newnx,'real*4');
-    end
+             if(j==ry)
+                figure
+                subplot(1,3,1)
+                imagesc((in(5100:5300,:)));
+                subplot(1,3,2)
+                imagesc(mask(5100:5300,:));
+            end
+   end
     a(isnan(a))=0;
     if(count1==newnx)
         a(~mask(1,:))=0;
@@ -91,7 +102,22 @@ for j=1:newny
     asum = conv(a,windx,'same');
     csum = conv(c,windx,'same');
     out  = csum./asum;
-    
+     if(j==ry)
+               subplot(1,3,1)
+                 switch ftype
+        case 1 %r4 cpx
+  
+               plot(angle(asum))
+               hold on
+               plot(angle(csum))
+                       case 3 %r4
+  
+               plot(asum)
+               hold on
+               plot(csum)
+                 end
+               return
+     end
     switch(outtype)
         case 1 %just output filtered phase at all points
             fwrite(fido,angle(out),'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
