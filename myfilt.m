@@ -38,14 +38,21 @@ switch ftype
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
 end
-
+figure
+subplot(2,2,1)
+switch ftype
+    case 1
+                imagesc(angle(in(:,5100:5300)));       
+    case 3
+        imagesc(in(:,5100:5300));
+end
 in = [flipud(in');nan(ry+1,newnx)];
    
 
 in(isnan(in))=0;
 in(~mask)=0;
-figure
-subplot(2,2,1)
+
+subplot(2,2,2)
 switch ftype
     case 1
                 imagesc(angle(in(:,5100:5300)));
@@ -81,11 +88,9 @@ for j=1:newny
             a = exp(im*a);
             if(j==ry)
                 
-                subplot(2,2,2)
+                subplot(2,2,3)
                 imagesc(angle(in(:,5100:5300)));
                 
-                subplot(2,2,3)
-                imagesc(mask(:,5100:5300));
             end
         case 2 %int
             a=fread(fidi,newnx*2,'real*4');
@@ -93,11 +98,10 @@ for j=1:newny
         case 3 %unw r4
             a=fread(fidi,newnx,'real*4');
              if(j==ry)
-                figure
-                subplot(2,2,2)
-                imagesc((in(:,5100:5300)));
+             
                 subplot(2,2,3)
-                imagesc(mask(:,5100:5300));
+                imagesc((in(:,5100:5300)));
+       
             end
    end
     a(isnan(a))=0;
