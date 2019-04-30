@@ -31,7 +31,6 @@ mask=[flipud(mask');false(ry+1,newnx)];
 switch ftype
     case 1 %r4 phs
         in=fread(fidi,[newnx,ry],'real*4');
-        in = exp(im*in);
     case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
         in=in(1:2:end,:)+im*in(2:2:end,:);
@@ -42,22 +41,34 @@ figure
 hold on
 switch ftype
     case 1
-        plot(angle(in(5100:5300,ry))');
+        plot(angle(in(5100:5150,ry))');
     case 3
-        plot(in(5100:5300,ry)');
+        plot(in(5100:5150,ry)');
 end
+switch ftype
+    case 1 %r4 phs
 in = [flipud(in');nan(ry+1,newnx)];
-   
-
 in(isnan(in))=0;
 in(~mask)=0;
+in=exp(im*in);
+    case 2 %c8
+        in=fread(fidi,[newnx*2, ry],'real*4');
+        in=in(1:2:end,:)+im*in(2:2:end,:);
+    case 3 %unw r4
+in = [flipud(in');nan(ry+1,newnx)];
+in(isnan(in))=0;
+in(~mask)=0;
+
+end
+
+
 
 
 switch ftype
     case 1
-        plot(angle(in(1,5100:5300)));
+        plot(angle(in(1,5100:5150)));
     case 3
-        plot(in(1,5100:5300));
+        plot(in(1,5100:5150));
 end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
@@ -84,7 +95,7 @@ for j=1:newny
             
             a=fread(fidi,newnx,'real*4');
             a = exp(im*a);
-            plot(angle(a(5100:5300)))
+            plot(angle(a(5100:5150)))
             return
 %             if(j==ry)
 %                 
@@ -97,7 +108,7 @@ for j=1:newny
             a=a(1:2:end)+im*a(2:2:end);
         case 3 %unw r4
             a=fread(fidi,newnx,'real*4');
-            plot(a(5100:5300))
+            plot(a(5100:5150))
             return
 %              if(j==ry)
 %              
