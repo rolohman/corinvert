@@ -32,7 +32,7 @@ switch ftype
     case 1 %r4 phs
         in=fread(fidi,[newnx,ry],'real*4');
         in = exp(im*in);
-     imagesc(angle(in(5000:5700,:)));
+        imagesc(angle(in(5000:5700,:)));
 
     case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
@@ -42,7 +42,6 @@ switch ftype
     imagesc(in(5000:5700,:));
 end
 
-figure
 
 in = [flipud(in');nan(ry+1,newnx)];
 
