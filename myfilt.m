@@ -62,6 +62,11 @@ for j=1:newny
     in=circshift(in,1);
     switch ftype
         case 1 %r4
+            
+            in=fread(fidi,[newnx,ry],'real*4');
+            in = exp(im*in);
+
+            
             a=fread(fidi,newnx,'real*4');
             a = exp(im*a);
             if(j==ry)
@@ -107,9 +112,10 @@ for j=1:newny
         switch ftype
             case 1 %r4 cpx
                 
-                plot(angle(asum(5100:5300)))
+                plot(asum(5100:5300))
                 hold on
                 plot(angle(csum(5100:5300)))
+                
             case 3 %r4
                 
                 plot(asum(5100:5300))
