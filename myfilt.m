@@ -31,18 +31,15 @@ mask=[flipud(mask');false(ry+1,newnx)];
 switch ftype
     case 1 %r4 phs
         in=fread(fidi,[newnx,ry],'real*4');
-        in = [flipud(in');nan(ry+1,newnx)];
-        in=exp(im*in);
-        
+        in=exp(im*in);       
     case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
-        in = [flipud(in');nan(ry+1,newnx*2)];
         in=in(:,1:2:end)+im*in(:,2:2:end);
     
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
-        in = [flipud(in');nan(ry+1,newnx)];       
 end
+in = [flipud(in.');nan(ry+1,newnx)];
 in(isnan(in))=0;
 in(~mask)=0;
 
