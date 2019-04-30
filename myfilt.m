@@ -39,7 +39,6 @@ switch ftype
         in=fread(fidi,[newnx,ry],'real*4');
 end
 
-return
 in = [flipud(in');nan(ry+1,newnx)];
 
 in(isnan(in))=0;
@@ -102,22 +101,22 @@ for j=1:newny
     asum = conv(a,windx,'same');
     csum = conv(c,windx,'same');
     out  = csum./asum;
-     if(j==ry)
-               subplot(1,3,1)
-                 switch ftype
-        case 1 %r4 cpx
-  
-               plot(angle(asum))
-               hold on
-               plot(angle(csum))
-                       case 3 %r4
-  
-               plot(asum)
-               hold on
-               plot(csum)
-                 end
-               return
-     end
+    if(j==ry)
+        subplot(1,3,1)
+        switch ftype
+            case 1 %r4 cpx
+                
+                plot(angle(asum))
+                hold on
+                plot(angle(csum))
+            case 3 %r4
+                
+                plot(asum)
+                hold on
+                plot(csum)
+        end
+        return
+    end
     switch(outtype)
         case 1 %just output filtered phase at all points
             fwrite(fido,angle(out),'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
