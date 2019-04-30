@@ -102,7 +102,7 @@ for j=1:newny
     csum = conv(c,windx,'same');
     out  = csum./asum;
     if(j==ry)
-        subplot(1,3,1)
+        subplot(1,3,3)
         switch ftype
             case 1 %r4 cpx
                 
