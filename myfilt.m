@@ -42,7 +42,7 @@ switch ftype
     imagesc(in(5000:5700,:));
 end
 
-
+return
 in = [flipud(in');nan(ry+1,newnx)];
 
 in(isnan(in))=0;
