@@ -31,45 +31,22 @@ mask=[flipud(mask');false(ry+1,newnx)];
 switch ftype
     case 1 %r4 phs
         in=fread(fidi,[newnx,ry],'real*4');
+        in = [flipud(in');nan(ry+1,newnx)];
+        in=exp(im*in);
+        
     case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
-        in=in(1:2:end,:)+im*in(2:2:end,:);
+        in = [flipud(in');nan(ry+1,newnx*2)];
+        in=in(:,1:2:end)+im*in(:,2:2:end);
+    
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
+        in = [flipud(in');nan(ry+1,newnx)];       
 end
-figure
-hold on
-switch ftype
-    case 1
-        plot(in(5100:5150,ry)');
-    case 3
-        plot(in(5100:5150,ry)');
-end
-switch ftype
-    case 1 %r4 phs
-in = [flipud(in');nan(ry+1,newnx)];
-in(isnan(in))=0;
-in(~mask)=0;
-in=exp(im*in);
-    case 2 %c8
-        in=fread(fidi,[newnx*2, ry],'real*4');
-        in=in(1:2:end,:)+im*in(2:2:end,:);
-    case 3 %unw r4
-in = [flipud(in');nan(ry+1,newnx)];
 in(isnan(in))=0;
 in(~mask)=0;
 
-end
 
-
-
-
-switch ftype
-    case 1
-        plot(angle(in(1,5100:5150)));
-    case 3
-        plot(in(1,5100:5150));
-end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
 
@@ -88,34 +65,13 @@ for j=1:newny
     in=circshift(in,1);
     switch ftype
         case 1 %r4
-            
-            %in=fread(fidi,[newnx,ry],'real*4');
-            %in = exp(im*in);
-
-            
             a=fread(fidi,newnx,'real*4');
             a = exp(im*a);
-            plot(angle(a(5100:5150)))
-            return
-%             if(j==ry)
-%                 
-%                 subplot(2,2,3)
-%                 imagesc(angle(in(:,5100:5300)));
-%                 
-%             end
         case 2 %int
             a=fread(fidi,newnx*2,'real*4');
             a=a(1:2:end)+im*a(2:2:end);
         case 3 %unw r4
             a=fread(fidi,newnx,'real*4');
-            plot(a(5100:5150))
-            return
-%              if(j==ry)
-%              
-%                 subplot(2,2,3)
-%                 imagesc((in(:,5100:5300)));
-%        
-%             end
    end
     a(isnan(a))=0;
     if(count1==newnx)
@@ -134,23 +90,7 @@ for j=1:newny
     asum = conv(a,windx,'same');
     csum = conv(c,windx,'same');
     out  = csum./asum;
-    if(j==ry)
-%         subplot(2,2,4)
-%         switch ftype
-%             case 1 %r4 cpx
-%                 
-%                 plot(asum(5100:5300))
-%                 hold on
-%                 plot(angle(csum(5100:5300)))
-%                 
-%             case 3 %r4
-%                 
-%                 plot(asum(5100:5300))
-%                 hold on
-%                 plot(csum(5100:5300))
-%         end
-        return
-    end
+  
     switch(outtype)
         case 1 %just output filtered phase at all points
             fwrite(fido,angle(out),'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
