@@ -42,9 +42,9 @@ figure
 subplot(2,2,1)
 switch ftype
     case 1
-                imagesc(angle(in(:,5100:5300)));       
+                imagesc(angle(in(5100:5300,:)));       
     case 3
-        imagesc(in(:,5100:5300));
+        imagesc(in(5100:5300,:));
 end
 in = [flipud(in');nan(ry+1,newnx)];
    
