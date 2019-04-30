@@ -67,7 +67,8 @@ for j=1:newny
             if(j==ry)
                 figure
                 subplot(1,3,1)
-                imagesc(angle(:,in(5100:5300)));
+                imagesc(angle(in(:,5100:5300)));
+                
                 subplot(1,3,2)
                 imagesc(mask(:,5100:5300));
             end
