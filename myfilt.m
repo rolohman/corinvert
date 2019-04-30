@@ -40,10 +40,20 @@ switch ftype
 end
 
 in = [flipud(in');nan(ry+1,newnx)];
+   
 
 in(isnan(in))=0;
 in(~mask)=0;
-
+figure
+subplot(2,2,1)
+switch ftype
+    case 1
+                imagesc(angle(in(:,5100:5300)));
+        
+    case 3
+        imagesc(in(:,5100:5300));
+        
+end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
 
@@ -63,18 +73,18 @@ for j=1:newny
     switch ftype
         case 1 %r4
             
-            in=fread(fidi,[newnx,ry],'real*4');
-            in = exp(im*in);
+            %in=fread(fidi,[newnx,ry],'real*4');
+            %in = exp(im*in);
 
             
             a=fread(fidi,newnx,'real*4');
             a = exp(im*a);
             if(j==ry)
-                figure
-                subplot(1,3,1)
+                
+                subplot(2,2,2)
                 imagesc(angle(in(:,5100:5300)));
                 
-                subplot(1,3,2)
+                subplot(2,2,3)
                 imagesc(mask(:,5100:5300));
             end
         case 2 %int
@@ -84,9 +94,9 @@ for j=1:newny
             a=fread(fidi,newnx,'real*4');
              if(j==ry)
                 figure
-                subplot(1,3,1)
+                subplot(2,2,2)
                 imagesc((in(:,5100:5300)));
-                subplot(1,3,2)
+                subplot(2,2,3)
                 imagesc(mask(:,5100:5300));
             end
    end
@@ -108,7 +118,7 @@ for j=1:newny
     csum = conv(c,windx,'same');
     out  = csum./asum;
     if(j==ry)
-        subplot(1,3,3)
+        subplot(2,2,4)
         switch ftype
             case 1 %r4 cpx
                 
