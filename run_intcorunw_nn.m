@@ -222,8 +222,12 @@ for i=1:nd-1
         
         %unwrap filtered with snaphu
         copyfile(intfile_filt2,'snaphu/snaphu.in')
-        copyfile(intmask,'snaphu/snaphu.msk')
+        
         chdir('snaphu')
+        delete('snaphu.out')
+        fid=fopen('snaphu.msk','w');
+        fwrite(fid,mask,'real*4');
+        fclose(fid);
         command=['snaphu -f snaphu.conf'];
         system(command);
         command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -n -o snaphu.2pi --a=''snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
@@ -251,7 +255,7 @@ end
 
 
 
-
+return
 
 
 
