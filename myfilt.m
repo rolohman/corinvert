@@ -14,8 +14,8 @@ switch windowtype
         windx=exp(-(-rx*1.5:rx*1.5).^2/2/(rx/2)^2);
         windy=exp(-(-ry*1.5:ry*1.5).^2/2/(ry/2)^2);
 end
-windx=windx/sum(windx);
-windy=windy/sum(windy);
+%windx=windx/sum(windx);
+%windy=windy/sum(windy);
 ry=floor(length(windy)/2);
 
 z       = zeros(1,newnx);
@@ -85,7 +85,7 @@ for j=1:newny
     c    = windy*c;
     
     asum = conv(a,windx,'same');
-    asum(asum<0.1)=NaN;
+    asum(asum<5)=NaN;
     csum = conv(c,windx,'same');
     out  = csum./asum;
   
