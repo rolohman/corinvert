@@ -19,10 +19,10 @@ switch windowtype
         tri2=1-tri;
         merge=windx.*tri+windx2.*tri2;
         
-        ry=floor(length(merge)/2);
-        
-        s=sum(merge(1:ry))*2;
-        merge(ry+1)=2*s;
+%         ry=floor(length(merge)/2);
+%         
+%         s=sum(merge(1:ry))*2;
+%         merge(ry+1)=2*s;
         windx=merge;
         windy=merge;
         %windx=exp(-(-rx*1.5:rx*1.5).^2/2/(rx/2)^2);
