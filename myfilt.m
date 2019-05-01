@@ -11,13 +11,13 @@ switch windowtype
         windx=zeros(1,rx*2+1); windx((1:rx)+ceil(rx/2))=1;
         windy=zeros(1,ry*2+1); windy((1:ry)+ceil(ry/2))=1;
     case 2
-        xs=-rx*2:rx*2;
+        xs=-rx*3:rx*3;
         windx=exp(-(xs).^2/2/(rx/2)^2);
         windx2=exp(-abs(xs)/rx*2);
 
         tri=(1-abs(xs)/max(xs));
         tri2=1-tri;
-        merge=windx.*tri+windx2.*tri2;
+        merge=windx.*tri*2+windx2.*tri2;
         
 %         ry=floor(length(merge)/2);
 %         
