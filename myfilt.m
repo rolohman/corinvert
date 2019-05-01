@@ -85,6 +85,7 @@ for j=1:newny
     c    = windy*c;
     
     asum = conv(a,windx,'same');
+    asum(asum<0.1)=NaN;
     csum = conv(c,windx,'same');
     out  = csum./asum;
   
