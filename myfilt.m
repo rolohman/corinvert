@@ -21,7 +21,7 @@ switch windowtype
         
         ry=floor(length(merge)/2);
         
-        s=s(merge(1:ry))*2;
+        s=sum(merge(1:ry))*2;
         merge(ry+1)=2*s;
         windx=merge;
         windy=merge;
@@ -99,7 +99,7 @@ for j=1:newny
     c    = windy*c;
     
     asum = conv(a,windx,'same');
-    asum(asum<10)=NaN;
+    %asum(asum<10)=NaN;
     csum = conv(c,windx,'same');
     out  = csum./asum;
   
