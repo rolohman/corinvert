@@ -19,10 +19,8 @@ switch windowtype
 end
 xsum=sum(windx);
 ysum=sum(windy);
-if(ftype~=3)
-    windx=windx/xsum;
-    windy=windy/ysum;
-end
+windx=windx/xsum;
+windy=windy/ysum;
 ry=floor(length(windy)/2);
 
 z       = zeros(1,newnx);
@@ -93,9 +91,8 @@ for j=1:newny
     c    = windy*c;
     
     asum = conv(a,windx,'same');
-    %asum(asum<10)=NaN;
     csum = conv(c,windx,'same');
-    out  = csum./asum;
+    out  = csum.*asum;
     %write count
     fwrite(fidc,asum,'real*4');
     switch(outtype)
