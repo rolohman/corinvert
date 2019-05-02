@@ -81,8 +81,6 @@ if(~exist(avgwgtfile,'file'))
 end
 avgwgtfile='wgtdir/average.1alks_3rlks.amp'; %need to add splitting and downlooking
 
-
-
 for i=1:nd-1
     cordir=(['cordir' pol '/' dates(i).name '/']);
     intdir=(['intdir' pol '/' dates(i).name '/']);
@@ -188,9 +186,11 @@ for i=1:nd-1
     intfile         = [intdir name '.int']
     corfile         = [cordir name '.cor'];
     intmask         = [intdir name '.msk'];
-    intfile_filt1   = [intdir name '_filt.int'];  %masked infilled with filtered
-    intfile_filt2   = [intdir name '_psfilt.int']; %psfilt version for unwrapping
-    intfile_filtunw = [intdir name '_psfilt.unw']; %psfilt version for unwrapping
+    intfile_filt1   = ['smallfilt.int'];  %masked infilled with filtered
+    intfile_filtw1  = ['smallfiltw.int'];  %masked infilled with filtered
+    intfile_filt2   = ['bigfilt.int']; %psfilt version for unwrapping
+
+    intfile_psfilt  = [intdir name '_psfilt.int']; %psfilt version for unwrapping
 
     intfile_2pi     = [intdir name '_2pi.unw'];
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
@@ -198,49 +198,89 @@ for i=1:nd-1
     intfile_deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
  
     if(~exist(intfile_unw,'file'))
+        delete('maskfill.int'); %make sure this is blank
+        delete('snaphu/snaphu.out');
+        delete('snaphu/snaphu.in');
+        delete('snaphu/snaphu.msk');
         %make mask
         fid       = fopen(avgwgtfile,'r');
         mask1     = fread(fid,[newnx newny],'real*4');
         fid       = fopen(corfile,'r');
         mask2     = fread(fid,[newnx newny],'real*4');
-        mask      = and(mask1>0.15,mask2>0.4);
+        mask      = and(mask1>0.1,mask2>0.4);
+        
+         
         fid       = fopen(intmask,'w');
         fwrite(fid,mask,'integer*1');
         fclose('all');
+            
+        %filter twice and fill masked area
+        myfilt(intfile,intmask,intfile_filt1,5,5,newnx,newny,2,1,1,intfile_filtw1);
+        myfilt(intfile,intmask,intfile_filt2,40,40,newnx,newny,2,1,1,'/dev/null');
         
-              
-        %filter short wavelengths and fill masked area
-        myfilt(intfile,intmask,intfile_filt1,30,30,newnx,newny,2,1,2);
-  
+        fid0=fopen(intmask,'r');
+        fid1=fopen(intfile,'r');
+        fid2=fopen(intfile_filt1,'r');
+        fid3=fopen(intfile_filtw1','r');
+        fid4=fopen(intfile_filt2,'r');
+        fido=fopen('maskfill.int','w');
+        
+        outc          = zeros(1,newnx*2);
+        for i=1:newny
+            m  = fread(fid0,newnx,'integer*1');
+            a  = fread(fid1,newnx,'real*4');
+            b  = fread(fid2,newnx,'real*4');
+            c  = fread(fid3,newnx,'real*4');
+            d  = fread(fid4,newnx,'real*4');
+            
+            b  = exp(im*b);
+            d  = exp(im*d);
+            m1 = m==1;
+            
+            %a, unless masked, then b weighted by distance+d, unless
+            %masked, then d.
+            out(m1)           = a(m1);
+            out(~m1)          = angle(b(~m1).*c(~m1)+d(~m1).*(1-c(~m1)));
+            out(isnan(b))     = angle(d(isnan(b)));
+            out(isnan(a))     = NaN;
+            outc(1:2:end)     = cos(out);
+            outc(2:2:end)     = sin(out);
+            outc(isnan(outc)) = 0;
+            fwrite(fido,outc,'real*4');
+        end
+
+      
         %psfilt, remove nans
-        command=['imageMath.py -e=''exp(I*a)'' -t cfloat -n -o tmp --a=''' intfile_filt1  ';' num2str(newnx) ';float;1;BSQ'''];
-        system(command);
-        command=['remove_nan tmp tmp2 ' num2str(newnx) ' ' num2str(newny) ' > /dev/null'];
-        system(command);
-        command=['psfilt tmp2 ' intfile_filt2 ' ' num2str(newnx)];
+        command=['psfilt maskfill.int ' intfile_psfilt ' ' num2str(newnx)];
         system(command);
         
         %unwrap filtered with snaphu
-        copyfile(intfile_filt2,'snaphu/snaphu.in')
+        copyfile(intfile_psfilt,'snaphu/snaphu.in')
         
         chdir('snaphu')
-        delete('snaphu.out')
         fid=fopen('snaphu.msk','w');
         fwrite(fid,mask,'real*4');
         fclose(fid);
+        
         command=['snaphu -f snaphu.conf'];
         system(command);
-        command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -n -o snaphu.2pi --a=''snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
-        system(command);
-        movefile('snaphu.2pi',['../' intfile_2pi]);
-        chdir('..');
+        chdir('..')
         
         %add 2pis to unfiltered
-        command=['imageMath.py -e=''a+2*PI*b'' -o tmpunw -n -t float --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
+        command=['imageMath.py -e=''round((b-a)/2/PI)'' -t short -n -o ' intfile_2pi ' --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
         system(command);
-        command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -n -o ' intfile_unw ' -t float --a=''tmpunw;' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+        
+        command=['imageMath.py -e=''a+2*PI*b'' -o ' intfile_unw ' -n -t float --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
         system(command);
-              
+   
+return
+%         
+%         %add 2pis to unfiltered
+%         command=['imageMath.py -e=''a+2*PI*b'' -o tmpunw -n -t float --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
+%         system(command);
+%         command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -n -o ' intfile_unw ' -t float --a=''tmpunw;' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+%         system(command);
+%               
         %filter long wavelengths
         myfilt(intfile_unw,intmask,intfile_long,250,250,newnx,newny,2,3,4);
         
