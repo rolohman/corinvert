@@ -83,6 +83,11 @@ for j=1:newny
     else
         in(1,:)=z;
     end
+    
+    if(j=300)
+        save bigstuff
+        return
+    end
     good = in~=0;
     a    = good;
     c    = in;

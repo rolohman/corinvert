@@ -285,7 +285,7 @@ for i=1:nd-1
         end
         
         %filter long wavelengths
-        myfilt(intfile_unw,intmask,intfile_long,250,250,newnx,newny,2,3,4,'/dev/null');
+        myfilt(intfile_unw,intmask,intfile_long,50,50,newnx,newny,2,3,4,'/dev/null');
         
         %remove long wavelength from unw
         command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
