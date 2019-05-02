@@ -20,8 +20,8 @@ end
 xsum=sum(windx);
 ysum=sum(windy);
 sumprod=xsum.*ysum;
-windx=windx/xs;
-windy=windy/ys;
+windx=windx/xsum;
+windy=windy/ysum;
 ry=floor(length(windy)/2);
 
 z       = zeros(1,newnx);
