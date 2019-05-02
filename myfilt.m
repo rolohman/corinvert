@@ -1,4 +1,4 @@
-function myfilt(infile,maskfile,outfile,rx,ry,newnx,newny,windowtype,ftype,outtype)
+function myfilt(infile,maskfile,outfile,rx,ry,newnx,newny,windowtype,ftype,outtype,countfile)
 im=sqrt(-1);
 
 
@@ -10,32 +10,22 @@ switch windowtype
     case 1
         windx=zeros(1,rx*2+1); windx((1:rx)+ceil(rx/2))=1;
         windy=zeros(1,ry*2+1); windy((1:ry)+ceil(ry/2))=1;
-    case 2
-        xs=-rx*4:rx*4;
-        windx=exp(-(xs).^2/2/(rx/2)^2);
-        windx2=exp(-abs(xs)/rx*4);
-
-        tri=(1-abs(xs)/max(xs));
-        tri2=1-tri;
-        merge=windx.*tri*2+windx2.*tri2;
-        
-%         ry=floor(length(merge)/2);
-%         
-%         s=sum(merge(1:ry))*2;
-%         merge(ry+1)=2*s;
-        windx=merge;
-        windy=merge;
-        %windx=exp(-(-rx*1.5:rx*1.5).^2/2/(rx/2)^2);
-        %windy=exp(-(-ry*1.5:ry*1.5).^2/2/(ry/2)^2);
+    case 2 %gaussian
+        windx=exp(-(-rx*2:rx*2).^2/2/(rx/2)^2);
+        windy=exp(-(-ry*2:ry*2).^2/2/(ry/2)^2);
+    case 3 %exp
+        windx=exp(-abs(-rx*2:rx*2)/rx*3);
+        windy=exp(-abs(-ry*2:ry*2)/ry*3);
 end
-%windx=windx/sum(windx);
-%windy=windy/sum(windy);
+windx=windx/sum(windx);
+windy=windy/sum(windy);
 ry=floor(length(windy)/2);
 
 z       = zeros(1,newnx);
 fidi    = fopen(infile,'r');
 fidm    = fopen(maskfile,'r');
 fido    = fopen(outfile,'w');
+fidc    = fopen(countfile,'w');
 
 mask=fread(fidm,[newnx,ry],'integer*1');
 mask=mask==1;
@@ -102,7 +92,8 @@ for j=1:newny
     %asum(asum<10)=NaN;
     csum = conv(c,windx,'same');
     out  = csum./asum;
-  
+    %write count
+    fwrite(fidc,asum,'real*4');
     switch(outtype)
         case 1 %just output filtered phase at all points
             fwrite(fido,angle(out),'real*4'); %1000pixel filtered product, at all pixels, even masked ones.
