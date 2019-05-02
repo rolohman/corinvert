@@ -84,10 +84,10 @@ for j=1:newny
         in(1,:)=z;
     end
     
-    if(j==300)
-        save bigstuff
-        return
-    end
+%     if(j==300)
+%         save bigstuff
+%         return
+%     end
     good = in~=0;
     a    = good;
     c    = in;
@@ -97,7 +97,7 @@ for j=1:newny
     
     asum = conv(a,windx,'same');
     csum = conv(c,windx,'same');
-    out  = csum.*asum;
+    out  = csum./asum;
 
     %write count
     fwrite(fidc,asum,'real*4');
