@@ -86,13 +86,17 @@ for j=1:newny
     good = in~=0;
     a    = good;
     c    = in;
-    
+    if(j==300)
+        save bigstuff
+    return
+    end    
     a    = windy*a;
     c    = windy*c;
     
     asum = conv(a,windx,'same');
     csum = conv(c,windx,'same');
     out  = csum.*asum;
+
     %write count
     fwrite(fidc,asum,'real*4');
     switch(outtype)
