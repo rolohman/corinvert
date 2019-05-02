@@ -84,7 +84,7 @@ for j=1:newny
         in(1,:)=z;
     end
     
-    if(j=300)
+    if(j==300)
         save bigstuff
         return
     end
