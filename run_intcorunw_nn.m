@@ -271,9 +271,9 @@ for i=1:nd-1
         
         %add 2pis to unfiltered
         if(1)
-            command=['imageMath.py -e=''round((b-a)/2/PI)'' -t byte -n -o ' intfile_2pi ' --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+            command=['imageMath.py -e=''round((b-a)/2/PI)'' -t short -n -o ' intfile_2pi ' --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
             system(command);           
-            command=['imageMath.py -e=''a+2*PI*b'' -o ' intfile_unw ' -n -t float --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';byte;1;BSQ'''];
+            command=['imageMath.py -e=''a+2*PI*b'' -o ' intfile_unw ' -n -t float --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
             system(command);
         else
             command=['imageMath.py -e=''round((b-arg(a))/2/PI)'' -t short -n -o ' intfile_2pi ' --a=''snaphu/snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];

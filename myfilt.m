@@ -44,9 +44,6 @@ switch ftype
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
 end
-save bigstuff
-return
-
 
 in = [flipud(in.');nan(ry+1,newnx)];
 in(isnan(in))=0;
@@ -89,10 +86,7 @@ for j=1:newny
     good = in~=0;
     a    = good;
     c    = in;
-    if(j==300)
-        save bigstuff
-    return
-    end    
+   
     a    = windy*a;
     c    = windy*c;
     
