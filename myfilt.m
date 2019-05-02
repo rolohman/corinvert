@@ -44,12 +44,14 @@ switch ftype
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
 end
+save bigstuff
+return
+
+
 in = [flipud(in.');nan(ry+1,newnx)];
 in(isnan(in))=0;
 in(~mask)=0;
 
-save bigstuff
-return
 
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
