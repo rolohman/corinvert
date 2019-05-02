@@ -40,8 +40,7 @@ switch ftype
         in=exp(im*in);       
     case 2 %c8
         in=fread(fidi,[newnx*2, ry],'real*4');
-        in=in(:,1:2:end)+im*in(:,2:2:end);
-    
+        in=in(:,1:2:end)+im*in(:,2:2:end);   
     case 3 %unw r4
         in=fread(fidi,[newnx,ry],'real*4');
 end
@@ -49,6 +48,8 @@ in = [flipud(in.');nan(ry+1,newnx)];
 in(isnan(in))=0;
 in(~mask)=0;
 
+save bigstuff
+return
 
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
@@ -75,7 +76,7 @@ for j=1:newny
             a=a(1:2:end)+im*a(2:2:end);
         case 3 %unw r4
             a=fread(fidi,newnx,'real*4');
-   end
+    end
     a(isnan(a))=0;
     if(count1==newnx)
         a(~mask(1,:))=0;
