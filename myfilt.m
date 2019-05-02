@@ -19,9 +19,10 @@ switch windowtype
 end
 xsum=sum(windx);
 ysum=sum(windy);
-sumprod=xsum.*ysum;
-windx=windx/xsum;
-windy=windy/ysum;
+if(ftype~=3)
+    windx=windx/xsum;
+    windy=windy/ysum;
+end
 ry=floor(length(windy)/2);
 
 z       = zeros(1,newnx);
@@ -110,10 +111,10 @@ for j=1:newny
             dif      = orig*conj(out);
             fwrite(fido,angle(dif),'real*4');
         case 4 %output filtered, unwrapped input and output
-            fwrite(fido,out/sumprod,'real*4');
+            fwrite(fido,out,'real*4');
         case 5 %output unwrapped-filtered %need to fix this so that it works for unmasked
             orig     = in(ry+1,:);
-            fwrite(fido,orig-out/sumprod,'real*4');
+            fwrite(fido,orig-out,'real*4');
     end
     
 end
