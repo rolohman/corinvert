@@ -189,14 +189,10 @@ for i=1:nd-1
     intfile_filt1   = ['smallfilt.int'];  %masked infilled with filtered
     intfile_filtw1  = ['smallfiltw.int'];  %masked infilled with filtered
     intfile_filt2   = ['bigfilt.int']; %psfilt version for unwrapping
-
     intfile_psfilt  = [intdir name '_psfilt.int']; %psfilt version for unwrapping
-
     intfile_2pi     = [intdir name '_2pi.unw'];
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
-    intfile_long    = [intdir name '_low.unw'];  %long-wavelength component
-    intfile_deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
- 
+
     if(~exist(intfile_unw,'file'))
         delete('maskfill.int'); %make sure this is blank
         delete('snaphu/snaphu.out');
@@ -251,7 +247,7 @@ for i=1:nd-1
 
       
         %psfilt, remove nans
-        command=['psfilt maskfill.int ' intfile_psfilt ' ' num2str(newnx)];
+        command=['psfilt maskfill.int ' intfile_psfilt ' ' num2str(newnx) ' 0.25'];
         system(command);
         
         %unwrap filtered with snaphu
@@ -283,9 +279,23 @@ for i=1:nd-1
             command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -n -o ' intfile_unw ' -t float --a=''tmpunw;' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
             system(command);
         end
-        
+    end
+end
+
+return
+for i=1:nd-1
+    j=i+1;
+    intdir = (['intdir' pol '/' dates(i).name '/']);
+    name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
+    intfile         = [intdir name '.int']
+    corfile         = [cordir name '.cor'];
+    intmask         = [intdir name '.msk'];
+    intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
+    intfile_long    = [intdir name '_low.unw'];  %long-wavelength component
+    intfile_deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
+
         %filter long wavelengths
-        myfilt(intfile_unw,intmask,intfile_long,50,50,newnx,newny,2,3,4,'/dev/null');
+        myfilt(intfile_unw,intmask,intfile_long,250,250,newnx,newny,2,3,4,'/dev/null');
         
         %remove long wavelength from unw
         command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
@@ -324,22 +334,4 @@ if(1)
 end
 
 
-
-
-for i=1:nd-1
-    j=i+1
-    intfile_unw1=['tsdir/fixunw/' dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
-    intfile_unw2=['tsdir/resnaphu/' dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
-    if(~exist(intfile_unw2,'file'))
-        %filter
-        command=['remove_nan ' intfile_unw1 ' tsdir/resnaphu/snaphu.in ' num2str(newnx) ' ' num2str(newny) ' > /dev/null'];
-        system(command);
-        chdir('tsdir/resnaphu')
-        command=['snaphu -f snaphu.conf'];
-        system(command);
-        movefile('snaphu.out',intfile_unw);
-        chdir('../..');
-        
-    end
-end
 
