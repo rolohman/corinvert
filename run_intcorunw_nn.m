@@ -7,12 +7,12 @@ im=sqrt(-1);
 slcdir=['merged/SLC' pol '/'];
 skips=1;  %1=sequential, larger=longer time pairs
 for i=1:nd
-    dates(i).name    = files(i).name(1:8);    
+    dates(i).name    = files(i).name(1:8);
     dates(i).slc     = [slcdir dates(i).name '/' dates(i).name '.slc.full'];
 end
 
 slcdirVH=['merged/SLC_VH/'];
-for i=1:nd   
+for i=1:nd
     dates(i).slcVH     = [slcdirVH dates(i).name '/' dates(i).name '.slc.full'];
 end
 
@@ -34,16 +34,16 @@ for i=1:nd-1
     if(~exist(intdir,'dir'))
         mkdir(intdir)
     end
-  
+    
     tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
     for j=i+1:tot
         corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
         intfile_small=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.int'];
-         wgtfile=['wgtdir/' dates(i).name '_' dates(j).name '.wgt'];
+        wgtfile=['wgtdir/' dates(i).name '_' dates(j).name '.wgt'];
         if(~exist(wgtfile,'file'))
             command=['imageMath.py -e=''arg(a*conj(b)*conj(c)*f)'' -o ' wgtfile ' --a=''' dates(i).slc ''' --b=''' dates(j).slc ''' --c=''' dates(i).slcVH ''' --f=''' dates(j).slcVH ''''];
             system(command);
-        end       
+        end
     end
 end
 
@@ -192,7 +192,7 @@ for i=1:nd-1
     intfile_psfilt  = [intdir name '_psfilt.int']; %psfilt version for unwrapping
     intfile_2pi     = [intdir name '_2pi.unw'];
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
-
+    
     if(~exist(intfile_unw,'file'))
         delete('maskfill.int'); %make sure this is blank
         delete('snaphu/snaphu.out');
@@ -205,11 +205,11 @@ for i=1:nd-1
         mask2     = fread(fid,[newnx newny],'real*4');
         mask      = and(mask1>0.1,mask2>0.4);
         
-         
+        
         fid       = fopen(intmask,'w');
         fwrite(fid,mask,'integer*1');
         fclose('all');
-            
+        
         %filter twice and fill masked area
         myfilt(intfile,intmask,intfile_filt1,5,5,newnx,newny,2,1,1,intfile_filtw1);
         myfilt(intfile,intmask,intfile_filt2,40,40,newnx,newny,2,1,1,'/dev/null');
@@ -244,8 +244,8 @@ for i=1:nd-1
             outc(isnan(outc)) = 0;
             fwrite(fido,outc,'real*4');
         end
-
-      
+        
+        
         %psfilt, remove nans
         command=['psfilt maskfill.int ' intfile_psfilt ' ' num2str(newnx) ' 0.25'];
         system(command);
@@ -268,7 +268,7 @@ for i=1:nd-1
         %add 2pis to unfiltered
         if(1)
             command=['imageMath.py -e=''round((b-a)/2/PI)'' -t short -n -o ' intfile_2pi ' --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
-            system(command);           
+            system(command);
             command=['imageMath.py -e=''a+2*PI*b'' -o ' intfile_unw ' -n -t float --a=''' intfile ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_2pi  ';' num2str(newnx) ';short;1;BSQ'''];
             system(command);
         else
@@ -293,16 +293,16 @@ for i=1:nd-1
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
     intfile_long    = [intdir name '_low.unw'];  %long-wavelength component
     intfile_deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
-
-        %filter long wavelengths
-        myfilt(intfile_unw,intmask,intfile_long,250,250,newnx,newny,2,3,4,'/dev/null');
-        
-        %remove long wavelength from unw
-        command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
-        system(command);
-        
-    end
+    
+    %filter long wavelengths
+    myfilt(intfile_unw,intmask,intfile_long,250,250,newnx,newny,2,3,4,'/dev/null');
+    
+    %remove long wavelength from unw
+    command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
+    system(command);
+    
 end
+
 
 
 return
