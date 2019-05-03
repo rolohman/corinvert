@@ -183,7 +183,7 @@ for i=1:nd-1
     cordir = (['cordir2' pol '/' dates(i).name '/']);
     intdir = (['intdir' pol '/' dates(i).name '/']);
     name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
-    intfile         = [intdir name '.int']
+    intfile         = [intdir name '.int'];
     corfile         = [cordir name '.cor'];
     intmask         = [intdir name '.msk'];
     intfile_filt1   = ['smallfilt.int'];  %masked infilled with filtered
@@ -194,6 +194,7 @@ for i=1:nd-1
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
     
     if(~exist(intfile_unw,'file'))
+        disp(['unwrapping ' intfile])
         delete('maskfill.int'); %make sure this is blank
         delete('snaphu/snaphu.out');
         delete('snaphu/snaphu.in');
@@ -280,6 +281,8 @@ for i=1:nd-1
             command=['imageMath.py -e=''a-round((a-b)/2/PI)*2*PI'' -n -o ' intfile_unw ' -t float --a=''tmpunw;' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
             system(command);
         end
+    else
+        disp(['done unwrapping ' intfile])
     end
 end
 
@@ -288,7 +291,7 @@ for i=1:nd-1
     j=i+1;
     intdir = (['intdir' pol '/' dates(i).name '/']);
     name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
-    intfile         = [intdir name '.int']
+    intfile         = [intdir name '.int'];
 
     intmask         = [intdir name '.msk'];
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
@@ -297,11 +300,13 @@ for i=1:nd-1
     if(~exist(intfile_long,'file'))
         disp(['need to run ' intfile_long])
         %filter long wavelengths
-        %myfilt(intfile_unw,intmask,intfile_long,200,200,newnx,newny,2,3,4,'/dev/null');
+        myfilt(intfile_unw,intmask,intfile_long,200,200,newnx,newny,2,3,4,'/dev/null');
         
         %remove long wavelength from unw
-        %command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
-        %system(command);
+        command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
+        system(command);
+    else
+        disp(['already highpass filtered ' intfile])
     end
 end
 return
