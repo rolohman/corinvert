@@ -208,7 +208,11 @@ for i=1:nd-1
         
         fid       = fopen(intmask,'w');
         fwrite(fid,mask,'integer*1');
-        fclose('all');
+        fclose('fid');
+        fid       = fopen('snaphu/snaphu.msk','w');
+        fwrite(fid,mask,'real*4');
+        fclose(fid);
+        clear mask
         
         %filter twice and fill masked area
         myfilt(intfile,intmask,intfile_filt1,5,5,newnx,newny,2,1,1,intfile_filtw1);
@@ -257,9 +261,6 @@ for i=1:nd-1
         system(command);
         
         chdir('snaphu')
-        fid=fopen('snaphu.msk','w');
-        fwrite(fid,mask,'real*4');
-        fclose(fid);
         
         command=['snaphu -f snaphu.conf'];
         system(command);
@@ -293,7 +294,7 @@ parfor i=1:nd-1
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
     intfile_long    = [intdir name '_low.unw'];  %long-wavelength component
     intfile_deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
-    if(exist(intfile_long,'f'))
+    if(exist(intfile_long,'file'))
         %filter long wavelengths
         myfilt(intfile_unw,intmask,intfile_long,200,200,newnx,newny,2,3,4,'/dev/null');
         
