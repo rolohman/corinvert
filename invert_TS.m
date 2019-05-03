@@ -41,6 +41,7 @@ end
 for i=1:nd-1
     fidi(i)=fopen(ints(i).unw,'r');
 end
+fidr(i)=fopen([ddir 'simpleres.r4']);
 
 for j=1:newny
     tmp=zeros(nd-1,newnx);
@@ -48,9 +49,12 @@ for j=1:newny
         tmp(i,:)=fread(fidi(i),newnx,'real*4');
     end
     model=Gg*tmp;
-    
+    synth=G*model;
+    res=tmp-synth;
+    res=sqrt(mean(res.^2,1,'omitnan'));
     for i=1:nd
         fwrite(fido(i),model(i,:),'real*4');
     end
+    fwrite(fidr,res,'real*4');
 end
 fclose('all');
