@@ -25,6 +25,8 @@ end
 if(~exist(['wgtdir']))
     mkdir(['wgtdir'])
 end
+
+%VVVH stuff
 for i=1:nd-1
     cordir=(['cordir' pol '/' dates(i).name '/']);
     intdir=(['intdir' pol '/' dates(i).name '/']);
@@ -81,6 +83,7 @@ if(~exist(avgwgtfile,'file'))
 end
 avgwgtfile='wgtdir/average.1alks_3rlks.amp'; %need to add splitting and downlooking
 
+%make ints and corfiles if not already made
 for i=1:nd-1
     cordir=(['cordir' pol '/' dates(i).name '/']);
     intdir=(['intdir' pol '/' dates(i).name '/']);
@@ -150,34 +153,7 @@ for i=1:nd-1
 end
 
 
-%average cors
-avgcorfile='cordir_VV/average.cor';
-if(~exist(avgcorfile,'file'))
-    fido=fopen(avgcorfile,'w');
-    for j=1:newny
-        fwrite(fido,zeros(newnx,1),'real*4');
-    end
-    fclose(fido)
-    
-    for i=1:nd-1
-        i
-        j=i+1;
-        cordir=(['cordir' pol '/' dates(i).name '/']);
-        corfile_small=[cordir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.cor'];
-        fid1=fopen(avgcorfile,'r');
-        fid2=fopen(corfile_small,'r');
-        fido=fopen('tmpcor','w');
-        for j=1:newny
-            tmp1=fread(fid1,newnx,'real*4');
-            tmp2=fread(fid2,newnx,'real*4');
-            fwrite(fido,tmp1+tmp2/(nd-1),'real*4');
-        end
-        fclose('all');
-        movefile('tmpcor',avgcorfile);
-    end
-end
-
-
+%now the filtering/unwrapping section
 for i=1:nd-1
     j=i+1;
     cordir = (['cordir2' pol '/' dates(i).name '/']);
@@ -287,6 +263,7 @@ for i=1:nd-1
 end
 
 
+%remove long-wavelength signals
 for i=1:nd-1
     j=i+1;
     intdir = (['intdir' pol '/' dates(i).name '/']);
@@ -309,36 +286,30 @@ for i=1:nd-1
         disp(['already highpass filtered ' intfile])
     end
 end
-return
 
-
-
-
-
-
-if(1)
-    %TEMPORARY mask based on downlooked geoms
-    geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
-    for i=1:nd-1
-        cordir=(['cordir' pol '/' dates(i).name '/']);
-        intdir=(['intdir' pol '/' dates(i).name '/']);
-        tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
-        for j=i+1:tot
-            intfile_unw=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
-            fidm=fopen(geomfile,'r');
-            fid1=fopen(intfile_unw,'r');
-            fido1=fopen('tmp1','w');
-            for k=1:newny
-                a=fread(fidm,newnx,'real*8');
-                b=fread(fid1,newnx,'real*4');
-                b(a<0)=0;
-                fwrite(fido1,b,'real*4');
-            end
-            fclose('all');
-            movefile('tmp1',intfile_unw);
-        end
-    end
-end
-
-
-
+% if(1)
+%     %TEMPORARY mask based on downlooked geoms
+%     geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
+%     for i=1:nd-1
+%         cordir=(['cordir' pol '/' dates(i).name '/']);
+%         intdir=(['intdir' pol '/' dates(i).name '/']);
+%         tot=min(nd,i+skips); %fewer pairs for later dates, no more than total # dates
+%         for j=i+1:tot
+%             intfile_unw=[intdir dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk.unw'];
+%             fidm=fopen(geomfile,'r');
+%             fid1=fopen(intfile_unw,'r');
+%             fido1=fopen('tmp1','w');
+%             for k=1:newny
+%                 a=fread(fidm,newnx,'real*8');
+%                 b=fread(fid1,newnx,'real*4');
+%                 b(a<0)=0;
+%                 fwrite(fido1,b,'real*4');
+%             end
+%             fclose('all');
+%             movefile('tmp1',intfile_unw);
+%         end
+%     end
+% end
+% 
+% 
+% 
