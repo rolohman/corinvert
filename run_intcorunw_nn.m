@@ -1,4 +1,4 @@
-parpool(4)
+%parpool(4)
 pol='_VV';
 decide_ints_stack
 px=7;
@@ -284,7 +284,7 @@ for i=1:nd-1
 end
 
 
-parfor i=1:nd-1
+for i=1:nd-1
     j=i+1;
     intdir = (['intdir' pol '/' dates(i).name '/']);
     name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
@@ -294,19 +294,20 @@ parfor i=1:nd-1
     intfile_unw     = [intdir name '.unw']; %unfiltered unwrapped
     intfile_long    = [intdir name '_low.unw'];  %long-wavelength component
     intfile_deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
-    if(exist(intfile_long,'file'))
+    if(~exist(intfile_long,'file'))
+        disp(['need to run ' intfile_long])
         %filter long wavelengths
-        myfilt(intfile_unw,intmask,intfile_long,200,200,newnx,newny,2,3,4,'/dev/null');
+        %myfilt(intfile_unw,intmask,intfile_long,200,200,newnx,newny,2,3,4,'/dev/null');
         
         %remove long wavelength from unw
-        command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
-        system(command);
+        %command=['imageMath.py -e=''a-b'' -t float -n -o ' intfile_deramp ' --a=''' intfile_unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' intfile_long  ';' num2str(newnx) ';float;1;BSQ'''];
+        %system(command);
     end
 end
 return
 
 
-return
+
 
 
 
