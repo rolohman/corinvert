@@ -9,7 +9,7 @@ for i=1:nd
 end
 dn=[dates.dn];
 
-ddir=['dates' pol];
+ddir=['dates' pol '/'];
 if(~exist(ddir,'dir'))
     mkdir(ddir)
 end
