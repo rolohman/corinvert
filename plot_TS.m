@@ -50,7 +50,7 @@ end
 for i=1:nd-1
     fid=fopen(ints(i).msk,'r');
     fseek(fid,((y-1)*newnx+x-1),-1);
-    msk(i+1)=fread(fid,1,'integer*1');
+    msk(i)=fread(fid,1,'integer*1');
 end
 
 synth=intercept+slope*dn;
