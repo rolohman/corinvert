@@ -32,7 +32,7 @@ for i=1:nd
     def(i)=fread(fid,1,'real*4');
     fid2=fopen(dates(i).fixunw,'r');
     fseek(fid2,((y-1)*newnx+x-1)*4,-1);
-    def2(i)=fread(fid,1,'real*4');
+    def2(i)=fread(fid2,1,'real*4');
 end
 
 synth=intercept+slope*dn;
