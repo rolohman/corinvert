@@ -13,12 +13,13 @@ end
 dn=[dates.dn];
 dn=dn-min(dn);
 
+clear ints
 for i=1:nd-1
     j=i+1;
     ints(i).dir   = (['intdir' pol '/' dates(i).name '/']);
     ints(i).name  = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
     ints(i).int   = [ints(i).dir ints(i).name '.int'];
-    ints(i).msk   = [ints(i).dir ints(i).name '.mks'];
+    ints(i).msk   = [ints(i).dir ints(i).name '.msk'];
 end
    
 
