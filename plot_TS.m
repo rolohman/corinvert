@@ -60,7 +60,7 @@ hold on
 plot(dn,def2,'.-')
 plot(dn,synth,'r')
 for i=1:nd
-    if(~msk(i))
+    if(~msk(i+1))
         plot(dn(i),def(i),'ko')
     end
 end
