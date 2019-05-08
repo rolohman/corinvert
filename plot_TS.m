@@ -30,7 +30,7 @@ for i=1:nd
     fid=fopen(dates(i).unw,'r');
     fseek(fid,((y-1)*newnx+x-1)*4,-1);
     def(i)=fread(fid,1,'real*4');
-    fid2=fopen(dates(i).unw,'r');
+    fid2=fopen(dates(i).fixunw,'r');
     fseek(fid2,((y-1)*newnx+x-1)*4,-1);
     def2(i)=fread(fid,1,'real*4');
 end
