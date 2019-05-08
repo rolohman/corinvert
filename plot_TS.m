@@ -13,6 +13,17 @@ end
 dn=[dates.dn];
 dn=dn-min(dn);
 
+for i=1:nd-1
+    j=i+1;
+    ints(i).dir   = (['intdir' pol '/' dates(i).name '/']);
+    ints(i).name  = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
+    ints(i).int   = [ints(i).dir ints(i).name '.int'];
+    ints(i).msk   = [ints(i).dir ints(i).name '.mks'];
+end
+   
+
+
+
 fid=fopen([ddir 'simpleslope.r4'],'r');
 fseek(fid,((y-1)*newnx+x-1)*4,-1);
 slope=fread(fid,1,'real*4');
@@ -30,9 +41,15 @@ for i=1:nd
     fid=fopen(dates(i).unw,'r');
     fseek(fid,((y-1)*newnx+x-1)*4,-1);
     def(i)=fread(fid,1,'real*4');
-    fid2=fopen(dates(i).fixunw,'r');
-    fseek(fid2,((y-1)*newnx+x-1)*4,-1);
-    def2(i)=fread(fid2,1,'real*4');
+    fid=fopen(dates(i).fixunw,'r');
+    fseek(fid,((y-1)*newnx+x-1)*4,-1);
+    def2(i)=fread(fid,1,'real*4');
+end
+
+for i=1:nd-1
+    fid=fopen(ints(i).msk,'r');
+    fseek(fid,((y-1)*newnx+x-1),-1);
+    msk(i+1)=fread(fid,1,'integer*1');
 end
 
 synth=intercept+slope*dn;
@@ -41,3 +58,8 @@ plot(dn,def,'.-')
 hold on
 plot(dn,def2,'.-')
 plot(dn,synth,'r')
+for i=1:nd
+    if(~msk(i))
+        plot(dn(i),def(i),'ko')
+    end
+end
