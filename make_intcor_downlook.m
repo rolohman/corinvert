@@ -168,12 +168,7 @@ for j=1:ny
         cpx3 = cpx3(rangevec);
         
         if(udem)
-            if(j==97)
-                disp([cpx3(558) synth(558,linecount)]);
-                whos cpx3 synth
-                cpx3=cpx3.*conj(synth(:,linecount).');
-                whos cpx3 synth
-            end
+            cpx3=cpx3.*conj(synth(:,linecount).');
         end
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
