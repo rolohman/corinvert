@@ -69,7 +69,6 @@ whos synth
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
 
-count=0;
 switch windowtype
     case 0
         windx=[1/(rx+1):1/(rx+1):1 (1-1/(rx+1)):-1/(rx+1):1/(rx+1)];
@@ -120,6 +119,7 @@ end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
 
+linecount=0;
 for j=1:ny
     slc1=circshift(slc1,1);
     slc2=circshift(slc2,1);
@@ -147,7 +147,7 @@ for j=1:ny
         %wgts(wgts<0.2)=0;
     end
     if(ismember(j,azvec))
-        count=count+1
+        linecount=linecount+1
         if(uwgt)
             a   = slc1.*conj(slc1).*wgts;
             b   = slc2.*conj(slc2).*wgts;
@@ -169,7 +169,7 @@ for j=1:ny
         
         if(udem)
 
-            cpx3=synth(:,count);
+            cpx3=synth(:,linecount);
             fwrite(fid3,abs(cpx3),'real*4'); %cor
             fwrite(fid4,angle(cpx3),'real*4'); %int
         else
