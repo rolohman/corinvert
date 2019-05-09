@@ -164,7 +164,7 @@ for j=1:ny
         cpx3 = csum./sqrt(asum.*bsum);
         cpx3 = cpx3(rangevec);
   
-        if(udem)
+        if(0)
             dem   = fread(fidd,newnx,'real*4');
             synth = dem*bp;
             synth = exp(im*synth); %wrap
