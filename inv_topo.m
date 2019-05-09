@@ -1,4 +1,3 @@
-%myfilt_topo(infile,avgwgtfile,corfile,outfile,rx,ry,newnx,newny,demerrfile)
 im=sqrt(-1);
 pol  = '_VV';
 ddir = ['dates' pol '/'];
@@ -48,7 +47,7 @@ for j=1:newny
     fwrite(fido2,a,'real*4');
     fwrite(fido3,b,'real*4');
     fwrite(fido4,mods(1,:),'real*4');
-    fwrite(fido5,1-a./b,'real*4');
+    fwrite(fido5,1-b./a,'real*4');
     for i=1:nd-1
         fwrite(fid(i),data(i,:)-synth2(i,:),'real*4');
     end
