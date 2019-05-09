@@ -61,7 +61,7 @@ b=fitresult.b;
 c=fitresult.c;
 d=fitresult.d;
 
-synth=(b+c*sin(intd/360*2*pi-d))*intbp;
+synth=(b+c*sin(intd/360*2*pi-d)).*intbp;
 %a+(b+c*sin(x/360*2*pi-d))*y
 
 figure
