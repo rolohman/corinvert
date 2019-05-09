@@ -102,14 +102,15 @@ if(~exist(wgtfile,'file'))
         movefile('tmpwgttot',wgtfile);
     end
 end
+wgtfile=['intdir' pol '/average.amp'];
+geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
 
-mask_ztopo(geomfile,wgtfile,1,newnx,newny)
-
+wgtfile=['wgtdir/average.amp'];
 %make ints and corfiles if not already made
 for i=1:nd-1
     j=i+1;
-    if(~exist(ints(i).cor,'file'))
-        disp(['running ' ints(i).cor])
+    if(~exist(ints(i).int,'file'))
+        disp(['running ' ints(i).int])
         make_intcor_downlook(dates(i).slc,dates(j).slc,ints(i).cor,ints(i).int,nx,ny,rlooks,alooks,1,wgtfile)
         make_intcor_anyposting(dates(i).slc,dates(j).slc,ints(i).cor2,ints(i).int2,nx,ny,rlooks,alooks,px,py,1,wgtfile)
         

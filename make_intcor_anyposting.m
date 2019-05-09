@@ -1,4 +1,4 @@
-function make_intcor_anyposting(slcfile1,slcfile2,corfile,intfile,nx,ny,px,py,rx,ry,windowtype,wgtfile,demerrfile,bp)
+function make_intcor_anyposting(slcfile1,slcfile2,corfile,intfile,nx,ny,px,py,rx,ry,windowtype,wgtfile)
 
 % outfile=cor file
 % nx = width
@@ -41,26 +41,6 @@ else
     uwgt=0;
     disp('not using external wgt file')
 end
-if(exist('demerrfile','var'))
-    if(demerrfile)
-        udem=1;
-        if(exist(demerrfile,'file'))
-            fidd=fopen(demerrfile,'r');
-            if(~exist('bp','var'))
-                disp('bp should be set')
-            end
-        else
-            disp([demfile ' does not exist']);
-            udem=0;
-        end
-    else
-        udem=0;
-        disp('not using dem correction')
-    end
-else
-    udem=0;
-    disp('not using dem correction')
-end
 
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
@@ -98,26 +78,26 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         slc1(1,:)=cpx1;
         slc2(1,:)=cpx2;
-   else
+    else
         slc1(1,:)=z;
         slc2(1,:)=z;
-   end
+    end
     if(uwgt)
-        wgts=circshift(wgts,1);        
+        wgts=circshift(wgts,1);
         [w,count]=fread(fidw,nx,'real*4');
         w(~isfinite(w))=0;
         if(count==nx)
             wgts(1,:)=w;
         else
             wgts(1,:)=z;
-        end       
+        end
     end
 end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
 
 for j=1:ny
-
+    
     slc1=circshift(slc1,1);
     slc2=circshift(slc2,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
@@ -144,7 +124,6 @@ for j=1:ny
         %wgts(wgts<0.2)=0;
     end
     if(ismember(j,azvec))
-        
         if(uwgt)
             a   = slc1.*conj(slc1).*wgts;
             b   = slc2.*conj(slc2).*wgts;
@@ -157,24 +136,16 @@ for j=1:ny
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
-%disp([j length(isnan(a)) length(isnan(b)) length(isnan(c))])
+        %disp([j length(isnan(a)) length(isnan(b)) length(isnan(c))])
         asum = conv(a,windx,'same');
         bsum = conv(b,windx,'same');
         csum = conv(c,windx,'same');
         cpx3 = csum./sqrt(asum.*bsum);
         cpx3 = cpx3(rangevec);
-  
-        if(0)
-            dem   = fread(fidd,newnx,'real*4');
-            synth = dem*bp;
-            synth = exp(im*synth); %wrap
-            cpx3  = cpx3.*conj(synth);
-        end
         
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
-    end
-
+    end    
 end
 
 fclose(fid4);

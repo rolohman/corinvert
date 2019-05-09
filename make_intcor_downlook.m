@@ -1,4 +1,4 @@
-function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,wgtfile,demerrfile,bp)
+function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,wgtfile)
 im=sqrt(-1);
 % outfile=cor file
 % nx = width
@@ -40,31 +40,6 @@ if(exist('wgtfile','var'))
 else
     uwgt=0;
     disp('not using external wgt file')
-end
-if(exist('demerrfile','var'))
-    if(demerrfile)
-        udem=1;
-        if(exist(demerrfile,'file'))
-            fidd=fopen(demerrfile,'r');
-            if(~exist('bp','var'))
-                disp('bp should be set')
-            else              
-                dem   = fread(fidd,[newnx,newny],'real*4');
-                dem(isnan(dem))=0;
-                synth = bp*dem';
-                synth = exp(im*synth);
-            end
-        else
-            disp([demfile ' does not exist']);
-            udem=0;
-        end
-    else
-        udem=0;
-        disp('not using dem correction')
-    end
-else
-    udem=0;
-    disp('not using dem correction')
 end
 
 fid3=fopen(corfile,'w');
@@ -120,7 +95,6 @@ end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
 
-linecount=0;
 for j=1:ny
     slc1=circshift(slc1,1);
     slc2=circshift(slc2,1);
@@ -148,7 +122,6 @@ for j=1:ny
         %wgts(wgts<0.2)=0;
     end
     if(ismember(j,azvec))
-        linecount=linecount+1;
         if(uwgt)
             a   = slc1.*conj(slc1).*wgts;
             b   = slc2.*conj(slc2).*wgts;
@@ -168,9 +141,6 @@ for j=1:ny
         cpx3 = csum./sqrt(asum.*bsum);
         cpx3 = cpx3(rangevec);
         
-        if(udem)
-            cpx3=cpx3.*conj(synth(linecount,:));
-        end
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
     end
