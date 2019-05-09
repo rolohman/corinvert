@@ -147,7 +147,7 @@ for j=1:ny
         %wgts(wgts<0.2)=0;
     end
     if(ismember(j,azvec))
-        linecount=linecount+1
+        linecount=linecount+1;
         if(uwgt)
             a   = slc1.*conj(slc1).*wgts;
             b   = slc2.*conj(slc2).*wgts;
@@ -169,7 +169,7 @@ for j=1:ny
         
         if(udem)
 
-            cpx3=synth(:,linecount);
+            cpx3=cpx3.*conj(synth(:,linecount));
             fwrite(fid3,abs(cpx3),'real*4'); %cor
             fwrite(fid4,angle(cpx3),'real*4'); %int
         else
