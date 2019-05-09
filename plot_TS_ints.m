@@ -56,10 +56,10 @@ var     = -2*log(cor);
 weights = 1./var;
 
 [fitresult, gof] = crazyfit(intd, intbp, hp, weights);
-a=fitresult.a;
-b=fitresult.b;
-c=fitresult.c;
-d=fitresult.d;
+a=fitresult.a
+b=fitresult.b
+c=fitresult.c
+d=fitresult.d
 
 synth=(b+c*sin(intd/360*2*pi-d)).*intbp;
 %a+(b+c*sin(x/360*2*pi-d))*y
