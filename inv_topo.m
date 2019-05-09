@@ -22,7 +22,8 @@ for i=1:nd-1
     fid(i)=fopen(ints(i).fix,'w');
 end
 
-fido=fopen('demerr.r4','w');
+fido1=fopen('demerr.r4','w');
+fido2=fopen('sigstd.r4','w'); %after fit
 
 [bp,intbp]=read_baselines;
 intdn=diff(dn);
@@ -45,7 +46,8 @@ for j=1:newny
     slope(c<0.01)=0; %explans less than 1% of data var
     synth=intbp'*slope;
     
-    fwrite(fido,slope,'real*4');
+    fwrite(fido1,slope,'real*4');
+    fwrite(fido2,b,'real*4');
     for i=1:nd-1
         fwrite(fid(i),data(i,:)-synth(i,:),'real*4');
     end
