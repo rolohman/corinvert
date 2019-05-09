@@ -1,4 +1,4 @@
-function [unw, msk,hp,hpfix,dem]=plot_TS(x,y)
+function [unw, msk,hp,hpfx,dem]=plot_TS_ints(x,y)
 pol  = '_VV';
 ddir = ['dates' pol '/'];
 decide_ints_stack
@@ -38,8 +38,8 @@ for i=1:nd-1
     fid=fopen(ints(i).hp,'r');
     fseek(fid,((y-1)*newnx+x-1),-1);
     hp(i)=fread(fid,1,'real*4');
-    fid=fopen(ints(i).hpfix,'r');
+    fid=fopen(ints(i).hpfx,'r');
     fseek(fid,((y-1)*newnx+x-1),-1);
-    hpfix(i)=fread(fid,1,'real*4');
+    hpfx(i)=fread(fid,1,'real*4');
 end
 
