@@ -51,7 +51,8 @@ if(exist('demerrfile','var'))
             else              
                 dem   = fread(fidd,[newnx,newny],'real*4');
                 dem(isnan(dem))=0;
-                synth = exp(im*dem'*bp);
+                synth = bp*dem';
+                synth = exp(im*synth);
             end
         else
             disp([demfile ' does not exist']);
