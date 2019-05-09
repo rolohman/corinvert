@@ -1,4 +1,4 @@
-function make_intcor_anyposting(slcfile1,slcfile2,corfile,intfile,nx,ny,px,py,rx,ry,windowtype,wgtfile)
+function make_intcor_anyposting(slcfile1,slcfile2,corfile,intfile,nx,ny,px,py,rx,ry,windowtype,wgtfile,demerrfile,bp)
 
 % outfile=cor file
 % nx = width
@@ -25,16 +25,43 @@ else
     return
 end
 if(exist('wgtfile','var'))
-    uwgt=1;
-    if(exist(wgtfile,'file'))
-        fidw=fopen(wgtfile,'r');
+    if(wgtfile)
+        uwgt=1;
+        if(exist(wgtfile,'file'))
+            fidw=fopen(wgtfile,'r');
+        else
+            disp([wgtfile ' does not exist']);
+            uwgt=0;
+        end
     else
-        disp([wgtfile ' does not exist']);
+        uwgt=0;
+        disp('not using external wgt file')
     end
 else
     uwgt=0;
     disp('not using external wgt file')
 end
+if(exist('demerrfile','var'))
+    if(demerrfile)
+        udem=1;
+        if(exist(demfile,'file'))
+            fidd=fopen(demfile,'r');
+            if(~exist('bp','var'))
+                disp('bp should be set')
+            end
+        else
+            disp([demfile ' does not exist']);
+            udem=0;
+        end
+    else
+        udem=0;
+        disp('not using dem correction')
+    end
+else
+    udem=0;
+    disp('not using dem correction')
+end
+
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
 im=sqrt(-1);
@@ -47,8 +74,8 @@ switch windowtype
         windx=zeros(1,rx*2+1); windx((1:rx)+ceil(rx/2))=1;
         windy=zeros(1,ry*2+1); windy((1:ry)+ceil(ry/2))=1;
     case 2
-        windx=exp(-(-rx:rx).^2/2/(rx/2)^2);
-        windy=exp(-(-ry:ry).^2/2/(ry/2)^2);
+        windx=exp(-(-rx*2:rx*2).^2/2/(rx/2)^2);
+        windy=exp(-(-ry*2:ry*2).^2/2/(ry/2)^2);
 end
 windx=windx/sum(windx);
 windy=windy/sum(windy);
@@ -137,6 +164,13 @@ for j=1:ny
         cpx3 = csum./sqrt(asum.*bsum);
         cpx3 = cpx3(rangevec);
   
+        if(udem)
+            dem   = fread(fidd,newnx,'real*4');
+            synth = dem*bp;
+            synth = exp(im*synth); %wrap
+            cpx3  = cpx3.*conj(synth);
+        end
+        
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
     end

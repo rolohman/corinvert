@@ -6,19 +6,19 @@ py=3;
 im=sqrt(-1);
 slcdir=['merged/SLC' pol '/'];
 
-
-if(~exist(['cordir' pol]))
-    mkdir(['cordir' pol])
+if(~exist(['cordir3' pol]))
+    mkdir(['cordir3' pol])
 end
-if(~exist(['intdir' pol]))
-    mkdir(['intdir' pol])
+if(~exist(['intdir3' pol]))
+    mkdir(['intdir3' pol])
 end
-if(~exist(['cordir2' pol]))
-    mkdir(['cordir2' pol])
+if(~exist(['cordir4' pol]))
+    mkdir(['cordir4' pol])
 end
-if(~exist(['intdir2' pol]))
-    mkdir(['intdir2' pol])
+if(~exist(['intdir4' pol]))
+    mkdir(['intdir4' pol])
 end
+[bp,intbp] = read_baselines;
 
 
 for i=1:nd
@@ -35,10 +35,10 @@ end
 clear ints
 for i=1:nd-1
     j=i+1;
-    cordir = (['cordir' pol '/' dates(i).name '/']);
-    cordir2 = (['cordir2' pol '/' dates(i).name '/']);
-    intdir = (['intdir' pol '/' dates(i).name '/']);
-    intdir2=(['intdir2' pol '/' dates(i).name '/']);
+    cordir = (['cordir3' pol '/' dates(i).name '/']);
+    cordir2 = (['cordir4' pol '/' dates(i).name '/']);
+    intdir = (['intdir3' pol '/' dates(i).name '/']);
+    intdir2=(['intdir4' pol '/' dates(i).name '/']);
     if(~exist(cordir,'dir'))
         mkdir(cordir)
     end
@@ -70,6 +70,7 @@ end
 
 wgtfile=['intdir' pol '/average.wgt'];
 geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
+demerrfile='demerr.r4';
 
 %VVVH stuff
 if(~exist(wgtfile,'file'))
@@ -110,8 +111,8 @@ for i=1:nd-1
     j=i+1;
     if(~exist(ints(i).cor,'file'))
         disp(['running ' ints(i).cor])
-        make_intcor_downlook(dates(i).slc,dates(j).slc,ints(i).cor,ints(i).int,nx,ny,rlooks,alooks,1,wgtfile)
-        make_intcor_anyposting(dates(i).slc,dates(j).slc,ints(i).cor2,ints(i).int2,nx,ny,rlooks,alooks,px,py,1,wgtfile)
+        make_intcor_downlook(dates(i).slc,dates(j).slc,ints(i).cor,ints(i).int,nx,ny,rlooks,alooks,1,wgtfile,demerrfile,intbp(i))
+        make_intcor_anyposting(dates(i).slc,dates(j).slc,ints(i).cor2,ints(i).int2,nx,ny,rlooks,alooks,px,py,1,wgtfile,demerrfile,intbp(i))
         
         mask_ztopo(geomfile,ints(i).int,1,newnx,newny)
         mask_ztopo(geomfile,ints(i).int2,1,newnx,newny)

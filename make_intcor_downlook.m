@@ -1,4 +1,4 @@
-function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,wgtfile)
+function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,wgtfile,demerrfile,bp)
 
 % outfile=cor file
 % nx = width
@@ -25,16 +25,43 @@ else
     return
 end
 if(exist('wgtfile','var'))
-    uwgt=1;
-    if(exist(wgtfile,'file'))
-        fidw=fopen(wgtfile,'r');
+    if(wgtfile)
+        uwgt=1;
+        if(exist(wgtfile,'file'))
+            fidw=fopen(wgtfile,'r');
+        else
+            disp([wgtfile ' does not exist']);
+            uwgt=0;
+        end
     else
-        disp([wgtfile ' does not exist']);
+        uwgt=0;
+        disp('not using external wgt file')
     end
 else
     uwgt=0;
     disp('not using external wgt file')
 end
+if(exist('demerrfile','var'))
+    if(demerrfile)
+        udem=1;
+        if(exist(demfile,'file'))
+            fidd=fopen(demfile,'r');
+            if(~exist('bp','var'))
+                disp('bp should be set')
+            end
+        else
+            disp([demfile ' does not exist']);
+            udem=0;
+        end
+    else
+        udem=0;
+        disp('not using dem correction')
+    end
+else
+    udem=0;
+    disp('not using dem correction')
+end
+
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
 im=sqrt(-1);
@@ -46,9 +73,9 @@ switch windowtype
     case 1
         windx=zeros(1,rx*2+1); windx((1:rx)+ceil(rx/2))=1;
         windy=zeros(1,ry*2+1); windy((1:ry)+ceil(ry/2))=1;
-    case 2
-        windx=exp(-(-rx:rx).^2/2/(rx/2)^2);
-        windy=exp(-(-ry:ry).^2/2/(ry/2)^2);
+    case 2 %gaussian
+        windx=exp(-(-rx*2:rx*2).^2/2/(rx/2)^2);
+        windy=exp(-(-ry*2:ry*2).^2/2/(ry/2)^2);
 end
 windx=windx/sum(windx);
 windy=windy/sum(windy);
@@ -71,26 +98,25 @@ for j=1:ry%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         slc1(1,:)=cpx1;
         slc2(1,:)=cpx2;
-   else
+    else
         slc1(1,:)=z;
         slc2(1,:)=z;
-   end
+    end
     if(uwgt)
-        wgts=circshift(wgts,1);        
+        wgts=circshift(wgts,1);
         [w,count]=fread(fidw,nx,'real*4');
         w(~isfinite(w))=0;
         if(count==nx)
             wgts(1,:)=w;
         else
             wgts(1,:)=z;
-        end       
+        end
     end
 end
 %now go to end (passing end by ry lines, filling in with zeros. "active"
 %line is at ry+1th row
 
 for j=1:ny
-
     slc1=circshift(slc1,1);
     slc2=circshift(slc2,1);
     [a,count1]=fread(fid1,nx*2,'real*4');
@@ -130,17 +156,23 @@ for j=1:ny
         a   = windy*a;
         b   = windy*b;
         c   = windy*c;
-%disp([j length(isnan(a)) length(isnan(b)) length(isnan(c))])
+        %disp([j length(isnan(a)) length(isnan(b)) length(isnan(c))])
         asum = conv(a,windx,'same');
         bsum = conv(b,windx,'same');
         csum = conv(c,windx,'same');
         cpx3 = csum./sqrt(asum.*bsum);
         cpx3 = cpx3(rangevec);
-  
+        
+        if(udem)
+            dem   = fread(fidd,newnx,'real*4');
+            synth = dem*bp;
+            synth = exp(im*synth); %wrap
+            cpx3  = cpx3.*conj(synth);
+        end
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
     end
-
+    
 end
 
 fclose(fid4);

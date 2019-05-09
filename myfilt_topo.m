@@ -1,48 +1,57 @@
-function myfilt_topo(infile,avgwgtfile,corfile,outfile,rx,ry,newnx,newny,demerrfile)
+%myfilt_topo(infile,avgwgtfile,corfile,outfile,rx,ry,newnx,newny,demerrfile)
 im=sqrt(-1);
+pol  = '_VV';
+ddir = ['dates' pol '/'];
+decide_ints_stack
 
-fid       = fopen(avgwgtfile,'r');
-mask1     = fread(fid,[newnx newny],'real*4');
-fid       = fopen(corfile,'r');
-mask2     = fread(fid,[newnx newny],'real*4');
-mask      = and(mask1>0.1,mask2>0.4);
+for i=1:nd
+    dates(i).name    = files(i).name(1:8);
+    dates(i).dn      = datenum(dates(i).name,'YYYYmmdd');
+end
+dn=[dates.dn];
+dn=dn-min(dn);
 
-%gaussian
-windx=exp(-(-rx*2:rx*2).^2/2/(rx/2)^2);
-windy=exp(-(-ry*2:ry*2).^2/2/(ry/2)^2);
+clear ints
+for i=1:nd-1
+    j=i+1;
+    ints(i).dir   = (['intdir' pol '/' dates(i).name '/']);
+    ints(i).name  = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
+    ints(i).flat   = [ints(i).dir ints(i).name '_highpass.unw'];
+    ints(i).msk   = [ints(i).dir ints(i).name '.msk'];
+    ints(i).fix   = [ints(i).dir ints(i).name '_highpass_fix.unw'];
+    fidi(i)=fopen(ints(i).flat,'r');
+    fid(i)=fopen(ints(i).fix,'w');
+end
 
-xsum  = sum(windx);
-ysum  = sum(windy);
-windx = windx/xsum;
-windy = windy/ysum;
-ry    = floor(length(windy)/2);
+fido=fopen('demerr.r4','w');
+fido2=fopen('origres.r4','w');
+fido3=fopen('newres.r4','w');
+fido4=fopen('rate.r4','w');
+fido5=fopen('improve.r4','w');
+[bp,intbp]=read_baselines;
+intdn=diff(dn);
+G=[intdn' intbp'];
+Gg=inv(G'*G)*G';
 
-z       = zeros(1,newnx);
-fidi    = fopen(infile,'r');
+data=nan(nd-1,newnx);
+for j=1:newny
+    for i=1:nd-1
+        data(i,:)=fread(fidi(i),newnx,'real*4');
+    end
+    mods=Gg*data;
+    synth=G*mods;
+    synth2=intbp'*mods(2,:);
+    res=data-synth;
+    fwrite(fido,mods(2,:),'real*4');
+    a=sqrt(mean(data.^2,1));
+    b=sqrt(mean(res.^2,1));
+    fwrite(fido2,a,'real*4');
+    fwrite(fido3,b,'real*4');
+    fwrite(fido4,mods(1,:),'real*4');
+    fwrite(fido5,a-b,'real*4');
+    for i=1:nd-1
+        fwrite(fid(i),data(i,:)-synth2(i,:),'real*4');
+    end
+end
 
-fido    = fopen(outfile,'w');
-fidc    = fopen(demerrfile,'w');
-
-[bp,intbp]=get_baselines;
-
-in=fread(fidi,[newnx,newny],'real*4');
-in=exp(im*in);
-
-orig=in;
-in(isnan(in))=0;
-in(~mask)=0;
-
-good= in~=0;
-
-goodsum = conv2(windx,windy,good,'same');
-datasum = conv2(windx,windy,in,'same');
-filtered=datasum./goodsum;
-
-flattened=in.*conj(filtered);
-
-fid=fopen(outfile);
-fwrite(fid,angle(flattened),'real*4');
-fclose('all');
-
-
-
+  
