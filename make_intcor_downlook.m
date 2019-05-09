@@ -1,5 +1,5 @@
 function make_intcor_downlook(slcfile1,slcfile2,corfile,intfile,nx,ny,rx,ry,windowtype,wgtfile,demerrfile,bp)
-
+im=sqrt(-1);
 % outfile=cor file
 % nx = width
 % ny=length
@@ -69,7 +69,7 @@ end
 
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
-im=sqrt(-1);
+
 count=0;
 switch windowtype
     case 0
