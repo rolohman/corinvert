@@ -169,10 +169,10 @@ for j=1:ny
         
         if(udem)
             if(j==97)
-                disp([cpx3(558) synth(558,linecount)];
+                disp([cpx3(558) synth(558,linecount)]);
                 whos cpx3 synth
-            cpx3=cpx3.*conj(synth(:,linecount));
-whos cpx3 synth
+                cpx3=cpx3.*conj(synth(:,linecount));
+                whos cpx3 synth
             end
         end
         fwrite(fid3,abs(cpx3),'real*4'); %cor
