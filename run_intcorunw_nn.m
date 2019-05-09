@@ -216,13 +216,23 @@ for i=1:nd-1
     end
 end
 
+%temporary addition, fixing long wavelength mask
+fid1=fopen('demerr.r4','r');
+fid2=fopen('sigstd.r4','r');
+fido=fopen('longfiltmask.i1','w');
+a=fread(fid1,[newnx newny],'real*4');
+b=fread(fid2,[newnx newny],'real*4');
+c=and(abs(a)<0.002,b<1);
+fwrite(fido,c,'integer*1');
+fclose('all');
 
 %remove long-wavelength signals
 for i=1:nd-1
     if(~exist(ints(i).long,'file'))
         disp(['need to run ' ints(i).long])
         %filter long wavelengths
-        myfilt(ints(i).unw,ints(i).msk,ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
+        myfilt(ints(i).unw,'longfiltmask.i1',ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
+        %myfilt(ints(i).unw,ints(i).msk,ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
         
         %remove long wavelength from unw
         command=['imageMath.py -e=''a-b'' -t float -n -o ' ints(i).deramp ' --a=''' ints(i).unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' ints(i).long  ';' num2str(newnx) ';float;1;BSQ'''];
