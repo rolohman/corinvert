@@ -49,3 +49,22 @@ for i=1:nd-1
     hpfx(i)=fread(fid,1,'real*4');
 end
 
+intd=dn(1:end-1)+diff(dn)/2;
+[bp,intbp]=read_baselines;
+
+[fitresult, gof] = crazyfit(intd, intbp, hp, weights);
+a=fitresult.a;
+b=fitresult.b;
+c=fitresult.c;
+d=fitresult.d;
+
+synth=(b+c*sin(intd/360*2*pi-d))*intbp;
+%a+(b+c*sin(x/360*2*pi-d))*y
+
+figure
+plot(intd,hp,'.')
+hold on
+plot(intd,hp-synth,'.')
+plot(intd,a,'-')
+
+
