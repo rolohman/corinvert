@@ -23,10 +23,7 @@ for i=1:nd-1
 end
 
 fido=fopen('demerr.r4','w');
-fido2=fopen('origres.r4','w');
-fido3=fopen('newres.r4','w');
-fido4=fopen('rate.r4','w');
-fido5=fopen('improve.r4','w');
+
 [bp,intbp]=read_baselines;
 intdn=diff(dn);
 G=[intdn' intbp'];
@@ -38,18 +35,19 @@ for j=1:newny
         data(i,:)=fread(fidi(i),newnx,'real*4');
     end
     mods=Gg*data;
-    synth=G*mods;
-    synth2=intbp'*mods(2,:);
+    slope=mods(2,:);
+    synth=intbp'*slope;
     res=data-synth;
-    fwrite(fido,mods(2,:),'real*4');
     a=sqrt(mean(data.^2,1));
     b=sqrt(mean(res.^2,1));
-    fwrite(fido2,a,'real*4');
-    fwrite(fido3,b,'real*4');
-    fwrite(fido4,mods(1,:),'real*4');
-    fwrite(fido5,1-b./a,'real*4');
+    c=1-b./a;
+        
+    slope(c<0.01)=0; %explans less than 1% of data var
+    synth=intbp'*slope;
+    
+    fwrite(fido,slope,'real*4');
     for i=1:nd-1
-        fwrite(fid(i),data(i,:)-synth2(i,:),'real*4');
+        fwrite(fid(i),data(i,:)-synth(i,:),'real*4');
     end
 end
 
