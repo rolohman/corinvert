@@ -51,7 +51,7 @@ if(exist('demerrfile','var'))
             else              
                 dem   = fread(fidd,[newnx,newny],'real*4');
                 dem(isnan(dem))=0;
-                synth = exp(im*dem*bp);
+                synth = exp(im*dem'*bp);
             end
         else
             disp([demfile ' does not exist']);
@@ -168,7 +168,7 @@ for j=1:ny
         cpx3 = cpx3(rangevec);
         
         if(udem)
-            cpx3=cpx3.*conj(synth(:,linecount).');
+            cpx3=cpx3.*conj(synth(linecount,:));
         end
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
