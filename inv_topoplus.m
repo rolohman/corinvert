@@ -41,36 +41,38 @@ intdn=diff(dn);
 
 intd=dn(1:end-1)+intdn/2;
 
-var     = -2*log(cor);
-weights = 1./var;
-
-synth=(b+c*sin(intd/360*2*pi-d)).*intbp;
-
-data=nan(nd-1,newnx);
-cors=data;
-a=nan(1,newnx);
-b=a;
-c=a;
-d=a;
-synth=data;;
-R2=a;
-rms=a;
 for j=1:newny
+    j
+    data=nan(nd-1,newnx);
+    cors=data;
+    synth=data;
+    
     for i=1:nd-1
         data(i,:)=fread(fidi(i),newnx,'real*4');
         cors(i,:)=fread(fidc(i),newnx,'real*4');
     end
-    var     = -2*log(cor);
+    var     = -2*log(cors);
     weights = 1./var;
-   
-    for i=1:newnx
-        [fitresult, gof] = crazyfit(intd, intbp, data(:,i), weights(:,i));
+    good=and(isfinite(weights),isfinite(data));
+    count=sum(good,1);
+    
+    a=nan(1,newnx);
+    b=a;
+    c=a;
+    d=a;
+    
+    R2=a;
+    rms=a;
+    
+    for i=find(count>100)
+        ids=find(good(:,i));
+        [fitresult, gof] = crazyfit(intd(ids), intbp(ids), data(ids,i)', weights(ids,i)');
         a(i)=fitresult.a;
         b(i)=fitresult.b;
         c(i)=fitresult.c;
         d(i)=fitresult.d;
         R2(i)=gof.rsquare;
-        rms(i)=gof.rms;
+        rms(i)=gof.rmse;
         synth(:,i)=fitresult(intd,intbp);
     end
 
