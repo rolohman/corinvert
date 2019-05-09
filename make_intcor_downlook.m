@@ -81,7 +81,7 @@ windx=windx/sum(windx);
 windy=windy/sum(windy);
 ry=floor(length(windy)/2);
 
-z    = zeros(1,nx);
+z     = zeros(1,nx);
 slc1  = zeros(ry*2+1,nx);
 slc2  = slc1;
 wgts  = slc1;
@@ -165,8 +165,12 @@ for j=1:ny
         
         if(udem)
             dem   = fread(fidd,newnx,'real*4');
+            nums(1)=sum(isnan(dem));
             synth = dem*bp;
+            nums(2)=sum(isnan(synth));
             synth = exp(im*synth); %wrap
+            nums(3)=sum(isnan(synth));
+            disp(nums)
             cpx3  = cpx3.*conj(synth);
         end
         fwrite(fid3,abs(cpx3),'real*4'); %cor
