@@ -68,8 +68,9 @@ for i=1:nd-1
     
 end
 
-wgtfile=['intdir' pol '/average.wgt'];
+wgtfile=['intdir' pol '/average.amp'];
 geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
+geomfile_full='merged/geom_master/hgt.rdr.full';
 demerrfile='demerr.r4';
 
 %VVVH stuff
@@ -104,7 +105,8 @@ if(~exist(wgtfile,'file'))
     end
 end
 
-mask_ztopo(geomfile,wgtfile,1,newnx,newny)
+
+mask_ztopo(geomfile,wgtfile,1,nx,ny);
 
 %make ints and corfiles if not already made
 for i=1:nd-1
