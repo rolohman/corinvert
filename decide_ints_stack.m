@@ -54,7 +54,7 @@ else
         if(length(tmp)==1)
             nx=str2num(tmp{1}{1});
             ny=str2num(tmp{1}{2});
-            newnx  = floor(nx/rlooks)
+            newnx  = floor(nx/rlooks);
             newny  = floor(ny/alooks);
             system(['echo ''nx=' num2str(nx) ';'' >>params.m']);
             system(['echo ''ny=' num2str(ny) ';'' >>params.m']);

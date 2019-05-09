@@ -38,9 +38,9 @@ for j=1:newny
     mods=Gg*data;
     slope=mods(2,:);
     synth=intbp'*slope;
-    res=data-synth;
+
     a=sqrt(mean(data.^2,1));
-    b=sqrt(mean(res.^2,1));
+    b=sqrt(mean((data-G*mods).^2,1));
     %c=1-b./a; R^2
 
     fwrite(fido1,slope,'real*4');

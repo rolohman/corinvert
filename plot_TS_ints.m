@@ -32,14 +32,15 @@ for i=1:nd-1
     fid=fopen(ints(i).msk,'r');
     fseek(fid,((y-1)*newnx+x-1),-1);
     msk(i)=fread(fid,1,'integer*1');
+
     fid=fopen(ints(i).unw,'r');
-    fseek(fid,((y-1)*newnx+x-1),-1);
+    fseek(fid,((y-1)*newnx+x-1)*4,-1);
     unw(i)=fread(fid,1,'real*4');
     fid=fopen(ints(i).hp,'r');
-    fseek(fid,((y-1)*newnx+x-1),-1);
+    fseek(fid,((y-1)*newnx+x-1)*4,-1);
     hp(i)=fread(fid,1,'real*4');
     fid=fopen(ints(i).hpfx,'r');
-    fseek(fid,((y-1)*newnx+x-1),-1);
+    fseek(fid,((y-1)*newnx+x-1)*4,-1);
     hpfx(i)=fread(fid,1,'real*4');
 end
 
