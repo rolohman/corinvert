@@ -170,7 +170,7 @@ for j=1:ny
             nums(2)=sum(isnan(synth));
             synth = exp(im*synth); %wrap
             nums(3)=sum(isnan(synth));
-            disp(nums)
+            disp([j nums])
             cpx3  = cpx3.*conj(synth);
         end
         fwrite(fid3,abs(cpx3),'real*4'); %cor

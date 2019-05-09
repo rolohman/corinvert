@@ -71,7 +71,8 @@ end
 wgtfile=['intdir' pol '/average.amp'];
 geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
 demerrfile='demerr.r4';
-
+      mask_ztopo(geomfile,demerr.r4,1,newnx,newny)
+  
 %VVVH stuff
 if(~exist(wgtfile,'file'))
     fido=fopen(wgtfile,'w');
