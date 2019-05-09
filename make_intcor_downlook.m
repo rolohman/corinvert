@@ -48,6 +48,11 @@ if(exist('demerrfile','var'))
             fidd=fopen(demerrfile,'r');
             if(~exist('bp','var'))
                 disp('bp should be set')
+            else
+                
+                dem   = fread(fidd,[newnx,newny],'real*4');
+                dem(isnan(dem))=0;
+                synth = exp(im*dem*bp);
             end
         else
             disp([demfile ' does not exist']);
@@ -65,7 +70,7 @@ end
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
 im=sqrt(-1);
-
+count=0;
 switch windowtype
     case 0
         windx=[1/(rx+1):1/(rx+1):1 (1-1/(rx+1)):-1/(rx+1):1/(rx+1)];
@@ -143,7 +148,7 @@ for j=1:ny
         %wgts(wgts<0.2)=0;
     end
     if(ismember(j,azvec))
-        
+        count=count+1;
         if(uwgt)
             a   = slc1.*conj(slc1).*wgts;
             b   = slc2.*conj(slc2).*wgts;
@@ -164,20 +169,14 @@ for j=1:ny
         cpx3 = cpx3(rangevec);
         
         if(udem)
-            dem   = fread(fidd,newnx,'real*4');
-            nums(1)=sum(isnan(dem));
-            synth = dem*bp;
-            nums(2)=sum(isnan(synth));
-            synth = exp(im*synth); %wrap
-            nums(3)=sum(isnan(synth));
-            disp([j nums])
-            %cpx3  = cpx3.*conj(synth);
- fwrite(fid3,dem,'real*4'); %cor
-        fwrite(fid4,dem,'real*4'); %int
+
+            cpx3=synth(:,count);
+            fwrite(fid3,abs(cpx3),'real*4'); %cor
+            fwrite(fid4,angle(cpx3),'real*4'); %int
         else
-        fwrite(fid3,abs(cpx3),'real*4'); %cor
-        fwrite(fid4,angle(cpx3),'real*4'); %int
-    end
+            fwrite(fid3,abs(cpx3),'real*4'); %cor
+            fwrite(fid4,angle(cpx3),'real*4'); %int
+        end
     end
     
 end
