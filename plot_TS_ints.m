@@ -52,6 +52,9 @@ end
 intd=dn(1:end-1)+diff(dn)/2;
 [bp,intbp]=read_baselines;
 
+var     = -2*log(cor);
+weights = 1./var;
+
 [fitresult, gof] = crazyfit(intd, intbp, hp, weights);
 a=fitresult.a;
 b=fitresult.b;
