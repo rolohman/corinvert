@@ -65,7 +65,7 @@ else
     udem=0;
     disp('not using dem correction')
 end
-whos synth
+
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
 
@@ -171,7 +171,7 @@ for j=1:ny
             if(j==97)
                 disp([cpx3(558) synth(558,linecount)]);
                 whos cpx3 synth
-                cpx3=cpx3.*conj(synth(:,linecount));
+                cpx3=cpx3.*conj(synth(:,linecount).');
                 whos cpx3 synth
             end
         end
