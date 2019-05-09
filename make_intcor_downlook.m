@@ -48,8 +48,7 @@ if(exist('demerrfile','var'))
             fidd=fopen(demerrfile,'r');
             if(~exist('bp','var'))
                 disp('bp should be set')
-            else
-                
+            else              
                 dem   = fread(fidd,[newnx,newny],'real*4');
                 dem(isnan(dem))=0;
                 synth = exp(im*dem*bp);
@@ -66,7 +65,7 @@ else
     udem=0;
     disp('not using dem correction')
 end
-
+whos synth
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
 
@@ -148,7 +147,7 @@ for j=1:ny
         %wgts(wgts<0.2)=0;
     end
     if(ismember(j,azvec))
-        count=count+1;
+        count=count+1
         if(uwgt)
             a   = slc1.*conj(slc1).*wgts;
             b   = slc2.*conj(slc2).*wgts;
