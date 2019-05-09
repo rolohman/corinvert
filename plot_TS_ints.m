@@ -23,7 +23,7 @@ end
 
 
 
-fid=fopen([ddir 'demerr.r4'],'r');
+fid=fopen(['demerr.r4'],'r');
 fseek(fid,((y-1)*newnx+x-1)*4,-1);
 dem=fread(fid,1,'real*4');
 
