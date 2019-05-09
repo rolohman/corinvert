@@ -44,8 +44,8 @@ end
 if(exist('demerrfile','var'))
     if(demerrfile)
         udem=1;
-        if(exist(demfile,'file'))
-            fidd=fopen(demfile,'r');
+        if(exist(demerrfile,'file'))
+            fidd=fopen(demerrfile,'r');
             if(~exist('bp','var'))
                 disp('bp should be set')
             end
