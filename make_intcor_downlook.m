@@ -171,10 +171,13 @@ for j=1:ny
             synth = exp(im*synth); %wrap
             nums(3)=sum(isnan(synth));
             disp([j nums])
-            cpx3  = cpx3.*conj(synth);
-        end
+            %cpx3  = cpx3.*conj(synth);
+ fwrite(fid3,dem,'real*4'); %cor
+        fwrite(fid4,dem,'real*4'); %int
+        else
         fwrite(fid3,abs(cpx3),'real*4'); %cor
         fwrite(fid4,angle(cpx3),'real*4'); %int
+    end
     end
     
 end
