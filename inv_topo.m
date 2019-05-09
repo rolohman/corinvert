@@ -41,11 +41,8 @@ for j=1:newny
     res=data-synth;
     a=sqrt(mean(data.^2,1));
     b=sqrt(mean(res.^2,1));
-    c=1-b./a;
-        
-    slope(c<0.01)=0; %explans less than 1% of data var
-    synth=intbp'*slope;
-    
+    %c=1-b./a; R^2
+
     fwrite(fido1,slope,'real*4');
     fwrite(fido2,b,'real*4');
     for i=1:nd-1
