@@ -28,20 +28,23 @@ for i=1:nd
     dates(i).infill  = [ddir dates(i).name '_infill.unw'];
 end
 
+dti         = diff(dn);
+[bp,intbp]  = read_baselines;
 
 %make simple time series
-G           = -eye(nd);
-G           = G-circshift(G,[0,1]);
-G           = G(1:end-1,:);
+Gi          = -eye(nd);
+Gi          = Gi-circshift(Gi,[0,1]);
+Gi          = Gi(1:end-1,:);
+
+G           = [Gi ones(nd-1,1) dti intbp]; %datanoise intercept rate demerr
+
 Gr          = G;
-Gr(end+1,:) = 1;
+Gr(end+1,1:end-3) = 1; %average datanoise=0;
+
+
 Gg          = inv(Gr'*Gr)*G';
 
-%slope/int
-dn          = [dates.dn]';
-dn          = dn-min(dn);
-G2          = [ones(nd,1) dn];
-Gg2         = inv(G2'*G2)*G2';
+
 
 if(~exist(dates(1).unw,'file'))
     for i=1:nd
@@ -50,27 +53,36 @@ if(~exist(dates(1).unw,'file'))
     for i=1:nd-1
         fidi(i)=fopen(ints(i).unw,'r');
     end
-    fida=fopen([ddir 'simpleslope.r4'],'w');
+    fida=fopen([ddir 'simplevel.r4'],'w');
     fidb=fopen([ddir 'simpleint.r4'],'w');
     fidc=fopen([ddir 'simpleres.r4'],'w');
+    fidd=fopen([ddir 'simpledemerr.r4'],'w');
+    fide=fopen([ddir 'sigR2.r4'],'w'); %after fit
     
     for j=1:newny
         tmp=zeros(nd-1,newnx);
         for i=1:nd-1
             tmp(i,:)=fread(fidi(i),newnx,'real*4');
         end
-        model=Gg*tmp;
-        synth=G*model;
+        model = Gg*tmp;
         for i=1:nd
             fwrite(fido(i),model(i,:),'real*4');
         end
-        mod2=Gg2*model;
-        synth=G2*mod2;
-        res2=model-synth;
-        res2=sqrt(mean(res2.^2,1,'omitnan'));
-        fwrite(fida,mod2(2,:),'real*4');
-        fwrite(fidb,mod2(1,:),'real*4');
-        fwrite(fidc,res2,'real*4');
+    
+        intercept = model(end-2,:);
+        vel       = model(end-1,:);
+        demerr    = model(end,:);
+        
+        synth = G*model;
+        res   = tmp-synth;
+        res   = sqrt(mean(res.^2,1,'omitnan'));
+        orig  = sqrt(mean(tmp.^2,1,'omitnan'));
+        R2    = 1-res/orig;
+        fwrite(fida,vel,'real*4');
+        fwrite(fidb,intercept,'real*4');
+        fwrite(fidc,res,'real*4');
+        fwrite(fidd,demerr,'real*4');
+        fwrite(fide,R2,'real*4');
     end
     fclose('all');
 end
