@@ -8,7 +8,7 @@ switch type
         b=fread(fid1,[nx ny],'real*4');
         fclose(fid1);
         
-        b(a<=0)=0;
+        b(a<=0)=NaN;
         fid1=fopen(file,'w');
         fwrite(fid1,b,'real*4');
         fclose(fid1);

@@ -7,6 +7,9 @@ im=sqrt(-1);
 slcdir=['merged/SLC' pol '/'];
 
 
+if(~exist(['wgtdir']))
+    mkdir(['wgtdir'])
+end
 if(~exist(['cordir' pol]))
     mkdir(['cordir' pol])
 end
@@ -65,47 +68,44 @@ for i=1:nd-1
     ints(i).unw     = [intdir name '.unw']; %unfiltered unwrapped
     ints(i).long    = [intdir name '_low.unw'];  %long-wavelength component
     ints(i).deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
-    
+    ints(i).vvvh    = ['wgtdir/' dates(i).name '_' dates(j).name '.int'];
+
 end
 
-wgtfile=['intdir' pol '/average.wgt'];
+wgtfile=['intdir' pol '/average.cor'];
 geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
 
 %VVVH stuff
 if(~exist(wgtfile,'file'))
-    fido=fopen(wgtfile,'w');
-    for j=1:ny
-        fwrite(fido,zeros(nx*2,1),'real*4');
-    end
-    fclose(fido);
     for i=1:nd-1
         j=i+1;
-        wgtfile='tmpint.wgt';
-        command=['imageMath.py -e=''arg(a*conj(b)*conj(c)*f)'' -o ' wgtfile ' --a=''' dates(i).slc ''' --b=''' dates(j).slc ''' --c=''' dates(i).slcVH ''' --f=''' dates(j).slcVH ''''];
+        command=['imageMath.py -e=''arg(a*conj(b)*conj(c)*f)'' -o ' ints(i).vvvh ' --a=''' dates(i).slc ''' --b=''' dates(j).slc ''' --c=''' dates(i).slcVH ''' --f=''' dates(j).slcVH ''''];
         system(command);
-        
-        fid1=fopen(wgtfile,'r');
-        fid2=fopen(wgtfile,'r');
-        fido=fopen('tmpwgttot','w');
-        for j=1:ny
-            tmp1          = fread(fid1,nx*2,'real*4');
-            tmp2          = fread(fid2,nx,'real*4');
-            tmp1          = tmp1(1:2:end)+im*tmp1(2:2:end);
-            tmp2          = exp(im*tmp2)/(nd-1);
-            tmp2          = tmp1+tmp2;
-            tmp1          = zeros(nx*2,1);
-            tmp1(1:2:end) = real(tmp2);
-            tmp1(2:2:end) = imag(tmp2);
-            fwrite(fido,tmp1,'real*4');
-        end
-        fclose('all');
-        movefile('tmpwgttot',wgtfile);
     end
+    
+    fido=fopen(wgtfile,'w');
+    for i=1:nd-1
+        fid(i)=fopen(ints(i).vvvh,'r');
+    end
+    vvvh=nan(nd-1,nx);
+    for j=1:ny
+        for i=1:nd-1
+            vvvh(i,:) = fread(fid(i),nx,'real*4');    
+        end
+        vvvh=exp(im*vvvh);
+        fwrite(fido,abs(mean(vvvh,1,'omitnan')),'real*4');
+    end
+    fclose('all');    
 end
-wgtfile=['intdir' pol '/average.amp'];
+copyxml(ints(i).vvvh,wgtfile);
+command=['looks.py -i ' wgtfile ' -r ' num2str(rlooks) ' -a ' num2str(alooks)];
+system(command);
+
+
+
+wgtfile=['intdir' pol '/average.cor'];
 geomfile='merged/geom_master/hgt.rdr.1alks_3rlks.full';
 
-wgtfile=['wgtdir/average.amp'];
 %make ints and corfiles if not already made
 for i=1:nd-1
     j=i+1;
@@ -124,8 +124,7 @@ for i=1:nd-1
     end
 end
 
-
-
+wgtfile=['intdir' pol '/average.' num2str(alooks) 'alks_' num2str(rlooks) 'rlks.cor'];
 %now the filtering/unwrapping section
 for i=1:nd-1
     j=i+1;
@@ -141,18 +140,18 @@ for i=1:nd-1
         fid2      = fopen(ints(i).cor,'r');
         mask1     = fread(fid1,[newnx newny],'real*4');
         mask2     = fread(fid2,[newnx newny],'real*4');
-        mask      = and(mask1>0.1,mask2>0.4);   
+        mask      = and(mask1>0.1,mask2>0.35);   
         
         fid1      = fopen(ints(i).msk,'w');
         fid2      = fopen('snaphu/snaphu.msk','w');
-        fwrite(fid1,mask,'integer*1');
+        fwrite(fid1,mask2,'integer*1');
         fwrite(fid2,mask,'real*4');
         fclose('all');
         clear mask mask1 mask2
         
         %filter twice and fill masked area
-        myfilt(ints(i).int,ints(i).msk,ints(i).filt1,5,5,newnx,newny,2,1,1,ints(i).filtw1);
-        myfilt(ints(i).int,ints(i).msk,ints(i).filt2,40,40,newnx,newny,2,1,1,'/dev/null');
+        myfilt(ints(i).int,ints(i).msk,ints(i).filt1,3,3,newnx,newny,2,1,1,ints(i).filtw1);
+        myfilt(ints(i).int,ints(i).msk,ints(i).filt2,35,35,newnx,newny,2,1,1,'/dev/null');
         
         mask_ztopo(geomfile,ints(i).filt1,1,newnx,newny)
         mask_ztopo(geomfile,ints(i).filt2,1,newnx,newny)
@@ -165,7 +164,7 @@ for i=1:nd-1
         fido=fopen('maskfill.int','w');
         
         outc          = zeros(1,newnx*2);
-        for i=1:newny
+        for k=1:newny
             m  = fread(fid0,newnx,'integer*1');
             a  = fread(fid1,newnx,'real*4');
             b  = fread(fid2,newnx,'real*4');

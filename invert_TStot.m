@@ -19,7 +19,7 @@ for i=1:nd-1
     intdir         = (['intdir' pol '/' dates(i).name '/']);
     ints(i).name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
     ints(i).unw    = [intdir ints(i).name '_highpass.unw'];
-    ints(i).infill = [intdir ints(i).name '_highpass_infill.unw'];
+    ints(i).fix    = [intdir ints(i).name '_highpass_fix.unw'];
     ints(i).mask   = [intdir ints(i).name '.msk'];
 end
 
@@ -31,115 +31,62 @@ end
 dti         = diff(dn);
 [bp,intbp]  = read_baselines;
 
-%make simple time series
+%make simple time seriestest
 Gi          = -eye(nd);
 Gi          = Gi-circshift(Gi,[0,1]);
 Gi          = Gi(1:end-1,:);
 
-G           = [Gi ones(nd-1,1) dti intbp]; %datanoise intercept rate demerr
+G           = [Gi]; %datanoise intercept rate demerr
 
 Gr          = G;
-Gr(end+1,1:end-3) = 1; %average datanoise=0;
+Gr(end+1,1) = 1; %datanoise at pt 1=0 (will shift next
 
+Gr=Gr*[ones(nd,1) dn' bp'];
 
-Gg          = inv(Gr'*Gr)*G';
+Gg          = inv(Gr'*Gr)*Gr';
 
 
 
 if(~exist(dates(1).unw,'file'))
     for i=1:nd
-        fido(i)=fopen(dates(i).unw,'w');
+        fido(i)  = fopen(dates(i).unw,'w');
     end
     for i=1:nd-1
-        fidi(i)=fopen(ints(i).unw,'r');
+        fidi(i)  = fopen(ints(i).unw,'r');
+        fido2(i) = fopen(ints(i).fix,'w');
     end
     fida=fopen([ddir 'simplevel.r4'],'w');
-    fidb=fopen([ddir 'simpleint.r4'],'w');
-    fidc=fopen([ddir 'simpleres.r4'],'w');
-    fidd=fopen([ddir 'simpledemerr.r4'],'w');
-    fide=fopen([ddir 'sigR2.r4'],'w'); %after fit
+    fidb=fopen([ddir 'simpleres.r4'],'w');
+    fidc=fopen([ddir 'simpledemerr.r4'],'w');
+    fidd=fopen([ddir 'sigR2.r4'],'w'); %after fit
     
     for j=1:newny
         tmp=zeros(nd-1,newnx);
         for i=1:nd-1
             tmp(i,:)=fread(fidi(i),newnx,'real*4');
         end
-        model = Gg*tmp;
-        for i=1:nd
-            fwrite(fido(i),model(i,:),'real*4');
-        end
-    
-        intercept = model(end-2,:);
-        vel       = model(end-1,:);
-        demerr    = model(end,:);
+        model     = Gg*[tmp;zeros(1,newnx)];
+        intercept = model(1,:);
+        vel       = model(2,:);
+        demerr    = model(3,:);
+  
         
-        synth = G*model;
-        res   = tmp-synth;
-        res   = sqrt(mean(res.^2,1,'omitnan'));
-        orig  = sqrt(mean(tmp.^2,1,'omitnan'));
-        R2    = 1-res/orig;
-        fwrite(fida,vel,'real*4');
-        fwrite(fidb,intercept,'real*4');
-        fwrite(fidc,res,'real*4');
-        fwrite(fidd,demerr,'real*4');
-        fwrite(fide,R2,'real*4');
-    end
-    fclose('all');
-end
-%option 2 - filter the masked parts, then simple time series
-return
-for i=1:nd-1
-    j=i+1;
-    if(~exist(ints(i).infill,'file'))
-        disp(['making ' ints(i).infill])
-        myfilt(ints(i).unw,ints(i).mask,'tmpfilt',150,150,newnx,newny,2,3,4,'/dev/null');
-        %replace masked regions with filtered (in matlab since there is
-        %some issue with integer*1 for imagemath
-        fidi=fopen(ints(i).unw,'r');
-        fidm=fopen(ints(i).mask,'r');
-        fidf=fopen('tmpfilt','r');
-        fido=fopen(ints(i).infill,'w');
-        for k=1:newny
-            a=fread(fidi,newnx,'real*4');
-            b=fread(fidm,newnx,'integer*1');
-            c=fread(fidf,newnx,'real*4');
-            mask=and(b==0,isfinite(a));
-            a(mask)=c(mask);
-            fwrite(fido,a,'real*4');
-        end
-    else
-        disp([ints(i).infill ' already made'])
-    end
-end
-
-if(~exist(dates(1).infill,'file'))
-    for i=1:nd
-        fido(i)=fopen(dates(i).infill,'w');
-    end
-    for i=1:nd-1
-        fidi(i)=fopen(ints(i).infill,'r');
-    end
-    fida=fopen([ddir 'infillslope.r4'],'w');
-    fidb=fopen([ddir 'infillint.r4'],'w');
-    fidc=fopen([ddir 'infillres.r4'],'w');
-    
-    for j=1:newny
-        tmp=zeros(nd-1,newnx);
-        for i=1:nd-1
-            tmp(i,:)=fread(fidi(i),newnx,'real*4');
-        end
-        model=Gg*tmp;
+        synth     = Gr*model;
+        res       = tmp-synth(1:end-1,:);
+        resd      = [zeros(1,newnx);cumsum(res)]-intercept;
         for i=1:nd
-            fwrite(fido(i),model(i,:),'real*4');
+            fwrite(fido(i),resd(i,:),'real*4');
         end
-        mod2=Gg2*model;
-        synth=G2*mod2;
-        res2=model-synth;
-        res2=sqrt(mean(res2.^2,1,'omitnan'));
-        fwrite(fida,mod2(2,:),'real*4');
-        fwrite(fidb,mod2(1,:),'real*4');
-        fwrite(fidc,res2,'real*4');
+        for i=1:nd-1
+            fwrite(fido2(i),res(i,:),'real*4');
+        end
+        resv  = sqrt(mean(res.^2,1,'omitnan'));
+        orig  = sqrt(mean(tmp.^2,1,'omitnan'));
+        R2    = 1-resv./orig;
+        fwrite(fida,vel,'real*4');
+        fwrite(fidb,resv,'real*4');
+        fwrite(fidc,demerr,'real*4');
+        fwrite(fidd,R2,'real*4');
     end
     fclose('all');
-    
 end
