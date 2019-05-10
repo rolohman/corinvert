@@ -80,7 +80,7 @@ for i=1:nd-1
     j=i+1;
     if(~exist(ints(i).infill,'file'))
         disp(['making ' ints(i).infill])
-        myfilt(ints(i).unw,ints(i).mask,'tmpfilt',50,50,newnx,newny,2,3,4,'/dev/null');
+        myfilt(ints(i).unw,ints(i).mask,'tmpfilt',150,150,newnx,newny,2,3,4,'/dev/null');
         %replace masked regions with filtered (in matlab since there is
         %some issue with integer*1 for imagemath
         fidi=fopen(ints(i).unw,'r');
