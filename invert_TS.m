@@ -18,7 +18,7 @@ for i=1:nd-1
     j=i+1;
     intdir         = (['intdir' pol '/' dates(i).name '/']);
     ints(i).name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
-    ints(i).unw    = [intdir ints(i).name '_highpass.unw'];
+    ints(i).unw    = [intdir ints(i).name '_highpass_fix.unw'];
     ints(i).infill = [intdir ints(i).name '_highpass_infill.unw'];
     ints(i).mask   = [intdir ints(i).name '.msk'];
 end
@@ -75,7 +75,7 @@ if(~exist(dates(1).unw,'file'))
     fclose('all');
 end
 %option 2 - filter the masked parts, then simple time series
-
+return
 for i=1:nd-1
     j=i+1;
     if(~exist(ints(i).infill,'file'))
