@@ -115,12 +115,12 @@ for i=1:nd-1
         make_intcor_anyposting(dates(i).slc,dates(j).slc,ints(i).cor2,ints(i).int2,nx,ny,rlooks,alooks,px,py,1,wgtfile)
         
         mask_ztopo(geomfile,ints(i).int,1,newnx,newny)
-        mask_ztopo(geomfile,ints(i).int2,1,newnx,newny)
-        mask_ztopo(geomfile,ints(i).cor,1,newnx,newny)
+        %mask_ztopo(geomfile,ints(i).int2,1,newnx,newny)
+        %mask_ztopo(geomfile,ints(i).cor,1,newnx,newny)
         mask_ztopo(geomfile,ints(i).cor2,1,newnx,newny)
 
     else
-        disp([ints(i).cor ' already made'])
+        disp([ints(i).int ' already made'])
     end
 end
 
@@ -137,7 +137,7 @@ for i=1:nd-1
         delete('snaphu/snaphu.msk');
         %make mask
         fid1      = fopen(wgtfile,'r');
-        fid2      = fopen(ints(i).cor,'r');
+        fid2      = fopen(ints(i).cor2,'r');
         mask1     = fread(fid1,[newnx newny],'real*4');
         mask2     = fread(fid2,[newnx newny],'real*4');
         mask      = and(mask1>0.1,mask2>0.35);   
@@ -151,7 +151,7 @@ for i=1:nd-1
         
         %filter twice and fill masked area
         myfilt(ints(i).int,ints(i).msk,ints(i).filt1,3,3,newnx,newny,2,1,1,ints(i).filtw1);
-        myfilt(ints(i).int,ints(i).msk,ints(i).filt2,35,35,newnx,newny,2,1,1,'/dev/null');
+        myfilt(ints(i).int,ints(i).msk,ints(i).filt2,40,40,newnx,newny,2,1,1,'/dev/null');
         
         mask_ztopo(geomfile,ints(i).filt1,1,newnx,newny)
         mask_ztopo(geomfile,ints(i).filt2,1,newnx,newny)
@@ -193,7 +193,7 @@ for i=1:nd-1
         system(command);
         
         %unwrap filtered with snaphu
-        copyfile(psfilt,'snaphu/snaphu.in')
+        copyfile(ints(i).psfilt,'snaphu/snaphu.in')
         %convert back to r4 to save space
         command=['imageMath.py -e=''arg(a)'' -t float -n -o ' ints(i).psfilt ' --a=''snaphu/snaphu.in;' num2str(newnx) ';cfloat;1;BSQ'''];
         system(command);
@@ -216,22 +216,22 @@ for i=1:nd-1
 end
 
 %temporary addition, fixing long wavelength mask
-fid1=fopen('demerr.r4','r');
-fid2=fopen('sigstd.r4','r');
-fido=fopen('longfiltmask.i1','w');
-a=fread(fid1,[newnx newny],'real*4');
-b=fread(fid2,[newnx newny],'real*4');
-c=and(abs(a)<0.002,b<1);
-fwrite(fido,c,'integer*1');
-fclose('all');
+% fid1=fopen('demerr.r4','r');
+% fid2=fopen('sigstd.r4','r');
+% fido=fopen('longfiltmask.i1','w');
+% a=fread(fid1,[newnx newny],'real*4');
+% b=fread(fid2,[newnx newny],'real*4');
+% c=and(abs(a)<0.002,b<1);
+% fwrite(fido,c,'integer*1');
+% fclose('all');
 
 %remove long-wavelength signals
 for i=1:nd-1
     if(~exist(ints(i).long,'file'))
         disp(['need to run ' ints(i).long])
         %filter long wavelengths
-        myfilt(ints(i).unw,'longfiltmask.i1',ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
-        %myfilt(ints(i).unw,ints(i).msk,ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
+        %myfilt(ints(i).unw,'longfiltmask.i1',ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
+        myfilt(ints(i).unw,ints(i).msk,ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
         
         %remove long wavelength from unw
         command=['imageMath.py -e=''a-b'' -t float -n -o ' ints(i).deramp ' --a=''' ints(i).unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' ints(i).long  ';' num2str(newnx) ';float;1;BSQ'''];
