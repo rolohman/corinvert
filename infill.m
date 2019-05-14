@@ -45,8 +45,8 @@ for i=1:newny
     out(~m1) = sums(~m1);
     out(isnan(a)) = NaN;
 
-    outc(1:2:end)     = cos(out);
-    outc(2:2:end)     = sin(out);
+    outc(1:2:end)     = real(out);
+    outc(2:2:end)     = imag(out);
     outc(isnan(outc)) = 0;
     fwrite(fido,outc,'real*4');
 end
