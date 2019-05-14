@@ -4,7 +4,7 @@ im=sqrt(-1);
 for k=1:length(filters)
     filtname  = ['filt_' num2str(filters(k)) '.int'];
     filtwname = ['filt_' num2str(filters(k)) '.wgt'];
-    %myfilt(int,msk,filtname,filters(k),filters(k),newnx,newny,2,1,1,filtwname);
+    myfilt(int,msk,filtname,filters(k),filters(k),newnx,newny,2,1,1,filtwname);
 end
 
 fid0 = fopen(msk,'r');
