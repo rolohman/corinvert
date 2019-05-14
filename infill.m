@@ -4,7 +4,7 @@ im=sqrt(-1);
 for k=1:length(filters)
     filtname  = ['filt_' num2str(filters(k)) '.int'];
     filtwname = ['filt_' num2str(filters(k)) '.wgt'];
-    myfilt(int,msk,filtname,filters(k),filters(k),newnx,newny,2,1,1,filtwname);
+    %myfilt(int,msk,filtname,filters(k),filters(k),newnx,newny,2,1,1,filtwname);
 end
 
 fid0 = fopen(msk,'r');
@@ -25,8 +25,8 @@ for i=1:newny
     wts=zeros(length(filters),newnx);
     fis=wts;
     for j=1:length(filters)
-        fis(j,:)=fread(fidf(k),newnx,'real*4');
-        wts(j,:)=fread(fidw(k),newnx,'real*4');
+        fis(j,:)=fread(fidf(j),newnx,'real*4');
+        wts(j,:)=fread(fidw(j),newnx,'real*4');
     end
        
     a   = exp(im*a);
