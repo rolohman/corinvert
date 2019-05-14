@@ -34,30 +34,36 @@ for i=1:nd-1
     ints(i).deramp  = [intdir name '_highpass.unw']; %unfiltered unwrapped
 end
 
+fid1=fopen('dates_VV/simpledemerr.r4','r');
+fid2=fopen('dates_VV/simpleres.r4','r');
+fido=fopen('lowresorbigdem.i1','w');
+a=fread(fid1,[newnx newny],'real*4');
+b=fread(fid2,[newnx newny],'real*4');
+c=or(and(abs(a)>0.005,b<2),and(abs(a)<0.001,b<1));
+fwrite(fido,c,'integer*1');
+fclose('all');
 
-
-wgtfile=['intdir' pol '/average.' num2str(alooks) 'alks_' num2str(rlooks) 'rlks.cor'];
-wgtfile=['longfiltmask.i1']
+wgtfile='lowresorbigdem.i1';
 %now the filtering/unwrapping section
 for i=1:nd-1
     j=i+1;
     
     if(~exist(ints(i).unw,'file'))
-        disp(['unwrapping ' ints(i).int])
+        disp(['unwrapping ' ints(i).orig])
         delete('maskfill.int'); %make sure this is blank
         delete('snaphu/snaphu.out');
         delete('snaphu/snaphu.in');
         delete('snaphu/snaphu.msk');
         %make mask
         fid1      = fopen(wgtfile,'r');
-        fid2      = fopen(ints(i).cor2,'r');
+        fid2      = fopen(ints(i).cor,'r');
         mask1     = fread(fid1,[newnx newny],'integer*1');
         mask2     = fread(fid2,[newnx newny],'real*4');
-        mask      = and(mask1,mask2>0.35);   
+        mask      = and(mask1==1,mask2>0.35);   
         
         fid1      = fopen(ints(i).msk,'w');
         fid2      = fopen('snaphu/snaphu.msk','w');
-        fwrite(fid1,mask2,'integer*1');
+        fwrite(fid1,mask,'integer*1');
         fwrite(fid2,mask,'real*4');
         fclose('all');
         clear mask mask1 mask2
@@ -70,7 +76,7 @@ for i=1:nd-1
         mask_ztopo(geomfile,ints(i).filt2,1,newnx,newny)
 
         fid0=fopen(ints(i).msk,'r');
-        fid1=fopen(ints(i).int,'r');
+        fid1=fopen(ints(i).orig,'r');
         fid2=fopen(ints(i).filt1,'r');
         fid3=fopen(ints(i).filtw1,'r');
         fid4=fopen(ints(i).filt2,'r');
@@ -102,7 +108,7 @@ for i=1:nd-1
         
         
         %psfilt, remove nans
-        command=['psfilt maskfill.int ' ints(i).psfilt ' ' num2str(newnx) ' 0.25'];
+        command=['psfilt maskfill.int ' ints(i).psfilt ' ' num2str(newnx) ' 0.3'];
         system(command);
         
         %unwrap filtered with snaphu
@@ -119,27 +125,27 @@ for i=1:nd-1
         
         %add 2pis to unfiltered
         
-        command=['imageMath.py -e=''round((b-a)/2/PI)'' -t short -n -o ' ints(i).pis ' --a=''' ints(i).int ';' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
+        command=['imageMath.py -e=''round((b-a)/2/PI)'' -t short -n -o ' ints(i).pis ' --a=''' ints(i).orig ';' num2str(newnx) ';float;1;BSQ'' --b=''snaphu/snaphu.out;' num2str(newnx) ';float;1;BSQ'''];
         system(command);
-        command=['imageMath.py -e=''a+2*PI*b'' -o ' ints(i).unw ' -n -t float --a=''' ints(i).int ';' num2str(newnx) ';float;1;BSQ'' --b=''' ints(i).pis  ';' num2str(newnx) ';short;1;BSQ'''];
+        command=['imageMath.py -e=''a+2*PI*b'' -o ' ints(i).unw ' -n -t float --a=''' ints(i).orig ';' num2str(newnx) ';float;1;BSQ'' --b=''' ints(i).pis  ';' num2str(newnx) ';short;1;BSQ'''];
         system(command);
     else
-        disp(['done unwrapping ' ints(i).int])
+        disp(['done unwrapping ' ints(i).orig])
     end
 end
 
 %remove long-wavelength signals
 for i=1:nd-1
-    if(~exist(ints(i).long2,'file'))
-        disp(['need to run ' ints(i).long2])
+    if(~exist(ints(i).long,'file'))
+        disp(['need to run ' ints(i).long])
         %filter long wavelengths
-        myfilt(ints(i).unw,'longfiltmask.i1',ints(i).long2,200,200,newnx,newny,2,3,4,'/dev/null');
+        myfilt(ints(i).unw,'longfiltmask.i1',ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
         %myfilt(ints(i).unw,ints(i).msk,ints(i).long,200,200,newnx,newny,2,3,4,'/dev/null');
         
         %remove long wavelength from unw
-        command=['imageMath.py -e=''a-b'' -t float -n -o ' ints(i).deramp2 ' --a=''' ints(i).unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' ints(i).long2  ';' num2str(newnx) ';float;1;BSQ'''];
+        command=['imageMath.py -e=''a-b'' -t float -n -o ' ints(i).deramp ' --a=''' ints(i).unw  ';' num2str(newnx) ';float;1;BSQ'' --b=''' ints(i).long  ';' num2str(newnx) ';float;1;BSQ'''];
         system(command);
     else
-        disp(['already highpass filtered ' ints(i).int])
+        disp(['already highpass filtered ' ints(i).orig])
     end
 end
