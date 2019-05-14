@@ -39,7 +39,7 @@ for i=1:newny
  
     tmpwgt=[wts(1,:);diff(wts,1,1)]; %wedges
     tot=sum(tmpwgt,1);
-    tmpwgt=tmpwgt./repmat(tot,length(filters,1));
+    tmpwgt=tmpwgt./repmat(tot,length(filters),1);
            
     sums=sum(tmpwgt.*fis,1,'omitnan');
     out(~m1) = sums(~m1);
