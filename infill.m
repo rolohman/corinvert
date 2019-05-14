@@ -37,9 +37,10 @@ for i=1:newny
     %a, unless masked, then combine filtered products, tapered.
     out(m1)           = a(m1);
  
-    tmpwgt=[wts(1,:);diff(wts,1,1)]; %wedges
-    tot=sum(tmpwgt,1);
-    tmpwgt=tmpwgt./repmat(tot,length(filters),1);
+    
+    
+    tot=sum(wts,1);
+    tmpwgt=wts./repmat(tot,length(filters),1);
            
     sums=sum(tmpwgt.*fis,1,'omitnan');
     out(~m1) = sums(~m1);
