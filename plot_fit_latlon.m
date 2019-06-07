@@ -1,4 +1,4 @@
-function [dates,perms,c0]=plot_fit_latlon(xpt,ypt,pol,pflag)
+function [dates,perms,c0,mag,time]=plot_fit_latlon(xpt,ypt,pol,pflag)
 dirs={'T54','T156','T47'};
 %dirs=dirs(1:2);
 nd=0;
@@ -66,7 +66,7 @@ for i=1:length(rdate)
     file=[rdir rdate{i} '.mag0'];
     fid=fopen(file,'r');
     fseek(fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
-    mag=-log(fread(fid,1,'real*4'));
+    mag(i)=-log(fread(fid,1,'real*4'));
     file=[rdir rdate{i} '.maglow'];
     fid=fopen(file,'r');
     fseek(fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
@@ -78,11 +78,11 @@ for i=1:length(rdate)
     file=[rdir rdate{i} '.time0'];
     fid=fopen(file,'r');
     fseek(fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
-    time=fread(fid,1,'real*4');
+    time(i)=fread(fid,1,'real*4');
     
     id=find(dn2>=dnr(i));
-    if(and(isfinite(mag),isfinite(time)))
-        synth(id)=synth(id)+mag*exp(-(dn2(id)-dnr(i))/time);
+    if(and(isfinite(mag(i)),isfinite(time(i))))
+        synth(id)=synth(id)+mag(i)*exp(-(dn2(id)-dnr(i))/time(i));
     end
 end
 synth=exp(-synth);
