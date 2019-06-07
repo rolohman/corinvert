@@ -1,9 +1,12 @@
-function [dates,perms]=plot_fit_latlon(xpt,ypt,pol)
+function [dates,perms,c0]=plot_fit_latlon(xpt,ypt,pol)
 dirs={'T54','T156','T47'};
 %dirs=dirs(1:2);
 nd=0;
 dates=[];
 perms=[];
+c0=[];
+nx_geo    = 2340;
+ny_geo    = 2574;
 for i=1:length(dirs)
     tmp=dir([dirs{i} '/geo' pol '/rel*_4r_4a.cor.geo']);
     
@@ -23,14 +26,18 @@ for i=1:length(dirs)
         perms(end).t=i;
         perms(end).d=mean([perms(end).d1 perms(end).d2]);
     end
+    file=[dirs{i}  '/geo' pol '/c0_4r_4a.cor.geo'];
+    fid=fopen(file,'r');
+    fseek(fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
+    c0(end+1)=  fread(fid,1,'real*4');
+    fclose(fid);
 end
 
 d=[dates.t];
 nd=length(dates);
 dn    = [dates.dn];
 
-nx_geo    = 2340;
-ny_geo    = 2574;
+
 % x1=-70.6;
 % dx=0.000277777777777777;
 % y1=-24.0;

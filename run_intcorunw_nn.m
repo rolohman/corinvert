@@ -1,7 +1,7 @@
 %parpool(4)
 pol='_VV';
 decide_ints_stack
-px=7;
+px=5;
 py=3;
 im=sqrt(-1);
 slcdir=['merged/SLC' pol '/'];
@@ -10,17 +10,8 @@ slcdir=['merged/SLC' pol '/'];
 if(~exist(['wgtdir']))
     mkdir(['wgtdir'])
 end
-if(~exist(['cordir' pol]))
-    mkdir(['cordir' pol])
-end
 if(~exist(['intdir' pol]))
     mkdir(['intdir' pol])
-end
-if(~exist(['cordir2' pol]))
-    mkdir(['cordir2' pol])
-end
-if(~exist(['intdir2' pol]))
-    mkdir(['intdir2' pol])
 end
 
 
@@ -38,27 +29,15 @@ end
 clear ints
 for i=1:nd-1
     j=i+1;
-    cordir = (['cordir' pol '/' dates(i).name '/']);
-    cordir2 = (['cordir2' pol '/' dates(i).name '/']);
-    intdir = (['intdir' pol '/' dates(i).name '/']);
-    intdir2=(['intdir2' pol '/' dates(i).name '/']);
-    if(~exist(cordir,'dir'))
-        mkdir(cordir)
-    end
-    if(~exist(intdir,'dir'))
+     intdir = (['intdir' pol '/' dates(i).name '/']);
+     if(~exist(intdir,'dir'))
         mkdir(intdir)
     end
-    if(~exist(cordir2,'dir'))
-        mkdir(cordir2)
-    end
-    if(~exist(intdir2,'dir'))
-        mkdir(intdir2)
-    end
-    name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
+      name   = [dates(i).name '_' dates(j).name '_' num2str(rlooks) 'rlk_' num2str(alooks) 'alk'];
     ints(i).int         = [intdir name '.int'];
-    ints(i).cor         = [cordir name '.cor'];
-    ints(i).int2        = [intdir2 name '.int'];
-    ints(i).cor2        = [cordir2 name '.cor'];
+    ints(i).cor         = [intdir name '.cor'];
+    ints(i).int2        = [intdir name '_' num2str(px) '.int'];
+    ints(i).cor2        = [intdir name '_' num2str(px) '.cor'];
     ints(i).msk         = [intdir name '.msk'];
     ints(i).filt1   = ['smallfilt.int'];  %masked infilled with filtered
     ints(i).filtw1  = ['smallfiltw.int'];  %masked infilled with filtered
@@ -115,8 +94,8 @@ for i=1:nd-1
         make_intcor_anyposting(dates(i).slc,dates(j).slc,ints(i).cor2,ints(i).int2,nx,ny,rlooks,alooks,px,py,1,wgtfile)
         
         mask_ztopo(geomfile,ints(i).int,1,newnx,newny)
-        %mask_ztopo(geomfile,ints(i).int2,1,newnx,newny)
-        %mask_ztopo(geomfile,ints(i).cor,1,newnx,newny)
+        mask_ztopo(geomfile,ints(i).int2,1,newnx,newny)
+        mask_ztopo(geomfile,ints(i).cor,1,newnx,newny)
         mask_ztopo(geomfile,ints(i).cor2,1,newnx,newny)
 
     else
