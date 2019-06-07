@@ -112,7 +112,7 @@ dn2=[dn2 dnr'-0.001]; %add points to break for nans
 synth2=[synth nan*dnr'];
 [jnk,sid]=sort(dn2);
 
-if(plag)
+if(pflag)
 tc={'r','[0.1 0 0.9]','[0 0.6 0]'};
 figure('Name',[num2str(xpt) ' ' num2str(ypt)])
 
