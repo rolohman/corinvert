@@ -37,8 +37,8 @@ rlooks = 15;
 alooks = 4;
 %rlooks=7;
 %alooks=3;
-rlooks=3;
-alooks=1;
+%rlooks=3;
+%alooks=1;
 n      = rlooks*alooks;
 
 
