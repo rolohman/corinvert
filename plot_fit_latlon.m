@@ -1,12 +1,25 @@
 function [dates,perms,c0,mag,time]=plot_fit_latlon(xpt,ypt,pol,pflag)
-dirs={'T54','T156','T47'};
+%dirs={'T54','T156','T47'};
 %dirs=dirs(1:2);
+
 nd=0;
 dates=[];
 perms=[];
 c0=[];
 nx_geo    = 2340;
 ny_geo    = 2574;
+%T130
+dirs={'T130'};
+nx_geo=3159;
+ny_geo=3762;
+%T28
+%dirs={'T28'};
+%nx_geo=3042;
+%ny_geo=4737;
+%T101
+%dirs={'T101'};
+%nx_geo=2583;
+%ny_geo=5130;
 for i=1:length(dirs)
     tmp=dir([dirs{i} '/geo' pol '/rel*_4r_4a.cor.geo']);
     
@@ -53,8 +66,11 @@ if(xpt<1 || xpt>nx_geo || ypt<1 || ypt>ny_geo)
 end
 
 
-rdir = ['results_TS' pol '/'];
+rdir = ['results_TS' pol '_' dirs{1} '/'];
 rdate  = {'20150325','20150807','20160625','20170310','20170513','20170606'};
+rdate  = {'20180524','20181011'};
+rdate  = {'20170325','20170506','20170717','20171009','20171220','20180302','20180524','20181011','20181109'};
+rdate={'20170325','20170506','20170717','20171009','20171220','20180302','20180524','20181011'};
 
 dnr    = datenum(rdate,'yyyymmdd');
 rdate  = rdate(dnr<max(dn));
@@ -65,7 +81,8 @@ synth  = 0*dn2;
 for i=1:length(rdate)
     file=[rdir rdate{i} '.mag0'];
     fid=fopen(file,'r');
-    fseek(fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
+file
+fseek(fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
     mag(i)=-log(fread(fid,1,'real*4'));
     file=[rdir rdate{i} '.maglow'];
     fid=fopen(file,'r');

@@ -193,7 +193,7 @@ for j=online+1:newny
         t6=nan(1,length(goodid));
         tic
         parfor i=1:length(goodid)
-            %for i=1:length(goodid)
+          %  for i=1:length(goodid)
             
             data  = cors(:,goodid(i));
             d     = log(data);

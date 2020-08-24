@@ -1,4 +1,4 @@
-function [ct_est]=est_ct(d,Gi,cpmin)
+function [ct_est,c0_est]=est_ct(d,Gi,cpmin)
 d_orig=d;
 [~,nd]=size(Gi);
 nd=nd+1;
@@ -13,9 +13,6 @@ ct_est=zeros(1,nd-1);
 
 [s,sortid]=sort(jumps);
 sortid=sortid(s<0);
-
-
-
 
 %mymax=sum(di.*w)/sum(w);
 

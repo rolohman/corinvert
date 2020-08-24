@@ -12,7 +12,7 @@ latfile='merged/geom_master/lat.rdr.4alks_15rlks.full';
 
 
 
-pols={'_VV'};
+pols={'_VV','_VH'};
 for l=1:length(pols)
     pol=pols{l}
     clear dates
@@ -257,7 +257,9 @@ if(plotflag)
     ax=axis;
     datetick('x','mmmYY')
     axis(ax);
-    l=1;
+
+    for l=1:length(output)
+    
     dn=[output(l).dn];
     id1=[output(l).id1];
     id2=[output(l).id2];
@@ -292,13 +294,7 @@ if(plotflag)
     hold on
     fixplot
     
-    subplot(3,2,2)
-    plot(abpr,[output(l).cors],'k.')
-    hold on
-    plot(abpr,max([output(l).cors])*bpsynth,'r.')
-    
-    title(['synth' pols{l}])
-    
+     
     
     dni   = dn(1:nd-1)+diff(dn)/2;
     
@@ -313,7 +309,13 @@ if(plotflag)
     ax=axis;
     datetick('x','mmmYY')
     axis(ax);
-    
+    end
+    figure
+    plot(abpr,[output(l).cors],'k.')
+    hold on
+    plot(abpr,max([output(l).cors])*bpsynth,'r.')
+    title(['synth' pols{l}])
+  
 end
 
 

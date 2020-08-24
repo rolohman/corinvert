@@ -3,6 +3,9 @@ pol='_VV';
 r=4;
 a=4;
 dirs=dirs(3);
+dirs={'T28'};
+dirs={'T149'};
+dirs={'T101'};
 for i=1:length(dirs)
     d=[dirs{i} '/geo' pol '/'];
     chdir(d);

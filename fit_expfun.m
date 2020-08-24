@@ -1,6 +1,9 @@
 parpool(10)
 home=pwd;
 dirs={'T54','T156','T47'};
+%dirs={'T130'};
+%dirs={'T28'};
+dirs={'T101'};
 %dirs=dirs(1:2);
 pol='_VV';
 
@@ -24,12 +27,22 @@ dn    = [dates.dn];
 
 
 
-nx_geo    = 2340;
-ny_geo    = 2574;
-
+%nx_geo    = 2340;
+%ny_geo    = 2574;
+%T130
+%nx_geo=3159;
+%ny_geo=3762;
+%T28
+%nx_geo=3042;
+%ny_geo=4737;
+%T101
+nx_geo=2583;
+ny_geo=5130;
 
 rdir = ['results_TS' pol '/'];
 rdate  = {'20150325','20150807','20160625','20170310','20170513','20170606'};
+rdate  = {'20170325','20170506','20170717','20171009','20171220','20180302','20180524','20181011','20181109'};
+rdate = {'20170325','20170506','20170717','20171009','20171220','20180302','20180524','20181011'};
 if(~exist(rdir,'dir'))
     mkdir(rdir)
 end
@@ -79,8 +92,10 @@ if(exist(testfile,'file'))
         fidmagh(i)  = fopen([rdir rdate{i} '.maghigh'],'a');
         fidte(i)    = fopen([rdir rdate{i} '.timeerr'],'a');
         fidn(i)     = fopen([rdir rdate{i} '.count'],'a');
- 
-    end
+fidtl(i)=fopen([rdir rdate{i} '.timelow'],'a');
+fidth(i)=fopen([rdir rdate{i} '.timehigh'],'a');
+fidmod5(i)=fopen([rdir rdate{i} '.5day'],'a');  
+  end
     
     fidres  = fopen([rdir 'resn0'],'a');
     
@@ -99,7 +114,10 @@ else
         fidmagh(i)  = fopen([rdir rdate{i} '.maghigh'],'w');
         fidte(i)    = fopen([rdir rdate{i} '.timeerr'],'w');
         fidn(i)     = fopen([rdir rdate{i} '.count'],'w');
-    end
+fidtl(i)=fopen([rdir rdate{i} 'timelow'],'w');
+fidth(i)=fopen([rdir rdate{i} 'timehigh'],'w');
+fidmod5(i)=fopen([rdir rdate{i} '.5day'],'w');
+end
     fidres  = fopen([rdir 'resn0'],'w');
 end
 
@@ -136,7 +154,7 @@ for j=online+1:ny_geo
     c0err=0.067*c-0.34*c.^2;
     
     
-    goodid  = find(and(count>50,c0s>0.3));
+    goodid  = find(and(count>20,c0s>0.3));
    
     
     mags   = nan(length(dnr),length(goodid));
@@ -145,7 +163,9 @@ for j=online+1:ny_geo
     maghig = mags;
     timerr = mags;
     count  = mags;
-
+timelow = mags;
+timehigh=mags;
+mod5 = mags;
     for k=1:length(dnr)
         valid  = [rain(k).valid];
         x=[dn(valid)-dnr(k)]';
@@ -183,10 +203,10 @@ for j=online+1:ny_geo
             count(k,i)  = length(gi);
                          
                  
-            if(length(gi)>=4)
+            if(length(gi)>=3)
                 if(firstdif>c0err(goodid(i))*2)
                     c       = 1-dat(valid,goodid(i));
-                    derr    = 0.067*c-0.34*c.^2;
+                    derr    = 0.67*c-0.34*c.^2;
                     dup     = c+derr;
                     ddn     = c-derr;
                     dupl    = -log(1-dup);
@@ -201,16 +221,15 @@ for j=online+1:ny_geo
                     results          = coeffvalues(fitresult);
                     confs            = confint(fitresult);
                     
-                    if(sum(confs(:)<0)==0)
                         mags(k,i)   = exp(-results(1));
                         times(k,i)  = 1./results(2);
                         maglow(k,i) = exp(-confs(2,1));
                         maghig(k,i) = exp(-confs(1,1));
                         timerr(k,i) = -diff(1./confs(:,2));
-                    else
-                        maglow(k,i)=-10; %threw out because errors included neg.
-                    end
-                else
+timelow(k,i)=1/confs(1,2);
+timehigh(k,i)=1/confs(2,2);
+mod5(k,i) = mags(k,i)*exp(-5/times(k,i));
+else
                     maglow(k,i)=-20; %didn't run because too small or descending
                 end
             else
@@ -236,7 +255,12 @@ for j=online+1:ny_geo
         fwrite(fidte(i),tmp,'real*4');
         tmp(goodid)=count(i,:);
         fwrite(fidn(i),tmp,'real*4');
-
+tmp(goodid)=timelow(i,:);
+fwrite(fidtl(i),tmp,'real*4');
+tmp(goodid)=timehigh(i,:);
+fwrite(fidth(i),tmp,'real*4');
+tmp(goodid)=mod5(i,:);
+fwrite(fidmod5(i),tmp,'real*4');
     end
     
     res=-log(dat);
