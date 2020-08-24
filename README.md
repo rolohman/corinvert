@@ -1,3 +1,5 @@
+#This branch has filtering and TS material that were used in Chile paper
+
 # corinvert
 Code for generating coregistered SLC stack, all possible coherence images, and inverting for factors influencing coherence as a function of time
 
