@@ -1,16 +1,28 @@
 params
-dem='/data/rlohman/Sentinel/Chile/dem/demLat_S26_S23_Lon_W071_W067.dem.wgs84';
+dem='/data/rlohman/Sentinel/Saudi/dem/demLat_S26_S23_Lon_W071_W067.dem.wgs84';
 bbox='-25.86 -23.00 -70.7 -68.1';
 %T130
 dem='/data/rlohman/Sentinel/Saudi/dem/demLat_N17_N22_Lon_E054_E058.dem.wgs84';
 bbox='17.75 21.93 54.4 57.91';
-geodir=['geo_' pol];
+%T28
+dem='/data/rlohman/Sentinel/Saudi/dem/demLat_N16_N22_Lon_E051_E056.dem.wgs84';
+bbox='16.436 21.7 52.58 55.96';
+%T54N
+dem='/data/rlohman/Sentinel/Chile/dem/demLat_S21_S18_Lon_W071_W067.dem.wgs84';
+bbox='-20.354 -18.459 -70.51 -67.61';
+%T101
+dem='/data/rlohman/Sentinel/Saudi/dem/demLat_N16_N22_Lon_E051_E056.dem.wgs84';
+bbox='16 21.7 51 53.87';
 
+
+pol='VV';
+geodir=['geo_' pol];
 if(~exist(geodir,'dir'))
     mkdir(geodir)
 end
 
-resdir=['results_dates_' pol '/'];
+resdir=['results_dates_bp_' pol '/'];
+%resdir=['results_dates_' pol '/'];
 
 filelist=dir([resdir '*cor']);
 nfiles=length(filelist)
