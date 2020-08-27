@@ -1,5 +1,5 @@
 addpath('~/matlab/DERIVESTsuite');
-parpool(10)
+%parpool(10)
 home=pwd;
 dirs={'T130'};
 %dirs={'T28'};
@@ -131,7 +131,7 @@ for j=online+1:ny
     shifts  = nan(1,length(goodid));
     allres  = shifts;
     
-    parfor i=1:length(goodid)
+    for i=1:length(goodid)
         
         logd      = -log(dat(:,goodid(i)));
         deld      = logd(afid)-logd(befid);
