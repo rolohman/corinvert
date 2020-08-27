@@ -116,7 +116,7 @@ for j=online+1:ny
     end 
     c0s(or(c0s==-9999,or(isinf(c0s),c0s==0))) = NaN;   
     
-    goodid   = find(and(count>lowcountcutff,c0s>lowcorcutoff));
+    goodid   = find(and(count>lowcountcutoff,c0s>lowcorcutoff));
     
     %initialize arrays (necessary for parfor)
     mags    = nan(nr,length(goodid));times = mags; maglow = mags; maghig = mags; timerr = mags; fwd5 = mags; 
@@ -158,8 +158,6 @@ for j=online+1:ny
                 mod0                = [mod1 magst' shift];
                 J                   = jacobianest('expfun_all',mod0,x,y);
                 J2                  = J'*J;
-                
-                allJ(i)             = rcond(J2);
                 J3                  = inv(J2);
                 modcov              = J3*J'*weights*J*J3;
                 modstd              = sqrt(diag(modcov));
