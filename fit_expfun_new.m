@@ -91,7 +91,7 @@ for j=online+1:ny
     dat=zeros(nd,nx);
     for i=1:nd
         [tmp,count1]=fread(fidi.rels(i).fid,nx,'real*4');
-        if(count>0)
+        if(count1>0)
             dat(i,1:count1)=tmp;
         end
     end
@@ -158,6 +158,8 @@ for j=online+1:ny
                 mod0                = [mod1 magst' shift];
                 J                   = jacobianest('expfun_all',mod0,x,y);
                 J2                  = J'*J;
+                
+                allJ(i)             = rcond(J2);
                 J3                  = inv(J2);
                 modcov              = J3*J'*weights*J*J3;
                 modstd              = sqrt(diag(modcov));
