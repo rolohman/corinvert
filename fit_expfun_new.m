@@ -86,7 +86,7 @@ for i=1:nr
 end
 
 
-[fidi,fido]=open_files(fidi,fido,nx,ny);
+[fidi,fido,online]=open_files(fidi,fido,nx,ny);
 
 
 %% start
