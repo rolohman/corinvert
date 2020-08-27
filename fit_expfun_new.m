@@ -1,5 +1,5 @@
 addpath('~/matlab/DERIVESTsuite');
-%parpool(10)
+parpool(10)
 home=pwd;
 dirs={'T130'};
 %dirs={'T28'};
@@ -131,7 +131,7 @@ for j=online+1:ny
     shifts  = nan(1,length(goodid));
     allres  = shifts;
     
-    for i=1:length(goodid)
+    parfor i=1:length(goodid)
         
         logd      = -log(dat(:,goodid(i)));
         deld      = logd(afid)-logd(befid);
@@ -205,6 +205,7 @@ for j=online+1:ny
         
         tmpmag5=tmpmag.*exp(-5./tmptime);
    
+        %below is bookkeeping related to the use of parfor loops.
         times(:,i) = tmptime;
         mags(:,i)  = tmpmag;
         mag5(:,i)  = tmpmag5;
@@ -227,22 +228,22 @@ for j=online+1:ny
     tmp=nan(1,nx);
     for i=1:nr
         tmp(goodid) = exp(-mags(i,:));
-        fwrite(fidmag(i),tmp,'real*4');
+        fwrite(fido.mag0(i).fid,tmp,'real*4');
         tmp(goodid) = times(i,:);
-        fwrite(fidt(i),tmp,'real*4');
+        fwrite(fido.time0(i).fid,tmp,'real*4');
         tmp(goodid) = exp(-maglow(i,:));
-        fwrite(fidmagl(i),tmp,'real*4');
+        fwrite(fido.magl(i).fid,tmp,'real*4');
         tmp(goodid) = exp(-maghig(i,:));
-        fwrite(fidmagh(i),tmp,'real*4');
+        fwrite(fido.magh(i).fid,tmp,'real*4');
         tmp(goodid) = timerr(i,:);
-        fwrite(fidte(i),tmp,'real*4');
+        fwrite(fido.te(i).fid,tmp,'real*4');
         tmp(goodid) = exp(-mag5(i,:));
-        fwrite(fidmod5(i),tmp,'real*4');
+        fwrite(fido.fwd5(i).fid,tmp,'real*4');
     end
     tmp(goodid) = allres;
-    fwrite(fidres,tmp,'real*4');
+    fwrite(fido.resn0.fid,tmp,'real*4');
     tmp(goodid) = shifts;
-    fwrite(fids,tmp,'real*4');
+    fwrite(fido.shift.fid,tmp,'real*4');
 
 end
 fclose('all');
