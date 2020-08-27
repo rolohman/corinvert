@@ -1,40 +1,37 @@
 addpath('~/matlab/DERIVESTsuite');
 parpool(10)
 home=pwd;
-dirs={'T130'};
-%dirs={'T28'};
-%dirs={'T101'};
+relDir='T130';
+%relDir='T28';
+%relDir='T101';
 pol='_VV';
-corcutoff=0.01;
+corcutoff      = 0.01; %diff to distinguish from 1
+lowcorcutoff   = 0.3; %lowest background cor (c0)
+lowcountcutoff = 20;  %need at least n dates
+
 options = optimset('Display','off','TolFun',1e-4);
 
-nt=length(dirs);
-nd=0;
-dates=[];
-for i=1:length(dirs)
-    tmp=dir([dirs{i} '/geo' pol '/rel*_4r_4a.cor.geo']);
-    for j=1:length(tmp)
-        t=tmp(j).name;
-        dates(end+1).name   = t(5:12);
-        dates(end).filename = [tmp(j).folder '/' t];
-        dates(end).dn       = datenum(t(5:12),'yyyymmdd');
-        dates(end).origdir  = [tmp(j).folder];
-    end
+dates = [];
+tmp=dir([relDir '/geo' pol '/rel*_4r_4a.cor.geo']);
+for j=1:length(tmp)
+    t=tmp(j).name;
+    dates(end+1).name   = t(5:12);
+    dates(end).filename = [tmp(j).folder '/' t];
+    dates(end).dn       = datenum(t(5:12),'yyyymmdd');
+    dates(end).origdir  = [tmp(j).folder];
 end
 
 %get nx/ny from last file opened
 vrt=[dates(end).filename '.vrt'];
-if(exist(vrt))
-    [a,b]=system(['grep rasterXSize ' vrt]);
-    tmp=regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)">','tokens');
+if(exist(vrt,'file'))
+    [a,b] = system(['grep rasterXSize ' vrt]);
+    tmp   = regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)">','tokens');
     if(length(tmp)==1)
-        nx=str2num(tmp{1}{1});
-        ny=str2num(tmp{1}{2});
+        nx=str2num(tmp{1}{1}); ny=str2num(tmp{1}{2});
         [nx ny]
     end
 else
-    disp('no nx/ny info, need vrt file')
-    return
+    disp('no nx/ny info, need vrt file'),return
 end
 
 [jnk,sortid]=sort([dates.dn]);
@@ -47,44 +44,43 @@ rdate=cellstr(num2str(load('dates.list')));
 if(~exist(rdir,'dir'))
     mkdir(rdir)
 end
+
 dnr    = datenum(rdate,'yyyymmdd');
-goodr   = and(dnr<max(dn),dnr>min(dn)); %only use rain during time series
+goodr  = and(dnr<max(dn),dnr>min(dn)); %only use rain during time series
 rdate  = rdate(goodr);
 dnr    = dnr(goodr);
 nr     = length(dnr);
   
 timemat=zeros(nd,nr); %used later in inversion.
 for i=1:nr
-    timemat(:,i)=dn-dnr(i);
-    befid(i)=find(dn<dnr(i),1,'last');
-    afid(i)=find(dn>dnr(i),1,'first');
+    timemat(:,i) = dn-dnr(i);
+    befid(i)     = find(dn<dnr(i),1,'last');
+    afid(i)      = find(dn>dnr(i),1,'first');
 end
-dt = dn(afid)-dnr'; %time since event, used in res.
 timemat(timemat<0)=0;
+dt     = dn(afid)-dnr'; %time since event, used in res.
 LB     = dt+3; %lower bound on time - at least 1/2 time after first date.
 UB     = 100*ones(1,nr); %upper bound on time
 tmod0  = 12*ones(1,nr); %starting time model
 
 %open all filesif(type==1)
 clear fidi fido
+%inputs
 for i=1:nd
     fidi.rels(i).name=dates(i).filename;   
 end
-for i=1:length(dirs) 
-    fidi.c0(i).name=[dirs{i} '/geo' pol '/c0_4r_4a.cor.geo'];
-end
+fidi.c0.name     = [relDir '/geo' pol '/c0_4r_4a.cor.geo'];
+%outputs
 fido.resn0.name  = [rdir 'resn0'];
 fido.shift.name  = [rdir 'shift'];
-
 for i=1:nr
-    fido.mag0(i).name=[rdir rdate{i} '.mag0'];
-    fido.time0(i).name=[rdir rdate{i} '.time0'];
-    fido.magl(i).name=[rdir rdate{i} '.maglow'];
-    fido.magh(i).name=[rdir rdate{i} '.maghigh'];
-    fido.te(i).name=[rdir rdate{i} '.timeerr'];
-    fido.fwd5(i).name=[rdir rdate{i} '.5day'];
+    fido.mag0(i).name  = [rdir rdate{i} '.mag0'];
+    fido.time0(i).name = [rdir rdate{i} '.time0'];
+    fido.magl(i).name  = [rdir rdate{i} '.maglow'];
+    fido.magh(i).name  = [rdir rdate{i} '.maghigh'];
+    fido.te(i).name    = [rdir rdate{i} '.timeerr'];
+    fido.fwd5(i).name  = [rdir rdate{i} '.5day'];
 end
-
 
 [fidi,fido,online]=open_files(fidi,fido,nx,ny);
 
@@ -94,42 +90,37 @@ for j=online+1:ny
     j
     dat=zeros(nd,nx);
     for i=1:nd
-        [tmp,count]=fread(fidi.rels(i).fid,nx,'real*4');
+        [tmp,count1]=fread(fidi.rels(i).fid,nx,'real*4');
         if(count>0)
-            dat(i,1:count)=tmp;
+            dat(i,1:count1)=tmp;
         end
     end
     bad      = or(dat==-9999,or(isinf(dat),dat==0));
     dat(bad) = NaN;
-    count    = sum(isfinite(dat));
+    count    = sum(isfinite(dat)); %how many dates have observations
+    
+    %calculate expected error on corr measurements (larger for low cor)
     sig      = -0.1*dat.^2+0.01*dat+.09; %based on fit to numerical 60-look cor estimate, cor>0.3.
     sig      = max(sig,corcutoff); %can't really determine cor to within cutoff
-    dhlog    = -log(dat-sig);
-    dllog    = -log(dat+sig);
+    
+    %translate errors to log space, high and low, diff.
+    dhlog    = -log(dat-sig); dllog    = -log(dat+sig);
     dsig     = (dhlog-dllog)/2; % approx std. dev of log values.
     dsig(dat<sig)=dllog(dat<sig); %removes imaginary values
     
-    c0s=nan(length(dirs),nx);
-    for i=1:length(dirs)
-        [tmp,count2]=fread(fidi.c0.fid(i),nx,'real*4');
-        if(count2>0)
-            c0s(i,1:count2)=tmp;
-        end
-    end
-    bad      = or(c0s==-9999,or(isinf(c0s),c0s==0));
-    c0s(bad) = NaN;
-    c0s      = median(c0s,1,'omitnan');
+    %load "background" c0 values - won't use pixels with really low values.
+    c0s=nan(1,nx);
+    [tmp,count2]=fread(fidi.c0.fid,nx,'real*4');
+    if(count2>0)
+        c0s(1:count2)=tmp;
+    end 
+    c0s(or(c0s==-9999,or(isinf(c0s),c0s==0))) = NaN;   
     
-    goodid   = find(and(count>20,c0s>0.3));
+    goodid   = find(and(count>lowcountcutff,c0s>lowcorcutoff));
     
-    mags    = zeros(nr,length(goodid));
-    times   = nan*mags;
-    maglow  = mags;
-    maghig  = mags;
-    timerr  = mags;
-    mag5    = mags;
-    shifts  = nan(1,length(goodid));
-    allres  = shifts;
+    %initialize arrays (necessary for parfor)
+    mags    = nan(nr,length(goodid));times = mags; maglow = mags; maghig = mags; timerr = mags; fwd5 = mags; 
+    shifts  = nan(1,length(goodid)); allres = shifts;
     
     parfor i=1:length(goodid)
         
@@ -142,13 +133,10 @@ for j=online+1:ny
         magi      = zeros(nr,1);
         goodr     = deld>corcutoff;
         ng        = sum(goodr);
-        notdone   = ng>0;
-        tmptime   = NaN(nr,1);
-        tmpmag    = NaN(nr,1);
-        tstd      = [];
-        mstd      = [];
-        res       = [];
-         shift     = 0;
+        notdone   = ng>0; %start loop, as long as there are some "good" values
+        
+        %%%initialize values
+        tmptime = NaN(nr,1);tmpmag = NaN(nr,1);tstd = [20];mstd = [];res = [];shift = 0; %mark tstd with 20 to see where ng cutoff occurrs
         while(notdone)
             x                   = timemat(goodd,goodr);
             [mod1,~,~,~,~,~,J0] = lsqnonlin('expfun',tmod0(goodr),LB(goodr),UB(goodr),options,x,y);
@@ -208,7 +196,7 @@ for j=online+1:ny
         %below is bookkeeping related to the use of parfor loops.
         times(:,i) = tmptime;
         mags(:,i)  = tmpmag;
-        mag5(:,i)  = tmpmag5;
+        fwd5(:,i)  = tmpmag5;
         
         tmp=nan(nr,1);
         tmp(goodr)      = tstd;
@@ -237,7 +225,7 @@ for j=online+1:ny
         fwrite(fido.magh(i).fid,tmp,'real*4');
         tmp(goodid) = timerr(i,:);
         fwrite(fido.te(i).fid,tmp,'real*4');
-        tmp(goodid) = exp(-mag5(i,:));
+        tmp(goodid) = exp(-fwd5(i,:));
         fwrite(fido.fwd5(i).fid,tmp,'real*4');
     end
     tmp(goodid) = allres;
