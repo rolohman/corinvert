@@ -94,7 +94,7 @@ for j=online+1:ny
     j
     dat=zeros(nd,nx);
     for i=1:nd
-        [tmp,count]=fread(fid(i).in,nx,'real*4');
+        [tmp,count]=fread(fidi.rels(i).fid,nx,'real*4');
         if(count>0)
             dat(i,1:count)=tmp;
         end
@@ -111,7 +111,7 @@ for j=online+1:ny
     
     c0s=nan(length(dirs),nx);
     for i=1:length(dirs)
-        [tmp,count2]=fread(fid(i).c0,nx,'real*4');
+        [tmp,count2]=fread(fidi.c0.fid(i),nx,'real*4');
         if(count2>0)
             c0s(i,1:count2)=tmp;
         end
