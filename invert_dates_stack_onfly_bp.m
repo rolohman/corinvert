@@ -44,13 +44,9 @@ dni   = dn(1:nd-1)+diff(dn)/2;
 
 intdt=diff(dn);
 
+%open all files
+fid=open_files(dates,'','invcor',pol);
 
-%open all slcs
-for i=1:nd
-    dates(i).name    = files(i).name(1:8);
-    dates(i).slc     = [slcdir dates(i).name '/' dates(i).name '.slc.full'];
-    fidi(i)          = fopen(dates(i).slc,'r');
-end
 
 adir     = ['results_dates_bp' pol '/'];
 if(~exist(adir,'dir'))
@@ -128,8 +124,8 @@ for j=online+1:newny
     
     slcs=nan(nx,ry*2+1,nd);
     for i=1:nd
-        fseek(fidi(i),startbit,-1);
-        tmp=fread(fidi(i),[nx*2,readl],'real*4');
+        fseek(fid(i).in,startbit,-1);
+        tmp=fread(fid(i).in,[nx*2,readl],'real*4');
         
         cpx=tmp(1:2:end,:)+im*tmp(2:2:end,:);
     

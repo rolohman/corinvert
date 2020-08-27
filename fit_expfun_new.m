@@ -15,14 +15,15 @@ for i=1:length(dirs)
     tmp=dir([dirs{i} '/geo' pol '/rel*_4r_4a.cor.geo']);
     for j=1:length(tmp)
         t=tmp(j).name;
-        vrt=[tmp(j).folder '/' t '.vrt'];
-        dates(end+1).name=[tmp(j).folder '/' t];
-        dates(end).dn=datenum(t(5:12),'yyyymmdd');
+        dates(end+1).name   = t(5:12);
+        dates(end).filename = [tmp(j).folder '/' t];
+        dates(end).dn       = datenum(t(5:12),'yyyymmdd');
+        dates(end).origdir  = [tmp(j).folder];
     end
 end
 
-%get nx/ny
-
+%get nx/ny from last file opened
+vrt=[dates(end).filename '.vrt'];
 if(exist(vrt))
     [a,b]=system(['grep rasterXSize ' vrt]);
     tmp=regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)">','tokens');
@@ -41,10 +42,8 @@ dates = dates(sortid);
 dn    = [dates.dn];
 nd    = length(dates);
 
-
 rdir = ['results_TS' pol '/'];
-rdate  = {'20150325','20150807','20160625','20170310','20170513','20170606'};
-rdate = {'20170325','20170506','20170717','20171009','20171220','20180302','20180524','20181011'};
+rdate=cellstr(num2str(load('dates.list')));
 if(~exist(rdir,'dir'))
     mkdir(rdir)
 end
@@ -66,62 +65,28 @@ LB     = dt+3; %lower bound on time - at least 1/2 time after first date.
 UB     = 100*ones(1,nr); %upper bound on time
 tmod0  = 12*ones(1,nr); %starting time model
 
-%%  Open files
+%open all filesif(type==1)
+clear fidi fido
 for i=1:nd
-    fidr(i)=fopen(dates(i).name,'r');
+    fidi.rels(i).name=dates(i).filename;   
 end
-for i=1:length(dirs)
-    tmp=[dirs{i} '/geo' pol '/c0_4r_4a.cor.geo'];
-    fid0(i)=fopen(tmp,'r');
+for i=1:length(dirs) 
+    fidi.c0(i).name=[dirs{i} '/geo' pol '/c0_4r_4a.cor.geo'];
 end
-%find last line written
-testfile=[rdir rdate{1} '.mag0'];
-if(exist(testfile,'file'))
-    fid=fopen(testfile,'r');
-    for j=1:ny
-        [tmp,count]=fread(fid,nx,'real*4');
-        if(count<nx)
-            break
-        end
-    end
-    fclose(fid);
-    
-    online=j-1
-    if(online<1)
-        disp([ testfile  ' empty?'])
-        return
-    end
-    for i=1:nr
-        fidmag(i)  = fopen([rdir rdate{i} '.mag0'],'a');
-        fidt(i)    = fopen([rdir rdate{i} '.time0'],'a');
-        fidmagl(i) = fopen([rdir rdate{i} '.maglow'],'a');
-        fidmagh(i) = fopen([rdir rdate{i} '.maghigh'],'a');
-        fidte(i)   = fopen([rdir rdate{i} '.timeerr'],'a');
-        fidmod5(i) = fopen([rdir rdate{i} '.5day'],'a');
-    end
-    
-    fidres  = fopen([rdir 'resn0'],'a');
-    fids    = fopen([rdir 'shift'],'a');
-    
-    for i=1:nd
-        fseek(fidr(i),online*nx*4,-1);
-    end
-    for i=1:length(dirs)
-        fseek(fid0(i),online*nx*4,-1);
-    end
-else
-    online=0;
-    for i=1:nr
-        fidmag(i)  = fopen([rdir rdate{i} '.mag0'],'w');
-        fidt(i)    = fopen([rdir rdate{i} '.time0'],'w');
-        fidmagl(i) = fopen([rdir rdate{i} '.maglow'],'a');
-        fidmagh(i) = fopen([rdir rdate{i} '.maghigh'],'a');
-        fidte(i)   = fopen([rdir rdate{i} '.timeerr'],'a');
-        fidmod5(i) = fopen([rdir rdate{i} '.5day'],'a');
-    end
-    fidres  = fopen([rdir 'resn0'],'w');
-    fids    = fopen([rdir 'shift'],'w');
+fido.resn0.name  = [rdir 'resn0'];
+fido.shift.name  = [rdir 'shift'];
+
+for i=1:nr
+    fido.mag0(i).name=[rdir rdate{i} '.mag0'];
+    fido.time0(i).name=[rdir rdate{i} '.time0'];
+    fido.magl(i).name=[rdir rdate{i} '.maglow'];
+    fido.magh(i).name=[rdir rdate{i} '.maghigh'];
+    fido.te(i).name=[rdir rdate{i} '.timeerr'];
+    fido.fwd5(i).name=[rdir rdate{i} '.5day'];
 end
+
+
+[fidi,fido]=open_files(fidi,fido,nx,ny);
 
 
 %% start
@@ -129,7 +94,7 @@ for j=online+1:ny
     j
     dat=zeros(nd,nx);
     for i=1:nd
-        [tmp,count]=fread(fidr(i),nx,'real*4');
+        [tmp,count]=fread(fid(i).in,nx,'real*4');
         if(count>0)
             dat(i,1:count)=tmp;
         end
@@ -146,7 +111,7 @@ for j=online+1:ny
     
     c0s=nan(length(dirs),nx);
     for i=1:length(dirs)
-        [tmp,count2]=fread(fid0(i),nx,'real*4');
+        [tmp,count2]=fread(fid(i).c0,nx,'real*4');
         if(count2>0)
             c0s(i,1:count2)=tmp;
         end

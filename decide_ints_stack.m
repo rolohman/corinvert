@@ -8,8 +8,9 @@ slcdir=['merged/SLC' pol '/'];
 files=dir([slcdir '2*']);
 dates=[];
 for i=1:length(files)
-    dates(i).name=files(i).name(1:8);
-    dates(i).dn=datenum(dates(i).name,'yyyymmdd');
+    dates(i).name      = files(i).name(1:8);
+    dates(i).dn        = datenum(dates(i).name,'yyyymmdd');
+    dates(i).filename  = [slcdir dates(i).name '/' dates(i).name '.slc.full'];    
 end
 
 nd     = length(dates);
