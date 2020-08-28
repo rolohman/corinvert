@@ -5,7 +5,7 @@ end
 if(~exist('plotflag','var'))
     plotflag=0;
 end
-      
+
 lonfile='merged/geom_master/lon.rdr.4alks_15rlks.full';
 latfile='merged/geom_master/lat.rdr.4alks_15rlks.full';
 
@@ -20,13 +20,13 @@ for l=1:length(pols)
         output(l,1).dn=dn;
         output(l,1).id1=id1;
         output(l,1).id2=id2;
-                 
+        
         rx=rlooks;
         ry=alooks;
         
         im=sqrt(-1);
         windowtype=0;
-        [windx,windy]=make_win(rx,ry,windowtype); 
+        [windx,windy]=make_win(rx,ry,windowtype);
         ry=floor(length(windy)/2); %fix in case length changed
         
         z   = zeros(1,nx);
@@ -36,9 +36,7 @@ for l=1:length(pols)
         
         dni   = dn(1:nd-1)+diff(dn)/2;
         %dni=dni(1:end-1);
-        
         intdt=diff(dn);
-        
         
         %matrix that maps ints to a grid
         cids=[];
@@ -61,12 +59,12 @@ for l=1:length(pols)
             output(l).c0=NaN;
             output(l).rels=zeros(nd,1);
             output(l).modp=zeros(nd-1,1);
+            output(l).bpr=NaN;
             output(l).bps=NaN;
         else
-            load baselines.txt
-            bpr=baselines(id1)-baselines(id2);
-            abpr=abs(bpr);
-
+            load('baselines' pol '.txt']);
+            output(i).bpr=baselines(id1)-baselines(id2);
+            
             lines=d.bytes/newnx/4;
             disp(['processed inversion up to line ' num2str(lines)]);
             for k=1:length(xpt)
@@ -80,7 +78,7 @@ for l=1:length(pols)
                 end
                 output(l,k).x=xpt(k);
                 output(l,k).y=ypt(k);
-
+                
                 rels=zeros(nd,1);
                 modp=zeros(nd-1,1);
                 if(lines>=ypt(k))
@@ -230,7 +228,7 @@ if(plotflag)
         
         title(['cors' pols{l}])
     end
-
+    
     subplot(3,1,2)
     hold on
     cols={'k','r'};
@@ -241,66 +239,71 @@ if(plotflag)
     ax=axis;
     datetick('x','mmmYY')
     axis(ax);
-
+    
     for l=1:length(output)
-    
-    dn=[output(l).dn];
-    id1=[output(l).id1];
-    id2=[output(l).id2];
-    rels=[output(l).rels];
-    modp=[output(l).modp];
-    c0=[output(l).c0];
-    nd=length(dn);
-    ni=length(id1);
-    
-    Gi=zeros(ni,nd-1); %intervals, perm cor loss
-    for i=1:ni
-        Gi(i,id1(i):id2(i)-1)=1;
-    end
-    
-    Gr=zeros(ni,nd); %rel cor on dates
-    for i=1:ni
-        Gr(i,id1(i))=1;
-        Gr(i,id2(i))=-1;
-    end
-    
-    bpsynth = exp(abs(bpr).^2*output(l).bps);
-    
-    goodrel = isfinite(rels);
-    s2=exp(Gi*log(modp));
-    s3=exp(-abs(Gr(:,goodrel)*log(rels(goodrel))));
-    whos c0 s2 s3 bpsynth Gr rels
-    synth=c0*s2.*s3.*bpsynth;
-    
-    subplot(3,4,l*2)
-    jnk=nan(nd);
-    jnk([output(l).cids])=synth;
-    pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
-    hold on
-    fixplot
-    
-     
-    
-    dni   = dn(1:nd-1)+diff(dn)/2;
-    
-    subplot(3,1,3)
-    plot(dn,rels,'-','color',cols{l});
-    hold on
-    plot(dni,modp,'--','color',cols{l});
-    plot(dn,c0*ones(size(dn)),':','color',cols{l});
-    
-   
-    axis tight
-    ax=axis;
-    datetick('x','mmmYY')
-    axis(ax);
+        
+        dn=[output(l).dn];
+        id1=[output(l).id1];
+        id2=[output(l).id2];
+        rels=[output(l).rels];
+        modp=[output(l).modp];
+        c0=[output(l).c0];
+        nd=length(dn);
+        ni=length(id1);
+        bpr=[ouput(l).bpr];
+        abpr=abs(bpr);
+        
+        if(~isempty(bpr))
+            Gi=zeros(ni,nd-1); %intervals, perm cor loss
+            for i=1:ni
+                Gi(i,id1(i):id2(i)-1)=1;
+            end
+            
+            Gr=zeros(ni,nd); %rel cor on dates
+            for i=1:ni
+                Gr(i,id1(i))=1;
+                Gr(i,id2(i))=-1;
+            end
+            
+            
+            bpsynth = exp(abs(bpr).^2*output(l).bps);
+            
+            goodrel = isfinite(rels);
+            s2=exp(Gi*log(modp));
+            s3=exp(-abs(Gr(:,goodrel)*log(rels(goodrel))));
+            whos c0 s2 s3 bpsynth Gr rels
+            synth=c0*s2.*s3.*bpsynth;
+            
+            subplot(3,4,l*2)
+            jnk=nan(nd);
+            jnk([output(l).cids])=synth;
+            pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
+            hold on
+            fixplot
+            
+            
+            
+            dni   = dn(1:nd-1)+diff(dn)/2;
+            
+            subplot(3,1,3)
+            plot(dn,rels,'-','color',cols{l});
+            hold on
+            plot(dni,modp,'--','color',cols{l});
+            plot(dn,c0*ones(size(dn)),':','color',cols{l});
+            
+            
+            axis tight
+            ax=axis;
+            datetick('x','mmmYY')
+            axis(ax);
+        end
     end
     figure
     plot(abpr,[output(l).cors],'k.')
     hold on
     plot(abpr,max([output(l).cors])*bpsynth,'r.')
     title(['synth' pols{l}])
-  
+    
 end
 
 
