@@ -17,7 +17,7 @@ maxT           = 100; %maxmum time for exponential fit, days
 startT         = 12;  %time for each event, initialize, days
 options        = optimset('Display','off','TolFun',1e-4);
 %get data, rain dates, filehandles, sizes
-[dates,perms,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,pol);
+[dates,perms,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);
