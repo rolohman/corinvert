@@ -43,6 +43,9 @@ else
         nf2=length(tmp);
         for j=1:nf2
             fidt=fopen(tmp(j).name,'r'); %files to read
+            if(fidt<0)
+                disp(['file not open: ' tmp(j).name])
+            end
             fseek(fidt,online*nx*bytes,-1);
             fidi=setfield(fidi,{1},names{i},{j},'fid',fidt);
         end
@@ -60,7 +63,10 @@ else
         tmp=getfield(fido,{1},names{i});
         nf2=length(tmp);
         for j=1:nf2
-            fidt=fopen(tmp(j).name,filestyle); %files to read
+            fidt=fopen(tmp(j).name,filestyle); %files to read  
+            if(fidt<0)
+                disp(['file not open: ' tmp(j).name])
+            end
             fido=setfield(fido,{1},names{i},{j},'fid',fidt);
         end
     end
