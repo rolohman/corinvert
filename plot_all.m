@@ -45,10 +45,10 @@ for i=1:length(dnr)
     fseek(fidi.te(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
 for i=1:nd
-    fseek(fidi.rels(i).fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
+    fseek(fidi.rels(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
 for i=1:length(perms)
-    fseek(fidi.perms(i).fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
+    fseek(fidi.perms(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
 
 c0    = fread(fidi.c0.fid,1,'real*4');
