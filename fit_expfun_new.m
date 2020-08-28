@@ -80,6 +80,7 @@ for i=1:nr
     fido.magh(i).name  = [rdir rdate{i} '.maghigh'];
     fido.te(i).name    = [rdir rdate{i} '.timeerr'];
     fido.fwd5(i).name  = [rdir rdate{i} '.5day'];
+    fido.status(i).name  = [rdir rdate{i} '.status'];
 end
 
 [fidi,fido,online]=open_files(fidi,fido,nx,ny);
@@ -119,7 +120,7 @@ for j=online+1:ny
     goodid   = find(and(count>lowcountcutoff,c0s>lowcorcutoff));
     
     %initialize arrays (necessary for parfor)
-    mags    = nan(nr,length(goodid));times = mags; maglow = mags; maghig = mags; timerr = mags; fwd5 = mags; 
+    mags    = nan(nr,length(goodid));times = mags; maglow = mags; maghig = mags; timerr = mags; fwd5 = mags; status=mags;
     shifts  = nan(1,length(goodid)); allres = shifts;
     
     parfor i=1:length(goodid)
@@ -134,9 +135,13 @@ for j=online+1:ny
         goodr     = deld>corcutoff;
         ng        = sum(goodr);
         notdone   = ng>0; %start loop, as long as there are some "good" values
+       
         
         %%%initialize values
-        tmptime = NaN(nr,1);tmpmag = NaN(nr,1);tstd = [20];mstd = [];res = [];shift = 0; %mark tstd with 20 to see where ng cutoff occurrs
+        tmptime = NaN(nr,1);tmpstat=ones(nr,1);tmpmag = tmptime;tstd = [];mstd = [];res = [];shift = 0; %mark tstd with 20 to see where ng cutoff occurrs
+        if(ng==0)
+            tmpstat(~goodr)=2; %no rain dates with pos cutoff
+        end
         while(notdone)
             x                   = timemat(goodd,goodr);
             [mod1,~,~,~,~,~,J0] = lsqnonlin('expfun',tmod0(goodr),LB(goodr),UB(goodr),options,x,y);
@@ -178,7 +183,7 @@ for j=online+1:ny
                     notdone             = 0;
                     tmptime(goodr)      = mod1;
                     tmpmag(goodr)       = magst';
-                   
+                    tmpstat(goodr)      = 3; %worked!
                 end
             end
             if(or(ng==0,toobad==nr))
@@ -188,6 +193,7 @@ for j=online+1:ny
                 mstd                = [];
                 notdone             = 0;
                 shift               = 0;    
+                tmpstat(:)          = 4; %all bad?
             end
         end
         
@@ -210,7 +216,7 @@ for j=online+1:ny
         maghig(:,i)     = tmp;
         allres(i)       = std(res);
         shifts(i)       = shift;
-
+        status(:,i)     = tmpstat;
     end
     
     tmp=nan(1,nx);
@@ -227,6 +233,8 @@ for j=online+1:ny
         fwrite(fido.te(i).fid,tmp,'real*4');
         tmp(goodid) = exp(-fwd5(i,:));
         fwrite(fido.fwd5(i).fid,tmp,'real*4');
+        tmp(goodid) = status(i,:);
+        fwrite(fido.status(i).fid,tmp,'integer*1');
     end
     tmp(goodid) = allres;
     fwrite(fido.resn0.fid,tmp,'real*4');
