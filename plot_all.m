@@ -42,7 +42,7 @@ for i=1:length(dnr)
     fseek(fidi.magl(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
     fseek(fidi.magh(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
     fseek(fidi.time0(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
-    fseek(fidi.timeerr(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
+    fseek(fidi.te(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
 for i=1:nd
     fseek(fidi.rels(i).fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
@@ -58,7 +58,7 @@ for i=1:length(dnr)
     magl(i)    = -log(fread(fidi.magl(i).fid,1,'real*4'));
     magh(i)    = -log(fread(fidi.magh(i).fid,1,'real*4'));
     time0(i)   = fread(fidi.time0(i).fid,1,'real*4');
-    timeerr(i) = fread(fidi.timeerr(i).fid,1,'real*4');
+    timeerr(i) = fread(fidi.te(i).fid,1,'real*4');
 end
 for i=1:nd
     dates(i).rel=fread(fidi.rels(i).fid,1,'real*4');
