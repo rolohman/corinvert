@@ -86,16 +86,15 @@ for j=online+1:ny
         weights   = diag(dsig(goodd,goodid(i)).^2); %data covariance matrix
         y         = logd(goodd);
         magi      = zeros(nr,1);
-        goodr     = deld>-corcutoff;
+        goodr     = isfinite(deld); %throws away time periods with nans on either side
         ng        = sum(goodr);
         notdone   = ng>0; %start loop, as long as there are some "good" values
        
         
         %%%initialize values
         tmptime = NaN(nr,1);tmpstat=ones(nr,1);tmpmag = tmptime;tstd = [];mstd = [];res = [];shift = 0; %mark tstd with 20 to see where ng cutoff occurrs
-        if(ng==0)
-            tmpstat(~goodr)=2; %no rain dates with pos cutoff
-        end
+        tmpstat(~goodr)=2; 
+       
         while(notdone)
             x                   = timemat(goodd,goodr);
             [mod1,~,~,~,~,~,J0] = lsqnonlin('expfun',tmod0(goodr),LB(goodr),UB(goodr),options,x,y);
