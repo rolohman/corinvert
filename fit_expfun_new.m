@@ -86,7 +86,7 @@ for j=online+1:ny
         weights   = diag(dsig(goodd,goodid(i)).^2); %data covariance matrix
         y         = logd(goodd);
         magi      = zeros(nr,1);
-        goodr     = deld>corcutoff;
+        goodr     = deld>-corcutoff;
         ng        = sum(goodr);
         notdone   = ng>0; %start loop, as long as there are some "good" values
        
