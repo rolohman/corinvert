@@ -77,28 +77,28 @@ fclose('all');
 %%%synthetic
 dn2    = [dn dnr'+0.01]; %add points at times of rain for more complete plotting
 %Matrix of times since rain, used in forward model
-timemat=zeros(length(dn2),nr); 
-for i=1:nr
-    timemat(:,i) = dn2-dnr(i);
+goodmod = find(isfinite(mag0+time0));
+timemat=zeros(length(dn2),length(goodmod)); 
+for i=1:length(goodmod)
+    timemat(:,i) = dn2-dnr(goodmod(i));
 end
 timemat(timemat<0)=0;
 
-mod0      = [time0 mag0 shift];
-synth     = exp(expfun_all(mod0,timemat,zeros(size(dn2)))); %negative since fun outputs residual, y-synth.
+mod0      = [time0(goodmod) mag0(goodmod) shift];
+synth     = exp(expfun_all(mod0,timemat,zeros(size(dn2')))); %negative since fun outputs residual, y-synth.
 for i=1:nd
     dates(i).synth=synth(i);
 end
-dn2       = [dn2 dnr']; %add points to break for nans
-synth2    = [synth nan*dnr'];
-[dn3,sid] = sort(dn2);
-synth2    = synth2(sid);
+synthnan    = [synth;nan*dnr];
+[dnnan,sid] = sort([dn2 dnr']); %add points to break for nans
+synthnan    = synthnan(sid);
 
 %plotting
 
 if(pflag)
     figure('Name',[num2str(xg) ' ' num2str(yg)])
     
-    plot([dnr dnr]',[magl;magh],'-','color',[.4 .4 .4],'linewidth',3)
+    plot([dnr dnr]',exp(-[magl;magh]),'-','color',[.4 .4 .4],'linewidth',3)
     hold on
     plot([dates.dn],[dates.rel],'.','color','b','markersize',12)
     
@@ -106,13 +106,14 @@ if(pflag)
         plot([perms(j).d1 perms(j).d2],[perms(j).perm perms(j).perm],'-','color','r','linewidth',2)
     end
     
-    plot(dn3,synth3,'k.-') %nans and sorting make a discontinuous line, broken at dates.
+    plot(dnnan,synthnan,'k.-') %nans and sorting make a discontinuous line, broken at dates.
     
     axis tight,ax=axis;axis([ax(1:2) 0 ax(4)]);ax=axis;
     datetick('x','yymmm')
     for i=1:length(dnr)
         plot([dnr(i) dnr(i)],ax(3:4),'m--');
     end
+    %plot(ax(1:2),[shift shift],'g:')
     grid on
     axis(ax)
 
