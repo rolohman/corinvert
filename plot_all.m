@@ -14,7 +14,6 @@ else
     return
 end
 
-rflag  = 2; %open outfiles for writing/appending
 %get data, rain dates, filehandles, sizes
 [dates,perms,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,pol);
 dn    = [dates.dn];
@@ -43,7 +42,7 @@ for i=1:length(dnr)
     fseek(fidi.magl(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
     fseek(fidi.magh(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
     fseek(fidi.time0(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
-    fseek(fidi.timeerr(i).fid,nxg*(yg-1)+xg-1)*4,-1);
+    fseek(fidi.timeerr(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
 for i=1:nd
     fseek(fidi.rels(i).fid,(nx_geo*(ypt-1)+xpt-1)*4,-1);
