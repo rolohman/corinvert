@@ -62,7 +62,7 @@ for l=1:length(pols)
             output(l).bpr=NaN;
             output(l).bps=NaN;
         else
-            load('baselines' pol '.txt']);
+            load(['baselines' pol '.txt']);
             output(i).bpr=baselines(id1)-baselines(id2);
             
             lines=d.bytes/newnx/4;
