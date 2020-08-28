@@ -85,14 +85,14 @@ for j=online+1:ny
         goodd     = isfinite(logd);
         weights   = diag(dsig(goodd,goodid(i)).^2); %data covariance matrix
         y         = logd(goodd);
-        magi      = zeros(nr,1);
-        goodr     = isfinite(deld); %throws away time periods with nans on either side
+        tmpmag    = zeros(nr,1);
+        goodr     = deld<=-corcutoff*2; %throws away small changes
         ng        = sum(goodr);
         notdone   = ng>0; %start loop, as long as there are some "good" values
        
         
         %%%initialize values
-        tmptime = NaN(nr,1);tmpstat=ones(nr,1);tmpmag = tmptime;tstd = [];mstd = [];res = [];shift = 0; %mark tstd with 20 to see where ng cutoff occurrs
+        tmptime = NaN(nr,1);tmpstat=ones(nr,1);tstd = [];mstd = [];res = [];shift = 0; %mark tstd with 20 to see where ng cutoff occurrs
         tmpstat(~goodr)=2; 
        
         while(notdone)
@@ -102,41 +102,39 @@ for j=online+1:ny
             jt                  = sum(abs(full(J0)));           
             [res,magst,shift,G] = expfun(mod1,x,y);
             
-            magi(goodr)         = magst;
-            magi(~goodr)        = 0;
+            tmpmag(goodr)         = magst;
+            tmpmag(~goodr)        = 0;
             
             syntmp              = magst'.*exp(-dt(goodr)./mod1); %pred cor at dates after event
             
-            toobad              = or(jt==0,syntmp<=corcutoff);
+            badJ                = jt==0;
+            toosmall            = syntmp<=corcutoff;       
+            toobad              = or(badJ,toosmall);
             goodr(goodr)        = ~toobad;
             toobad              = sum(toobad);
             ng                  = sum(goodr);
             if(toobad==0)
-        
-                mod0                = [mod1 magst' shift];
-                J                   = jacobianest('expfun_all',mod0,x,y);
-                J2                  = J'*J;
+                mod0                 = [mod1 magst' shift];
+                J                    = jacobianest('expfun_all',mod0,x,y);
+                J2                   = J'*J;
+                J3                   = inv(J2);
+                modcov               = J3*J'*weights*J*J3;
+                modstd               = sqrt(diag(modcov));
                 
-                allJ(i)             = rcond(J2);
-                J3                  = inv(J2);
-                modcov              = J3*J'*weights*J*J3;
-                modstd              = sqrt(diag(modcov));
+                tstd                 = modstd(1:ng);
+                mstd                 = modstd(ng+[1:ng]);
                 
-                tstd                = modstd(1:ng);
-                mstd                = modstd(ng+[1:ng]);
-                
-                badt                = tstd>100;
+                badt                 = tstd>100;
                 if(sum(badt))
-                    notdone         = 1;
-                    gid=find(goodr);
-                    goodr(gid(badt))=false;
-                    ng=sum(goodr);
-                     
+                    notdone          = 1;
+                    gid              = find(goodr);
+                    goodr(gid(badt)) = false;
+                    ng               = sum(goodr);
                 else
-                    notdone             = 0;
-                    tmptime(goodr)      = mod1;
-                    tmpmag(goodr)       = magst';
-                    tmpstat(goodr)      = 3; %worked!
+                    notdone          = 0;
+                    tmptime(goodr)   = mod1;
+                    tmpmag(goodr)    = magst';
+                    tmpstat(goodr)   = 3; %worked!
                 end
             end
             if(or(ng==0,toobad==nr))
@@ -149,6 +147,7 @@ for j=online+1:ny
                 tmpstat(:)          = 4; %all bad?
             end
         end
+
         
         tmpmag5=tmpmag.*exp(-5./tmptime);
    
@@ -162,10 +161,10 @@ for j=online+1:ny
         timerr(:,i)     = tmp;
         magstd          = mstd;
         tmp             = nan(nr,1);
-        tmp(goodr)      = magi(goodr)+magstd;
+        tmp(goodr)      = tmpmag(goodr)+magstd;
         maglow(:,i)     = tmp;
         tmp             = nan(nr,1);
-        tmp(goodr)      = magi(goodr)-magstd;
+        tmp(goodr)      = tmpmag(goodr)-magstd;
         maghig(:,i)     = tmp;
         allres(i)       = std(res);
         shifts(i)       = shift;
