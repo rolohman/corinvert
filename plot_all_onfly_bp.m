@@ -270,9 +270,10 @@ if(plotflag)
                 plot(dn,c0*ones(size(dn)),':','color',cols{l});
         
                 figure(f2)
-              plot(abpr,[output(l).cors],'.',cols{l})
-              plot(abpr,max([output(l).cors])*bpsynth,'o',cols{l})
-        
+                [~,sortid]=sort(abpr);
+                test=max([output(l).cors])*bpsynth;
+                plot(abpr,[output(l).cors],'.','color',cols{l})
+                plot(abpr(sortid),test(sortid),'-','color',cols{l})              
       
             end
         end
