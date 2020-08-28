@@ -3,27 +3,27 @@ function [fidi,fido,online]=open_files(fidi,fido,nx,ny)
 bytes=4; %need to fix for complex file inputs
 
 %%%test output files, count lines, determine correct permissions
-if(fido)
-    names    = fieldnames(fido);
-testfile = getfield(fido,{1},names{1});
-testfile = testfile.name;
-if(exist(testfile,'file'))
-    info   = dir(testfile);
-    npix   = info.bytes/4; %all output files are r4 for now.  Need to /8 if slcs.
-    online = floor(npix/nx);
-    if(online<1)
-        disp([ testfile  ' empty? starting to rewrite over all files'])
-        online=0;
-    elseif(online==ny)
-        disp([ testfile ' already full size - move old directory to new name or delete'])
-        return
-    end
-else
-    disp('output files do not exist, starting from scratch');
-    online=0;
-end
-else
+if(isempty(fido))
     online=ny;
+else   
+    names    = fieldnames(fido);
+    testfile = getfield(fido,{1},names{1});
+    testfile = testfile.name;
+    if(exist(testfile,'file'))
+        info   = dir(testfile);
+        npix   = info.bytes/4; %all output files are r4 for now.  Need to /8 if slcs.
+        online = floor(npix/nx);
+        if(online<1)
+            disp([ testfile  ' empty? starting to rewrite over all files'])
+            online=0;
+        elseif(online==ny)
+            disp([ testfile ' already full size - move old directory to new name or delete'])
+            return
+        end
+    else
+        disp('output files do not exist, starting from scratch');
+        online=0;
+    end   
 end
 
 if(online==0)
@@ -33,7 +33,9 @@ else
 end
 
 %%%Open Infiles
-if(fidi)
+if(isempty(fidi))
+    fidi=stuct([]);
+else
     names=fieldnames(fidi);
     nf1=length(names);
     for i=1:nf1
@@ -45,13 +47,13 @@ if(fidi)
             fidi=setfield(fidi,{1},names{i},{j},'fid',fidt);
         end
     end
-else
-    fidi=[];
 end
 
 
 %%% Open Outfiles
-if(fido)
+if(isempty(fido))
+    fido=struct([]);
+else
     names=fieldnames(fido);
     nf1=length(names);
     for i=1:nf1
@@ -62,8 +64,6 @@ if(fido)
             fido=setfield(fido,{1},names{i},{j},'fid',fidt);
         end
     end
-else
-    fido=[];
 end
 
 disp(['on line ' num2str(online)])
