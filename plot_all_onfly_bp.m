@@ -269,6 +269,7 @@ if(plotflag)
     goodrel = isfinite(rels);
     s2=exp(Gi*log(modp));
     s3=exp(-abs(Gr(:,goodrel)*log(rels(goodrel))));
+    whos c0 s2 s3 bpsynth Gr rels
     synth=c0*s2.*s3.*bpsynth;
     
     subplot(3,4,l*2)
