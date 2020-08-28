@@ -21,6 +21,7 @@ for j=1:length(tmp)
     perms(end).d            = mean([perms(end).d1 perms(end).d2]);
 end
 dn    = [dates.dn];
+nd    = length(dn);
 
 %get nx/ny from last file opened
 vrt=[dates(end).filename '.vrt'];
