@@ -77,7 +77,7 @@ fclose('all');
 %%%synthetic
 dn2    = [dn dnr'+0.01]; %add points at times of rain for more complete plotting
 %Matrix of times since rain, used in forward model
-timemat=zeros(length(dnr2),nr); 
+timemat=zeros(length(dn2),nr); 
 for i=1:nr
     timemat(:,i) = dn2-dnr(i);
 end
