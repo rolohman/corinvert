@@ -3,12 +3,14 @@ function [dates,perms,c0,mag0,time0]=plot_all(x,y,pol,relDir,rdir,gflag,pflag)
 %for now gflag=1;
 if(gflag==1)
     %input coords are from geocoded file.
-    xg         = x;
-    yg         = y;
-    latlonflag = 2; 
-    colf       = [relDir '/geo' pol '/cols.4alks_4rlks.cor.geo'];
-    rowf       = [relDir '/geo' pol '/rows.ralks_4rlks.cor.geo'];
-    %[xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
+    xg              = x;
+    yg              = y;
+    latlonflag      = 2; 
+    colf            = [relDir '/geo' pol '/cols.4alks_4rlks.geo'];
+    rowf            = [relDir '/geo' pol '/rows.4alks_4rlks.geo'];
+    lonfile         = [relDir 'merged/geom_master/lon.rdr.4alks_15rlks.full'];
+    latfile         = [relDir 'merged/geom_master/lat.rdr.4alks_15rlks.full'];
+    [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
 else
     disp('gflag option not done yet for gflag ne 1')
     return
