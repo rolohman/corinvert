@@ -3,7 +3,8 @@ function [fidi,fido,online]=open_files(fidi,fido,nx,ny)
 bytes=4; %need to fix for complex file inputs
 
 %%%test output files, count lines, determine correct permissions
-names    = fieldnames(fido);
+if(fido)
+    names    = fieldnames(fido);
 testfile = getfield(fido,{1},names{1});
 testfile = testfile.name;
 if(exist(testfile,'file'))
@@ -21,6 +22,9 @@ else
     disp('output files do not exist, starting from scratch');
     online=0;
 end
+else
+    online=ny;
+end
 
 if(online==0)
     filestyle='w';
@@ -29,29 +33,37 @@ else
 end
 
 %%%Open Infiles
-names=fieldnames(fidi);
-nf1=length(names);
-for i=1:nf1
-    tmp=getfield(fidi,{1},names{i});
-    nf2=length(tmp);
-    for j=1:nf2
-        fidt=fopen(tmp(j).name,'r'); %files to read
-        fseek(fidt,online*nx*bytes,-1);
-        fidi=setfield(fidi,{1},names{i},{j},'fid',fidt);
+if(fidi)
+    names=fieldnames(fidi);
+    nf1=length(names);
+    for i=1:nf1
+        tmp=getfield(fidi,{1},names{i});
+        nf2=length(tmp);
+        for j=1:nf2
+            fidt=fopen(tmp(j).name,'r'); %files to read
+            fseek(fidt,online*nx*bytes,-1);
+            fidi=setfield(fidi,{1},names{i},{j},'fid',fidt);
+        end
     end
+else
+    fidi=[];
 end
 
 
 %%% Open Outfiles
-names=fieldnames(fido);
-nf1=length(names);
-for i=1:nf1
-    tmp=getfield(fido,{1},names{i});
-    nf2=length(tmp);
-    for j=1:nf2
-        fidt=fopen(tmp(j).name,filestyle); %files to read
-        fido=setfield(fido,{1},names{i},{j},'fid',fidt);
+if(fido)
+    names=fieldnames(fido);
+    nf1=length(names);
+    for i=1:nf1
+        tmp=getfield(fido,{1},names{i});
+        nf2=length(tmp);
+        for j=1:nf2
+            fidt=fopen(tmp(j).name,filestyle); %files to read
+            fido=setfield(fido,{1},names{i},{j},'fid',fidt);
+        end
     end
+else
+    fido=[];
 end
 
 disp(['on line ' num2str(online)])
