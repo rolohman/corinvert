@@ -1,16 +1,17 @@
-function [dates,perms,c0,mag0,time0]=plot_all(x,y,pol,relDir,rdir,gflag,pflag)
-%gflag: pixel given in: 1, geocoded pixels, 2, radar pixels, 3, latlon
+function [dates,perms,c0,mag0,time0,output]=plot_all(x,y,pol,relDir,rdir,geoflag,plotflag,slcflag)
+%geoflag:  pixel given in: 1, geocoded pixels, 2, radar pixels, 3, latlon
+%plotflag: plot=1, noplot=0;
+%slcflag:  save slc values = 1;
 %for now gflag=1;
-if(gflag==1)
+if(geoflag==1)
     %input coords are from geocoded file.
     xg              = x;
     yg              = y;
     latlonflag      = 2; 
     colf            = [relDir '/geo' pol '/cols.4alks_4rlks.geo'];
     rowf            = [relDir '/geo' pol '/rows.4alks_4rlks.geo'];
-    lonfile         = [relDir 'merged/geom_master/lon.rdr.4alks_15rlks.full'];
-    latfile         = [relDir 'merged/geom_master/lat.rdr.4alks_15rlks.full'];
     [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
+    [output]        = plot_all_onfly_bp(round(xr),round(yr),plotflag,slcflag);
 else
     disp('gflag option not done yet for gflag ne 1')
     return
@@ -97,7 +98,7 @@ synthnan    = synthnan(sid);
 
 %plotting
 
-if(pflag)
+if(plotflag)
     figure('Name',[num2str(xg) ' ' num2str(yg)])
     
     plot([dnr dnr]',exp(-[magl;magh]),'-','color',[.4 .4 .4],'linewidth',3)
