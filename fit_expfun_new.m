@@ -5,84 +5,38 @@ relDir='T130';
 %relDir='T28';
 %relDir='T101';
 pol='_VV';
-corcutoff      = 0.01; %diff to distinguish from 1
-lowcorcutoff   = 0.3; %lowest background cor (c0)
-lowcountcutoff = 20;  %need at least n dates
-
-options = optimset('Display','off','TolFun',1e-4);
-
-dates = [];
-tmp=dir([relDir '/geo' pol '/rel*_4r_4a.cor.geo']);
-for j=1:length(tmp)
-    t=tmp(j).name;
-    dates(end+1).name   = t(5:12);
-    dates(end).filename = [tmp(j).folder '/' t];
-    dates(end).dn       = datenum(t(5:12),'yyyymmdd');
-    dates(end).origdir  = [tmp(j).folder];
-end
-
-%get nx/ny from last file opened
-vrt=[dates(end).filename '.vrt'];
-if(exist(vrt,'file'))
-    [a,b] = system(['grep rasterXSize ' vrt]);
-    tmp   = regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)">','tokens');
-    if(length(tmp)==1)
-        nx=str2num(tmp{1}{1}); ny=str2num(tmp{1}{2});
-        [nx ny]
-    end
-else
-    disp('no nx/ny info, need vrt file'),return
-end
-
-[jnk,sortid]=sort([dates.dn]);
-dates = dates(sortid);
-dn    = [dates.dn];
-nd    = length(dates);
-
 rdir = ['results_TS' pol '/'];
-rdate=cellstr(num2str(load('dates.list')));
 if(~exist(rdir,'dir'))
     mkdir(rdir)
 end
 
-dnr    = datenum(rdate,'yyyymmdd');
-goodr  = and(dnr<max(dn),dnr>min(dn)); %only use rain during time series
-rdate  = rdate(goodr);
-dnr    = dnr(goodr);
-nr     = length(dnr);
-  
-timemat=zeros(nd,nr); %used later in inversion.
+corcutoff      = 0.01; %diff to distinguish from 1
+lowcorcutoff   = 0.3; %lowest background cor (c0)
+lowcountcutoff = 20;  %need at least n dates
+maxT           = 100; %maxmum time for exponential fit, days
+startT         = 12;  %time for each event, initialize, days
+options        = optimset('Display','off','TolFun',1e-4);
+%get data, rain dates, filehandles, sizes
+[dates,perms,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,pol);
+dn    = [dates.dn];
+nd    = length(dates);
+nr    = length(dnr);
+
+%Matrix of times since rain, used later in inversion.
+timemat=zeros(nd,nr); 
 for i=1:nr
     timemat(:,i) = dn-dnr(i);
-    befid(i)     = find(dn<dnr(i),1,'last');
-    afid(i)      = find(dn>dnr(i),1,'first');
+    befid(i)     = find(dn<dnr(i),1,'last'); %first date before rain
+    afid(i)      = find(dn>dnr(i),1,'first'); %first date after rain
 end
 timemat(timemat<0)=0;
 dt     = dn(afid)-dnr'; %time since event, used in res.
-LB     = dt+3; %lower bound on time - at least 1/2 time after first date.
-UB     = 100*ones(1,nr); %upper bound on time
-tmod0  = 12*ones(1,nr); %starting time model
+LB     = dt; %lower bound on time - at least 1/2 time after first date.
+UB     = maxT*ones(1,nr); %upper bound on time
+tmod0  = startT*ones(1,nr); %starting time model
 
-%open all filesif(type==1)
-clear fidi fido
-%inputs
-for i=1:nd
-    fidi.rels(i).name=dates(i).filename;   
-end
-fidi.c0.name     = [relDir '/geo' pol '/c0_4r_4a.cor.geo'];
-%outputs
-fido.resn0.name  = [rdir 'resn0'];
-fido.shift.name  = [rdir 'shift'];
-for i=1:nr
-    fido.mag0(i).name  = [rdir rdate{i} '.mag0'];
-    fido.time0(i).name = [rdir rdate{i} '.time0'];
-    fido.magl(i).name  = [rdir rdate{i} '.maglow'];
-    fido.magh(i).name  = [rdir rdate{i} '.maghigh'];
-    fido.te(i).name    = [rdir rdate{i} '.timeerr'];
-    fido.fwd5(i).name  = [rdir rdate{i} '.5day'];
-    fido.status(i).name  = [rdir rdate{i} '.status'];
-end
-
+%open all files
+fidi=rmfield(fidi,'perms'); %not using this here
 [fidi,fido,online]=open_files(fidi,fido,nx,ny);
 
 

@@ -1,4 +1,5 @@
 function [fidi,fido,online]=open_files(fidi,fido,nx,ny)
+%rflag = 1, open for writing/appending, 2, only for reading
 bytes=4; %need to fix for complex file inputs
 
 %%%test output files, count lines, determine correct permissions
