@@ -5,7 +5,7 @@ if(exist('dnr','var'))
         plot([dnr(i) dnr(i)],[min(dn) dnr(i)],'m')
     end
 end
-if(badi)
+if(exist('badi','var'))
     for i=1:length(badi)
         plot([dni(badi(i)) dni(badi(i))],[min(dn) dn(badi(i)+1)],'-','color',[.5 .5 .5])
     end
