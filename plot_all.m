@@ -1,4 +1,4 @@
-function [dates,perms,c0,mag0,time0]=plot_all(x,y,pol,relDir,gflag,pflag)
+function [dates,perms,c0,mag0,time0]=plot_all(x,y,pol,relDir,rdir,gflag,pflag)
 %gflag: pixel given in: 1, geocoded pixels, 2, radar pixels, 3, latlon
 %for now gflag=1;
 if(gflag==1)
@@ -15,7 +15,7 @@ else
 end
 
 %get data, rain dates, filehandles, sizes
-[dates,perms,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,pol);
+[dates,perms,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,rdir,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);
