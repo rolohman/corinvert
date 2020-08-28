@@ -3,6 +3,7 @@ function [dates,perms,c0,mag0,time0,output]=plot_all(x,y,pol,relDir,rdir,geoflag
 %plotflag: plot=1, noplot=0;
 %slcflag:  save slc values = 1;
 %for now gflag=1;
+home=pwd;
 if(geoflag==1)
     %input coords are from geocoded file.
     xg              = x;
@@ -11,7 +12,9 @@ if(geoflag==1)
     colf            = [relDir '/geo' pol '/cols.4alks_4rlks.geo'];
     rowf            = [relDir '/geo' pol '/rows.4alks_4rlks.geo'];
     [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
+    chdir(relDir)
     [output]        = plot_all_onfly_bp(round(xr),round(yr),plotflag,slcflag);
+    chdir(home);
 else
     disp('gflag option not done yet for gflag ne 1')
     return
