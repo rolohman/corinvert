@@ -8,7 +8,7 @@ if(gflag==1)
     latlonflag = 2; 
     colf       = [relDir '/geo' pol '/cols.4alks_4rlks.cor.geo'];
     rowf       = [relDir '/geo' pol '/rows.ralks_4rlks.cor.geo'];
-    [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
+    %[xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
 else
     disp('gflag option not done yet for gflag ne 1')
     return
