@@ -11,7 +11,7 @@ if(~exist(rdir,'dir'))
 end
 
 corcutoff      = 0.01; %diff to distinguish from 1
-lowcorcutoff   = 0.3; %lowest background cor (c0)
+lowcorcutoff   = 0.35; %lowest background cor (c0)
 lowcountcutoff = 20;  %need at least n dates
 maxT           = 100; %maxmum time for exponential fit, days
 startT         = 12;  %time for each event, initialize, days
@@ -93,7 +93,7 @@ for j=online+1:ny
         
         %%%initialize values
         tmptime = NaN(nr,1);tmpstat=ones(nr,1);tstd = [];mstd = [];res = [];shift = 0; %mark tstd with 20 to see where ng cutoff occurrs
-        tmpstat(~goodr)=2; 
+        tmpstat(~goodr)=2; %after inspection, these do seem to be all bad.
        
         while(notdone)
             x                   = timemat(goodd,goodr);
@@ -148,13 +148,14 @@ for j=online+1:ny
             end
         end
 
-        
+        tmpmag(tmpstat==2)=NaN; %in retrospect, these values are all bad.
         tmpmag5=tmpmag.*exp(-5./tmptime);
    
         %below is bookkeeping related to the use of parfor loops.
         times(:,i) = tmptime;
         mags(:,i)  = tmpmag;
         fwd5(:,i)  = tmpmag5;
+        
         
         tmp=nan(nr,1);
         tmp(goodr)      = tstd;
