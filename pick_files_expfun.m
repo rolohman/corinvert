@@ -41,8 +41,8 @@ nd    = length(dn);
 vrt=[dates(end).filename '.vrt'];
 if(exist(vrt,'file'))
     [a,b] = system(['grep rasterXSize ' vrt]);
-    tmp   = regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)">','tokens');
-    if(length(tmp)==1)
+   tmp   = regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)"','tokens');
+     if(length(tmp)==1)
         nx=str2num(tmp{1}{1}); ny=str2num(tmp{1}{2});
         disp(['width, length: ' num2str([nx ny])])
     end
