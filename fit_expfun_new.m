@@ -22,6 +22,12 @@ else
         mkdir(rdir)
     end
 end
+if(~exist('rlooks','var'))
+    rlooks=4;
+end
+if(~exist('alooks','var'))
+    alooks=4;
+end
 
 %% define cutoffs
 corcutoff      = 0.01; %diff to distinguish from 1
@@ -32,7 +38,7 @@ startT         = 12;  %time for each event, initialize, days
 options        = optimset('Display','off','TolFun',1e-4);
 
 %% get data, rain dates, filehandles, sizes
-[dates,perms,c0s,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,pol);
+[dates,perms,c0s,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);

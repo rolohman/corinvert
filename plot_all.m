@@ -1,4 +1,4 @@
-function [dates,perms,c0,mag0,time0,output]=plot_all(x,y,pol,relDir,rdir,iscedir,geoflag,plotflag,slcflag)
+function [dates,perms,c0,mag0,time0,output]=plot_all(x,y,pol,relDir,rdir,iscedir,rlooks,alooks,geoflag,plotflag,slcflag)
 %geoflag:  pixel given in: 1, geocoded pixels, 2, radar pixels, 3, latlon
 %plotflag: plot=1, noplot=0;
 %slcflag:  save slc values = 1;
@@ -23,7 +23,7 @@ else
 end
 
 %get data, rain dates, filehandles, sizes
-[dates,perms,c0s,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,rdir,pol);
+[dates,perms,c0s,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);
