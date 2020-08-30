@@ -1,28 +1,43 @@
 addpath('~/matlab/DERIVESTsuite');
-parpool(10)
 home=pwd;
-%relDir='T130';
-%relDir='T28';
-%relDir='T101';
+%% check directories
+if(~exist(pol,'var'))
+    disp('should define pol, using _VV');
 pol='_VV';
-rdir = ['results_TS' pol '/'];
+else
+    disp(['using polarity ' pol])
+end
+if(~exist(relDir,'var'))
+    disp('must define relDir, Dir with geocoded relative coherence values')
+    return
+else
+    disp(['using coherence in ' relDir])
+end
 if(~exist(rdir,'dir'))
-    mkdir(rdir)
+    disp('must define output directory')
+    return
+else
+    disp(['output in ' rdir])
+    if(~exist(rdir,'dir'))
+        mkdir(rdir)
+    end
 end
 
+%% define cutoffs
 corcutoff      = 0.01; %diff to distinguish from 1
 lowcorcutoff   = 0.35; %lowest background cor (c0)
 lowcountcutoff = 20;  %need at least n dates
 maxT           = 100; %maxmum time for exponential fit, days
 startT         = 12;  %time for each event, initialize, days
 options        = optimset('Display','off','TolFun',1e-4);
-%get data, rain dates, filehandles, sizes
+
+%% get data, rain dates, filehandles, sizes
 [dates,perms,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);
 
-%Matrix of times since rain, used later in inversion.
+%% Matrix of times since rain, used later in inversion.
 timemat=zeros(nd,nr); 
 for i=1:nr
     timemat(:,i) = dn-dnr(i);
@@ -41,6 +56,7 @@ fidi=rmfield(fidi,'perms'); %not using this here
 
 
 %% start
+parpool(10)
 for j=online+1:ny
     j
     dat=zeros(nd,nx);
