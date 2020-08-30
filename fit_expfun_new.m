@@ -1,7 +1,7 @@
 addpath('~/matlab/DERIVESTsuite');
 parpool(10)
 home=pwd;
-relDir='T130';
+%relDir='T130';
 %relDir='T28';
 %relDir='T101';
 pol='_VV';
