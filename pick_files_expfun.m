@@ -32,7 +32,7 @@ end
 tmp=dir([relDir '/*c0' suff '.cor.geo']);
 for j=1:length(tmp)
     t=tmp(j).name;
-    c0s(end).filename     = [tmp(j).folder '/' t];
+    c0s(end+1).filename     = [tmp(j).folder '/' t];
 end
 dn    = [dates.dn];
 nd    = length(dn);
