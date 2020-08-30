@@ -1,4 +1,4 @@
-function [col,row,x1,y1]= LatLonRowCol(x,y,colf,rowf,latlonflag);
+function [col,row,x1,y1]= LatLonRowCol(x,y,colf,rowf,latlonflag)
 %row,column in downlooked SLC, plus x1,y1 pixel location in row/col file.
 %Usually "rows.geo".
 %latlonflag
@@ -8,7 +8,7 @@ function [col,row,x1,y1]= LatLonRowCol(x,y,colf,rowf,latlonflag);
 
 if(exist(rowf))
     [~,b]=system(['grep rasterXSize ' rowf '.vrt']);
-    tmp=regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)">','tokens');
+    tmp=regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)"','tokens');
     if(length(tmp)==1)
         nx=str2num(tmp{1}{1});
         ny=str2num(tmp{1}{2});
@@ -33,14 +33,15 @@ switch latlonflag
     case 1
         disp('converting x,y in lat/lon to pixels in slc')
         %figure out which row, pixel in row,col.geo is the right lat/lon
-        x1 = floor((x-lon1)/dlon);
-        y1 = floor((y-lat1)/dlat);
+        x1  = floor((x-lon1)/dlon);
+        y1  = floor((y-lat1)/dlat);
         %read the slc row/col values
-        fid=fopen(rowf,'r');
-        fseek(fid,(nx*(y1-1)+x1-1)*4,-1);  %one pixel before goal pixel
-        row=fread(fid,1,'real*4');
+        fid = fopen(rowf,'r'); fseek(fid,(nx*(y1-1)+x1-1)*4,-1);  %one pixel before goal pixel
+        row = fread(fid,1,'real*4');
         fclose(fid);
-        
+        fid = fopen(colf,'r'); fseek(fid,(nx*(y1-1)+x1-1)*4,-1);  %one pixel before goal pixel
+        col = fread(fid,1,'real*4');
+        fclose(fid);
     case 2        
         disp('converting pixel locations in geo file to pixels in slc');
        %figure out what the latlon vals are for a pixel in row,col.geo 
@@ -48,13 +49,11 @@ switch latlonflag
        y1 = y*dlat + lat1;  
        %think about corner locations if using for anything important.
        %read the slc row/col values
-       fid=fopen(rowf,'r');
-       fseek(fid,(nx*(y-1)+x-1)*4,-1);  %one pixel before goal pixel
-       row=fread(fid,1,'real*4');
+       fid = fopen(rowf,'r'); fseek(fid,(nx*(y-1)+x-1)*4,-1);  %one pixel before goal pixel
+       row = fread(fid,1,'real*4');
        fclose(fid);
-       fid=fopen(colf,'r');
-       fseek(fid,(nx*(y-1)+x-1)*4,-1);  %one pixel before goal pixel
-       col=fread(fid,1,'real*4');
+       fid = fopen(colf,'r'); fseek(fid,(nx*(y-1)+x-1)*4,-1);  %one pixel before goal pixel
+       col = fread(fid,1,'real*4');
        fclose(fid);
 end
         

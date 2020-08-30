@@ -4,19 +4,46 @@ function [dates,perms,c0,mag0,time0,output]=plot_all(x,y,pol,relDir,rdir,iscedir
 %slcflag:  save slc values = 1;
 %for now gflag=1;
 home=pwd;
+
 if(geoflag==1)
     %input coords are from geocoded file.
     xg              = x;
     yg              = y;
-    latlonflag      = 2; 
-    if(~isempty(iscedir))
-        colf            = [relDir '/cols.4alks_4rlks.geo'];
-        rowf            = [relDir '/rows.4alks_4rlks.geo'];
+    if(or(rlooks>1,alooks>1))
+        suff=['.' num2str(alooks) 'alks_' num2str(rlooks) 'rlks'];
+    else
+        suff='';
+    end
+    
+    if(length(iscedir)==1) %one track only
+        latlonflag      = 2;
+        colf            = [relDir '/cols' suff '.geo'];
+        rowf            = [relDir '/rows' suff '.geo'];
         [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
- 
+        disp(['lon: ' num2str(lon) ' lat:' num2str(lat)])
         chdir(iscedir)
         [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
         chdir(home);
+    elseif(length(iscedir)>1) %multiple tracks, resampled to same grid in dir, iscedir-> orig geo dirs
+        latlonflag      = 2;
+        tmp             = dir([relDir '/*.geo']);
+        tmpf            = [tmp(1).folder '/' tmp(1).name];
+        [~,~,lon,lat]   = LatLonRowCol(x,y,tmpf,tmpf,latlonflag); %xr,yr in pixels, downlooked radar coords
+      
+        
+        for i=1:length(iscedir)
+         
+            [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
+         
+                colf            = [iscedir{i} '/geo' pol '/cols' suff '.geo'];
+            rowf            = [iscedir{i} '/geo' pol '/rows' suff '.geo'];
+        
+            disp(['lon: ' num2str(lon) ' lat:' num2str(lat)])
+            chdir(iscedir)
+            [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
+            chdir(home);
+        end
+        
     end
 else
     disp('gflag option not done yet for gflag ne 1')
@@ -24,7 +51,7 @@ else
 end
 
 %get data, rain dates, filehandles, sizes
-[dates,perms,c0s,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol);
+[dates,perms,c0s,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);
@@ -40,9 +67,7 @@ names=fieldnames(fido); %we are opening these all as read/input
 for i=1:length(names)
     fidi.(names{i})=fido.(names{i});
 end
-[fidi,~,online]=open_files(fidi,[],nxg,nyg); %don't want to overwrite outfiles!
-disp(['processed expfit to ' num2str(online)])
-
+[fidi,~,~]=open_files(fidi,[],nxg,nyg); %don't want to overwrite outfiles!
 
 %get data at points in geocoded files
 for i=1:nc

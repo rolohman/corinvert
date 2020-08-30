@@ -1,4 +1,4 @@
-function [dates,perms,c0s,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol)
+function [dates,perms,c0s,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol)
 %rflag = 1, open for writing/appending, 2, only for reading
 dates = [];
 perms = [];
