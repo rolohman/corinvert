@@ -9,10 +9,11 @@ if(geoflag==1)
     xg              = x;
     yg              = y;
     latlonflag      = 2; 
-    colf            = [relDir '/cols.4alks_4rlks.geo'];
-    rowf            = [relDir '/rows.4alks_4rlks.geo'];
-    [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
     if(~isempty(iscedir))
+        colf            = [relDir '/cols.4alks_4rlks.geo'];
+        rowf            = [relDir '/rows.4alks_4rlks.geo'];
+        [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
+ 
         chdir(iscedir)
         [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
         chdir(home);
