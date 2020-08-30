@@ -1,19 +1,19 @@
 addpath('~/matlab/DERIVESTsuite');
 home=pwd;
 %% check directories
-if(~exist(pol,'var'))
+if(~exist('pol','var'))
     disp('should define pol, using _VV');
 pol='_VV';
 else
     disp(['using polarity ' pol])
 end
-if(~exist(relDir,'var'))
+if(~exist('relDir','var'))
     disp('must define relDir, Dir with geocoded relative coherence values')
     return
 else
     disp(['using coherence in ' relDir])
 end
-if(~exist(rdir,'dir'))
+if(~exist('rdir','var'))
     disp('must define output directory')
     return
 else
