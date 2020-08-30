@@ -8,7 +8,7 @@ else
     disp(['using polarity ' pol])
 end
 if(~exist('relDir','var'))
-    disp('must define relDir, Dir with geocoded relative coherence values')
+    disp('must define relDir, full path to geocoded relative coherence values')
     return
 else
     disp(['using coherence in ' relDir])
@@ -32,10 +32,11 @@ startT         = 12;  %time for each event, initialize, days
 options        = optimset('Display','off','TolFun',1e-4);
 
 %% get data, rain dates, filehandles, sizes
-[dates,perms,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,pol);
+[dates,perms,c0s,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);
+nc    = length(c0s);
 
 %% Matrix of times since rain, used later in inversion.
 timemat=zeros(nd,nr); 
@@ -80,14 +81,17 @@ for j=online+1:ny
     dsig(dat<sig)=dllog(dat<sig); %removes imaginary values
     
     %load "background" c0 values - won't use pixels with really low values.
-    c0s=nan(1,nx);
-    [tmp,count2]=fread(fidi.c0.fid,nx,'real*4');
-    if(count2>0)
-        c0s(1:count2)=tmp;
-    end 
-    c0s(or(c0s==-9999,or(isinf(c0s),c0s==0))) = NaN;   
+     c0=nan(nc,nx);
+     for i=1:nc
+         [tmp,count1]=fread(fidi.c0s(i).fid,nx,'real*4');
+         if(count1>0)
+             c0(i,1:count1)=tmp;
+         end
+     end
+     c0=median(c0,1,'omitnan');
+     c0(or(c0==-9999,or(isinf(c0),c0==0))) = NaN;
     
-    goodid   = find(and(count>lowcountcutoff,c0s>lowcorcutoff));
+    goodid   = find(and(count>lowcountcutoff,c0>lowcorcutoff));
     
     %initialize arrays (necessary for parfor)
     mags    = nan(nr,length(goodid));times = mags; maglow = mags; maghig = mags; timerr = mags; fwd5 = mags; status=mags;

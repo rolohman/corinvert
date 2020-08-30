@@ -1,4 +1,4 @@
-function [dates,perms,c0,mag0,time0,output]=plot_all(x,y,pol,relDir,rdir,geoflag,plotflag,slcflag)
+function [dates,perms,c0,mag0,time0,output]=plot_all(x,y,pol,relDir,rdir,iscedir,geoflag,plotflag,slcflag)
 %geoflag:  pixel given in: 1, geocoded pixels, 2, radar pixels, 3, latlon
 %plotflag: plot=1, noplot=0;
 %slcflag:  save slc values = 1;
@@ -9,22 +9,25 @@ if(geoflag==1)
     xg              = x;
     yg              = y;
     latlonflag      = 2; 
-    colf            = [relDir '/geo' pol '/cols.4alks_4rlks.geo'];
-    rowf            = [relDir '/geo' pol '/rows.4alks_4rlks.geo'];
+    colf            = [relDir '/cols.4alks_4rlks.geo'];
+    rowf            = [relDir '/rows.4alks_4rlks.geo'];
     [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
-    chdir(relDir)
-    [output]        = plot_all_onfly_bp(round(xr),round(yr),plotflag,slcflag);
-    chdir(home);
+    if(~isempty(iscedir))
+        chdir(iscedir)
+        [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
+        chdir(home);
+    end
 else
     disp('gflag option not done yet for gflag ne 1')
     return
 end
 
 %get data, rain dates, filehandles, sizes
-[dates,perms,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,rdir,pol);
+[dates,perms,c0s,rdates,dnr,fidi,fido,nxg,nyg]=pick_files_expfun(relDir,rdir,pol);
 dn    = [dates.dn];
 nd    = length(dates);
 nr    = length(dnr);
+nc    = length(c0s);
 
 if(xg<1 || xg>nxg || yg<1 || yg>nyg)
     disp('point out of range')
@@ -41,9 +44,11 @@ disp(['processed expfit to ' num2str(online)])
 
 
 %get data at points in geocoded files
-fseek(fidi.c0.fid,(nxg*(yg-1)+xg-1)*4,-1);
+for i=1:nc
+    fseek(fidi.c0s(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
+end
 fseek(fidi.shift.fid,(nxg*(yg-1)+xg-1)*4,-1);
-for i=1:length(dnr)
+for i=1:nr
     fseek(fidi.mag0(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
     fseek(fidi.magl(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
     fseek(fidi.magh(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
@@ -57,7 +62,10 @@ for i=1:length(perms)
     fseek(fidi.perms(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
 
-c0    = fread(fidi.c0.fid,1,'real*4');
+for i=1:nc
+    c0(i)    = fread(fidi.c0s(i).fid,1,'real*4');
+end
+c0=median(c0,'omitnan');
 shift = fread(fidi.shift.fid,1,'real*4');
 for i=1:length(dnr)
     mag0(i)    = -log(fread(fidi.mag0(i).fid,1,'real*4'));

@@ -1,4 +1,5 @@
-function [output]= plot_all_onfly_bp(xpt,ypt,plotflag,slcflag)
+function [output]= plot_slc_rel(xpt,ypt,plotflag,slcflag)
+
 if(~exist('slcflag','var'))
     slcflag=0;
 end

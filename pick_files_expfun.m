@@ -1,8 +1,16 @@
-function [dates,perms,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,pol)
+function [dates,perms,c0s,rdates,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol)
 %rflag = 1, open for writing/appending, 2, only for reading
 dates = [];
 perms = [];
-tmp=dir([relDir '/geo' pol '/rel*_4r_4a.cor.geo']);
+c0s   = [];
+
+if(or(rlooks>1,alooks>1))
+    suff=['_' num2str(rlooks) 'r_' num2str(alooks) 'a'];
+else
+    suff='';
+end
+
+tmp=dir([relDir '/rel*' suff '.cor.geo']);
 for j=1:length(tmp)
     t=tmp(j).name;
     dates(end+1).name   = t(5:12);
@@ -10,8 +18,8 @@ for j=1:length(tmp)
     dates(end).dn       = datenum(t(5:12),'yyyymmdd');
     dates(end).origdir  = [tmp(j).folder];
 end
-tmp=dir([relDir  '/geo' pol '/perm*_4r_4a.cor.geo']);
-    
+
+tmp=dir([relDir '/perm*' suff '.cor.geo']);
 for j=1:length(tmp)
     t=tmp(j).name;
     perms(end+1).name       = t(6:22);
@@ -19,6 +27,13 @@ for j=1:length(tmp)
     perms(end).d1           = datenum(t(6:13),'yyyymmdd');
     perms(end).d2           = datenum(t(15:22),'yyyymmdd');
     perms(end).d            = mean([perms(end).d1 perms(end).d2]);
+end
+
+tmp=dir([relDir '/*c0' suff '.cor.geo']);
+for j=1:length(tmp)
+    t=tmp(j).name;
+    c0s(end+1).name       = t(6:22);
+    c0s(end).filename     = [tmp(j).folder '/' t];
 end
 dn    = [dates.dn];
 nd    = length(dn);
@@ -30,7 +45,7 @@ if(exist(vrt,'file'))
     tmp   = regexp(b,'rasterXSize="(\d+)" rasterYSize="(\d+)">','tokens');
     if(length(tmp)==1)
         nx=str2num(tmp{1}{1}); ny=str2num(tmp{1}{2});
-        [nx ny]
+        disp(['width, length: ' num2str([nx ny])])
     end
 else
     disp('no nx/ny info, need vrt file'),return
@@ -55,12 +70,14 @@ nr     = length(dnr);
   
 %inputs
 for i=1:nd
-    fidi.rels(i).name=dates(i).filename;   
+    fidi.rels(i).name  = dates(i).filename;   
 end
 for i=1:length(perms)
-    fidi.perms(i).name=perms(i).filename;   
+    fidi.perms(i).name = perms(i).filename;   
 end
-fidi.c0.name     = [relDir '/geo' pol '/c0_4r_4a.cor.geo'];
+for i=1:length(c0s)
+    fidi.c0(i).name    = c0s(i).filename;
+end
 %outputs
 fido.resn0.name  = [rdir 'resn0'];
 fido.shift.name  = [rdir 'shift'];
