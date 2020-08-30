@@ -58,7 +58,7 @@ UB     = maxT*ones(1,nr); %upper bound on time
 tmod0  = startT*ones(1,nr); %starting time model
 
 %open all files
-if(isfield(fid,'perms'))
+if(isfield(fidi,'perms'))
     fidi=rmfield(fidi,'perms'); %not using this here
 end
 [fidi,fido,online]=open_files(fidi,fido,nx,ny);
