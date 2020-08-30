@@ -89,7 +89,7 @@ for j=online+1:ny
     %load "background" c0 values - won't use pixels with really low values.
      c0=nan(nc,nx);
      for i=1:nc
-         [tmp,count1]=fread(fidi.c0s(i).fid,nx,'real*4');
+         [tmp,count1]=fread(fidi.c0(i).fid,nx,'real*4');
          if(count1>0)
              c0(i,1:count1)=tmp;
          end

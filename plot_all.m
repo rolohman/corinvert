@@ -45,7 +45,7 @@ disp(['processed expfit to ' num2str(online)])
 
 %get data at points in geocoded files
 for i=1:nc
-    fseek(fidi.c0s(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
+    fseek(fidi.c0(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
 fseek(fidi.shift.fid,(nxg*(yg-1)+xg-1)*4,-1);
 for i=1:nr
@@ -63,7 +63,7 @@ for i=1:length(perms)
 end
 
 for i=1:nc
-    c0(i)    = fread(fidi.c0s(i).fid,1,'real*4');
+    c0(i)    = fread(fidi.c0(i).fid,1,'real*4');
 end
 c0=median(c0,'omitnan');
 shift = fread(fidi.shift.fid,1,'real*4');
