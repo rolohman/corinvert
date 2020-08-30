@@ -4,7 +4,7 @@ dates = [];
 perms = [];
 c0s   = [];
 
-if(~rdir(end)=='/')
+if(~(rdir(end)=='/'))
     rdir=[rdir '/'];
 end
 if(or(rlooks>1,alooks>1))
