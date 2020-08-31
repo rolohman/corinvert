@@ -21,7 +21,7 @@ if(geoflag==1)
         rowf            = [relDir '/rows' suff '.geo'];
         [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
         disp(['lon: ' num2str(lon) ' lat:' num2str(lat)])
-        chdir(iscedir)
+        chdir(iscedir{1})
         [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
         chdir(home);
     elseif(length(iscedir)>1) %multiple tracks, resampled to same grid in dir, iscedir-> orig geo dirs
