@@ -28,18 +28,16 @@ if(geoflag==1)
         latlonflag      = 2;
         tmp             = dir([relDir '/*.geo']);
         tmpf            = [tmp(1).folder '/' tmp(1).name];
-        [~,~,lon,lat]   = LatLonRowCol(x,y,tmpf,tmpf,latlonflag); %xr,yr in pixels, downlooked radar coords
-      
-        
+        [~,~,lon,lat]   = LatLonRowCol(xg,yg,tmpf,tmpf,latlonflag); %xr,yr in pixels, downlooked radar coords
         for i=1:length(iscedir)
-         
-            [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
-         
-                colf            = [iscedir{i} '/geo' pol '/cols' suff '.geo'];
+            
+            latlonflag=1;
+            colf            = [iscedir{i} '/geo' pol '/cols' suff '.geo'];
             rowf            = [iscedir{i} '/geo' pol '/rows' suff '.geo'];
-        
+            [x1,y1,x2,y2] = LatLonRowCol(lon,lat,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
+            
             disp(['lon: ' num2str(lon) ' lat:' num2str(lat)])
-            chdir(iscedir)
+            chdir(iscedir{i})
             [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
             chdir(home);
         end
