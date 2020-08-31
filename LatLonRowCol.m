@@ -2,7 +2,7 @@ function [col,row,x1,y1]= LatLonRowCol(x,y,colf,rowf,latlonflag)
 %row,column in downlooked SLC, plus x1,y1 pixel location in row/col file.
 %Usually "rows.geo".
 %latlonflag
-%case 1 = x,y given in lat/lon, x1,y1 given in pixels
+%case 1 = x,y given in lon/lat, x1,y1 given in pixels
 %case 2 = x,y given in pixels (from rowf,colf file), x1,y1, given in latlon
 
 
