@@ -73,7 +73,9 @@ end
 for i=1:nc
     fseek(fidi.c0(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
 end
-fseek(fidi.shift.fid,(nxg*(yg-1)+xg-1)*4,-1);
+if(fidi.shift.fid>0)
+    fseek(fidi.shift.fid,(nxg*(yg-1)+xg-1)*4,-1);
+end
 for i=1:nr
     fseek(fidi.mag0(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
     fseek(fidi.magl(i).fid,(nxg*(yg-1)+xg-1)*4,-1);
@@ -92,7 +94,11 @@ for i=1:nc
     c0(i)    = fread(fidi.c0(i).fid,1,'real*4');
 end
 c0=median(c0,'omitnan');
-shift = fread(fidi.shift.fid,1,'real*4');
+if(fidi.shift.fid>0)
+    shift = fread(fidi.shift.fid,1,'real*4');
+else
+    shift=0;
+end
 for i=1:length(dnr)
     mag0(i)    = -log(fread(fidi.mag0(i).fid,1,'real*4'));
     magl(i)    = -log(fread(fidi.magl(i).fid,1,'real*4'));

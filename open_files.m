@@ -45,6 +45,7 @@ else
             fidt=fopen(tmp(j).name,'r'); %files to read
             if(fidt<0)
                 disp(['file not open: ' tmp(j).name])
+                fidi=setfield(fidi,{1},names{i},{j},'fid',-1);
             else
                 fseek(fidt,online*nx*bytes,-1);
                 fidi=setfield(fidi,{1},names{i},{j},'fid',fidt);
@@ -67,7 +68,8 @@ else
             fidt=fopen(tmp(j).name,filestyle); %files to read  
             if(fidt<0)
                 disp(['file not open: ' tmp(j).name])
-            else
+                 fido=setfield(fido,{1},names{i},{j},'fid',-1);
+           else
                 fido=setfield(fido,{1},names{i},{j},'fid',fidt);
             end
         end
