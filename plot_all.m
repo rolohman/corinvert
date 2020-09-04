@@ -14,7 +14,9 @@ if(geoflag==1)
     else
         suff='';
     end
-    
+    if(~iscell(iscedir))
+        iscedir={iscedir};
+    end
     if(length(iscedir)==1) %one track only
         latlonflag      = 2;
         colf            = [relDir '/cols' suff '.geo'];
