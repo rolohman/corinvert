@@ -65,6 +65,8 @@ else
 end
 
 dnr    = datenum(rdates,'yyyymmdd');
+
+
 goodr  = and(dnr<max(dn),dnr>min(dn)); %only use rain during time series
 rdates  = rdates(goodr);
 dnr    = dnr(goodr);

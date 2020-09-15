@@ -40,6 +40,14 @@ options        = optimset('Display','off','TolFun',1e-4);
 %% get data, rain dates, filehandles, sizes
 [dates,perms,c0s,dnr,fidi,fido,nx,ny]=pick_files_expfun(relDir,rdir,rlooks,alooks,pol);
 dn    = [dates.dn];
+
+badco = ismember(dn,dnr); %don't want to use data acquired on same date as rain.
+disp(['found ' num2str(sum(badco)) ' bad dates']);
+dates = dates(~badco);
+fidi.rels = fidi.rels(~badco);
+
+dn    = [dates.dn];
+
 nd    = length(dates);
 nr    = length(dnr);
 nc    = length(c0s);
