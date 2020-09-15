@@ -22,7 +22,11 @@ if(geoflag==1)
         colf            = [relDir '/cols' suff '.geo'];
         rowf            = [relDir '/rows' suff '.geo'];
         [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
-        disp(['lon: ' num2str(lon) ' lat:' num2str(lat) ' row: ' num2str(round(yr)) ' col: ' num2str(round(xr))])
+        disp(['lon: ' num2str(lon) ' lat:' num2str(lat) ' col: ' num2str(round(xr)) ' row: ' num2str(round(yr))])
+        if(isnan(xr))
+            disp('Must pick point in geocoded file that corresponds to data - you appear to have chosen a point outside the original radar coordinates extent')
+            return
+        end
         chdir(iscedir{1})
         [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
         chdir(home);
@@ -39,6 +43,10 @@ if(geoflag==1)
             [x1,y1,x2,y2] = LatLonRowCol(lon,lat,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
             
             disp(['lon: ' num2str(lon) ' lat:' num2str(lat)])
+            if(isnan(xr))
+                disp('Must pick point in geocoded file that corresponds to data - you appear to have chosen a point outside the original radar coordinates extent')
+                return
+            end
             chdir(iscedir{i})
             [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
             chdir(home);
