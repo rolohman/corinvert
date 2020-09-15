@@ -22,7 +22,7 @@ if(geoflag==1)
         colf            = [relDir '/cols' suff '.geo'];
         rowf            = [relDir '/rows' suff '.geo'];
         [xr,yr,lon,lat] = LatLonRowCol(x,y,colf,rowf,latlonflag); %xr,yr in pixels, downlooked radar coords
-        disp(['lon: ' num2str(lon) ' lat:' num2str(lat)])
+        disp(['lon: ' num2str(lon) ' lat:' num2str(lat) ' row: ' num2str(round(yr)) ' col: ' num2str(round(xr))])
         chdir(iscedir{1})
         [output]        = plot_slc_rel(round(xr),round(yr),plotflag,slcflag);
         chdir(home);
