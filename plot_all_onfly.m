@@ -8,6 +8,16 @@ end
       
 lonfile='merged/geom_master/lon.rdr.4alks_15rlks.full';
 latfile='merged/geom_master/lat.rdr.4alks_15rlks.full';
+%load rain dates
+if(exist('dates.list','file'))
+    rdates=cellstr(num2str(load('dates.list')));
+else
+    disp('no date.list file, need dates of suspected rain events, YYYYMMDD')
+  
+end
+
+dnr    = datenum(rdates,'yyyymmdd');
+
 
 
 
@@ -298,7 +308,7 @@ if(plotflag)
     
     
     figure
-    subplot(1,2,1)
+    subplot(2,2,1)
     for i=1:length(output)
         
         dn=[output(i).dn];
@@ -308,8 +318,37 @@ if(plotflag)
         jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
         plot(dn(2:end-1),angle(jnkang(1:end-1)),'-','color',cols{i});
         hold on
+        axis tight
         datetick('x','mmmYY')
+        
         title(['shortest phase triplet closure, ' pols{i}]);
+    end
+    ax=axis;
+    if(exist('dnr','var'))
+        for i=1:length(dnr)
+            plot([dnr(i) dnr(i)],[ax(3) ax(4)],'m')
+        end
+    end
+    
+    subplot(2,2,3)
+    for i=1:length(output)
+        
+        dn=[output(i).dn];
+        nd=length(dn);
+        jnk=nan(nd);
+        jnk([output(i).cids])=exp(im*output(i).phs);
+        jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
+        plot(dn(2:end-1),cumsum(angle(jnkang(1:end-1))),'-','color',cols{i});
+        hold on
+        axis tight
+        datetick('x','mmmYY')
+        title(['cumulative sum shortest phase triplet closure, ' pols{i}]);
+    end
+    ax=axis;
+    if(exist('dnr','var'))
+        for i=1:length(dnr)
+            plot([dnr(i) dnr(i)],[ax(3) ax(4)],'m')
+        end
     end
     if(length(output)==2)
         subplot(1,2,2)
@@ -324,6 +363,7 @@ if(plotflag)
         phsdiff = angle(phs1.*conj(phs2));
         
         triplot(phsdiff,dn2)
+        hold on
         fixplot
         caxis([-pi pi])
         title('VV VH phs diff')

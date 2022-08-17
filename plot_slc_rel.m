@@ -12,7 +12,7 @@ latfile='merged/geom_master/lat.rdr.4alks_15rlks.full';
 
 pols={'_VV','_VH'};
 for l=1:length(pols)
-    pol=pols{l}
+    pol=pols{l};
     clear dates
     decide_ints_stack
     if(nd==0)
@@ -163,7 +163,7 @@ for l=1:length(pols)
                 elseif(ypt(k)==1)
                     cpx=[nan(stopx-startx+1,ry+1) cpx];
                 end
-                slcs(i,bx,:)=cpx;
+		slcs(i,bx,:)=cpx;
             end
             mags=reshape(slcs,nd,(rx*2+1)*(ry*2+1));
             mags=abs(mags);
