@@ -1,18 +1,19 @@
-function [output]= plot_slc_rel(xpt,ypt,plotflag,slcflag)
-
+function [output]= plot_new_onfly(xpt,ypt,plotflag,slcflag)
 if(~exist('slcflag','var'))
     slcflag=0;
 end
 if(~exist('plotflag','var'))
     plotflag=0;
 end
-
+      
 lonfile='merged/geom_master/lon.rdr.4alks_15rlks.full';
 latfile='merged/geom_master/lat.rdr.4alks_15rlks.full';
 
+
+
 pols={'_VV','_VH'};
 for l=1:length(pols)
-    pol=pols{l};
+    pol=pols{l}
     clear dates
     decide_ints_stack
     if(nd==0)
@@ -21,14 +22,27 @@ for l=1:length(pols)
         output(l,1).dn=dn;
         output(l,1).id1=id1;
         output(l,1).id2=id2;
-        
+                 
         rx=rlooks;
         ry=alooks;
         
         im=sqrt(-1);
-        windowtype=0;
-        [windx,windy]=make_win(rx,ry,windowtype);
-        ry=floor(length(windy)/2); %fix in case length changed
+        windowtype=1;
+        switch windowtype
+            case 0
+                windx=[1/(rx+1):1/(rx+1):1 (1-1/(rx+1)):-1/(rx+1):1/(rx+1)];
+                windy=[1/(ry+1):1/(ry+1):1 (1-1/(ry+1)):-1/(ry+1):1/(ry+1)];
+            case 1
+                windx=zeros(1,rx*2+1); windx(floor(rx/2):ceil(rx/2)+rx)=1;
+                windy=zeros(1,ry*2+1); windy(floor(ry/2):ceil(ry/2)+ry)=1;
+            case 2
+                windx=exp(-(-rx:rx).^2/2/(rx/2)^2);
+                windy=exp(-(-ry:ry).^2/2/(ry/2)^2);
+        end
+        windx=windx/sum(windx);
+        windy=windy/sum(windy);
+        wind = windx'*windy;
+        ry=floor(length(windy)/2);
         
         z   = zeros(1,nx);
         slc1 = zeros(ry*2+1,nx);
@@ -37,14 +51,16 @@ for l=1:length(pols)
         
         dni   = dn(1:nd-1)+diff(dn)/2;
         %dni=dni(1:end-1);
+        
         intdt=diff(dn);
+        
         
         %matrix that maps ints to a grid
         cids=[];
         for i=1:nd
             cids=[cids (nd)*(i-1)+[i:nd-1]];
         end
-        output(l,1).cids=cids;
+        output(l).cids=cids;
         %open all slcs
         for i=1:nd
             dates(i).name    = files(i).name(1:8);
@@ -52,20 +68,15 @@ for l=1:length(pols)
             fidi(i)          = fopen(dates(i).slc,'r');
         end
         %check if inversion is done (assume c0 is typical)
-        tdir=['results_dates_bp' pol '/'];
+        tdir=['results_dates' pol '/'];
         c0filename=[tdir 'c0.cor'];
         d=dir(c0filename);
         if(isempty(d))
             disp(['no inversion found for ' pol]);
-            output(l,1).c0=NaN;
-            output(l,1).rels=zeros(nd,1);
-            output(l,1).modp=zeros(nd-1,1);
-            output(l,1).bpr=NaN;
-            output(l,1).bps=NaN;
+            output(l).c0=NaN;
+            output(l).rels=zeros(nd,1);
+            output(l).modp=zeros(nd-1,1);
         else
-            baselines=load(['baselines' pol '.txt']);
-            output(l,1).bpr=baselines(id1)-baselines(id2);
-            
             lines=d.bytes/newnx/4;
             disp(['processed inversion up to line ' num2str(lines)]);
             for k=1:length(xpt)
@@ -79,16 +90,13 @@ for l=1:length(pols)
                 end
                 output(l,k).x=xpt(k);
                 output(l,k).y=ypt(k);
-                
+
                 rels=zeros(nd,1);
                 modp=zeros(nd-1,1);
                 if(lines>=ypt(k))
                     fid0=fopen([tdir '/c0.cor'],'r');
                     fseek(fid0,(newnx*(ypt(k)-1)+xpt(k)-1)*4,-1);
                     output(l,k).c0=fread(fid0,1,'real*4');
-                    fid0=fopen([tdir '/bps'],'r');
-                    fseek(fid0,(newnx*(ypt(k)-1)+xpt(k)-1)*4,-1);
-                    output(l,k).bps=fread(fid0,1,'real*4');
                     fclose(fid0);
                     for i=1:nd
                         fidr(i)=fopen([tdir '/rel_' dates(i).name '.cor'],'r');
@@ -128,7 +136,7 @@ for l=1:length(pols)
             end
         end
         for k=1:length(xpt)
-            clear cors phs
+            clear cors phs hp
             %start/stop points
             startx=max(1,ceil(xpt(k)*rx-(rx/2)-rx));
             stopx=min(nx,ceil(xpt(k)*rx-(rx/2)+rx));
@@ -162,8 +170,8 @@ for l=1:length(pols)
                     cpx(:,end+1:ry*2+1)=NaN;
                 elseif(ypt(k)==1)
                     cpx=[nan(stopx-startx+1,ry+1) cpx];
-                end
-		slcs(i,bx,:)=cpx;
+                end              
+                slcs(i,bx,:)=cpx;
             end
             mags=reshape(slcs,nd,(rx*2+1)*(ry*2+1));
             mags=abs(mags);
@@ -175,24 +183,24 @@ for l=1:length(pols)
             for i=1:ni
                 slc1=squeeze(slcs(id1(i),:,:));
                 slc2=squeeze(slcs(id2(i),:,:));
-                
+              
                 a   = slc1.*conj(slc1);
                 b   = slc2.*conj(slc2);
                 c   = slc1.*conj(slc2);
-                a   = windy*a';
-                b   = windy*b';
-                c   = windy*c';
+                c0  = angle(c);
+               
                 
-                asum = conv(a,windx,'same');
-                bsum = conv(b,windx,'same');
-                csum = conv(c,windx,'same');
+                asum = conv2(a,wind,'same');
+                bsum = conv2(b,wind,'same');
+                csum = conv2(c,wind,'same');
                 cpx3 = csum./sqrt(asum.*bsum);
-                cpx3 = cpx3(rx+1);
-                
+                cpx3 = cpx3(rx+1,ry+1);
+  
                 sm   = abs(cpx3);
                 sm(isnan(sm))=0;
                 
                 phs(i)=angle(cpx3);
+                hp(i)=angle(exp(1j*c0(rx+1,ry+1))*conj(exp(1j*phs(i))));
                 cors(i)=sm;
             end
             
@@ -200,7 +208,7 @@ for l=1:length(pols)
             cors(~good) = NaN;
             ngood       = sum(good,1);
             
-            
+            output(l,k).hp = hp;
             output(l,k).phs=phs;
             output(l,k).cors=cors;
             
@@ -210,82 +218,155 @@ for l=1:length(pols)
 end
 
 if(plotflag)
-    cols={'k','r'};
-    for k=1:length(xpt)
-        f1=figure('name',[num2str(xpt(k)) ' ' num2str(ypt(k))]);
-        colormap('jet')
-        subplot(3,1,2);hold on
-        subplot(3,1,3);hold on
-        f2=figure('name',[num2str(xpt(k)) ' ' num2str(ypt(k)) ' bpfit']);hold on
-  
-        for l=1:size(output,1)
-            figure(f1);
-            dn   = [output(l,k).dn];
-            id1  = [output(l,k).id1];
-            id2  = [output(l,k).id2];
-            rels = [output(l,k).rels];
-            modp = [output(l,k).modp];
-            c0   = [output(l,k).c0];
-            bpr  = [output(l,k).bpr];
-            nd   = length(dn);
-            ni   = length(id1);
-            abpr = abs(bpr);
-            
-            subplot(3,4,l*2-1)
-            jnk = nan(nd);
-            jnk([output(l,k).cids])=[output(l,k).cors];
-            pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');hold on;fixplot
-            title(['cors' pols{l}])
-            
-            subplot(3,1,2)
-            plot([output(l,k).dn],[output(l,k).mags],cols{l})
-            
-            if(isfinite(bpr))
-                Gi=zeros(ni,nd-1); %intervals, perm cor loss
-                for i=1:ni
-                    Gi(i,id1(i):id2(i)-1)=1;
-                end
-                
-                Gr=zeros(ni,nd); %rel cor on dates
-                for i=1:ni
-                    Gr(i,id1(i))=1;
-                    Gr(i,id2(i))=-1;
-                end
-                
-                
-                bpsynth = exp(abs(bpr).^2*output(l).bps);
-                goodrel = isfinite(rels);
-                s2      = exp(Gi*log(modp));
-                s3      = exp(-abs(Gr(:,goodrel)*log(rels(goodrel))));
-                synth   = c0*s2.*s3.*bpsynth;
-                dni     = dn(1:nd-1)+diff(dn)/2;
-                
-                subplot(3,4,l*2)
-                jnk=nan(nd);
-                jnk([output(l).cids])=synth;
-                pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');hold on;fixplot
-                
-                subplot(3,1,3)
-                plot(dn,rels,'-','color',cols{l});
-                plot(dni,modp,'--','color',cols{l});
-                plot(dn,c0*ones(size(dn)),':','color',cols{l});
+    
+    badi=[];
+    
+    figure('name',[num2str(xpt(k)) ' ' num2str(ypt(k))])
+    colormap('jet')
+    for l=1:length(output)
+        subplot(3,4,l*2-1)
+        badi=[];
+        dn=[output(l).dn];
+        nd=length(dn);
+        jnk=nan(nd);
         
-                figure(f2)
-                [~,sortid]=sort(abpr);
-                test=max([output(l).cors])*bpsynth;
-                plot(abpr,[output(l).cors],'.','color',cols{l})
-                plot(abpr(sortid),test(sortid),'-','color',cols{l})              
-      
-            end
-        end
-        figure(f1)
-        subplot(3,1,2)
-        axis tight;datetick('x','mmmYY','keeplimits')
-        subplot(3,1,3)
-        axis tight;datetick('x','mmmYY','keeplimits')
+        jnk([output(l).cids])=[output(l).cors];
+        pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
+        hold on
+        fixplot
         
-
+        title(['cors' pols{l}])
     end
+    subplot(3,1,2)
+    hold on
+    cols={'k','r'};
+    for i=1:length(output)
+        plot([output(i).dn],[output(i).mags],cols{k})
+    end
+    axis tight
+    ax=axis;
+    datetick('x','mmmYY')
+    axis(ax);
+    for l=1:length(output)
+        dn=[output(l).dn];
+        id1=[output(l).id1];
+        id2=[output(l).id2];
+        rels=[output(l).rels];
+        modp=[output(l).modp];
+        c0=[output(l).c0];
+        nd=length(dn);
+        ni=length(id1);
+        
+        Gi=zeros(ni,nd-1); %intervals, perm cor loss
+        for i=1:ni
+            Gi(i,id1(i):id2(i)-1)=1;
+        end
+        
+        Gr=zeros(ni,nd); %rel cor on dates
+        for i=1:ni
+            Gr(i,id1(i))=1;
+            Gr(i,id2(i))=-1;
+        end
+        
+        goodrel = isfinite(rels);
+        s2=exp(Gi*log(modp));
+        s3=exp(-abs(Gr(:,goodrel)*log(rels(goodrel))));
+        synth=c0*s2.*s3;
+        subplot(3,4,l*2)
+        jnk=nan(nd);
+        jnk([output(l).cids])=synth;
+        pcolor(dn,dn,jnk'),shading flat,set(gca,'ydir','reverse');
+        hold on
+        fixplot
+        
+        title(['synth' pols{l}])
+        
+        
+        dni   = dn(1:nd-1)+diff(dn)/2;
+        
+        subplot(3,1,3)
+        plot(dn,rels,'-','color',cols{l});
+        hold on
+        plot(dni,modp,'--','color',cols{l});
+        plot(dn,c0*ones(size(dn)),':','color',cols{l});
+        
+    end
+    axis tight
+    ax=axis;
+    datetick('x','mmmYY')
+    axis(ax);
+    
+    figure
+    subplot(2,3,1)
+    triplot(output(1).hp,output(1).dn)
+    subplot(2,3,4)
+    triplot(output(2).hp,output(2).dn)
+   
+    subplot(2,3,2)
+    for i=1:length(output)
+        
+        dn=[output(i).dn];
+        nd=length(dn);
+        jnk=nan(nd);
+        jnk([output(i).cids])=exp(im*output(i).phs);
+        jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
+        plot(dn(2:end-1),angle(jnkang(1:end-1)),'-','color',cols{i});
+        hold on
+        axis tight
+        ax=axis;
+        datetick('x','mmmYY')
+        axis(ax)
+        title(['shortest phase triplet closure, ' pols{i}]);
+    end
+    ax=axis;
+    if(exist('dnr','var'))
+        for i=1:length(dnr)
+            plot([dnr(i) dnr(i)],[ax(3) ax(4)],'m')
+        end
+    end
+    
+    subplot(2,3,5)
+    for i=1:length(output)
+        
+        dn=[output(i).dn];
+        nd=length(dn);
+        jnk=nan(nd);
+        jnk([output(i).cids])=exp(im*output(i).phs);
+        jnkang=diag(jnk(1:end-1,1:end-1).*jnk(2:end,2:end).*conj(jnk(2:end,1:end-1)));
+        plot(dn(2:end-1),cumsum(angle(jnkang(1:end-1))),'-','color',cols{i});
+        hold on
+        axis tight
+        ax=axis;
+        datetick('x','mmmYY')
+        axis(ax)
+        title(['cumulative sum shortest phase triplet closure, ' pols{i}]);
+    end
+    ax=axis;
+    if(exist('dnr','var'))
+        for i=1:length(dnr)
+            plot([dnr(i) dnr(i)],[ax(3) ax(4)],'m')
+        end
+    end
+    if(length(output)==2)
+        subplot(2,3,3)
+        
+        dn1        = output(1).dn;
+        dn2        = output(2).dn;
+        [~,i1,~] = intersect(dn1,dn2);
+        ints    = [output(1).id1 output(1).id2];
+        gint    = sum(ismember(ints,i1),2)==2;
+        phs1    = exp(im*output(1).phs(gint));
+        phs2    = exp(im*output(2).phs);
+        phsdiff = angle(phs1.*conj(phs2));
+        
+        triplot(phsdiff,dn2)
+        hold on
+        fixplot
+        caxis([-pi pi])
+        title('VV VH phs diff')
+    end
+    subplot(2,3,6)
+    plot(output(1).hp,output(1).cors,'.')
 end
 
 

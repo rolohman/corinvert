@@ -18,6 +18,6 @@ if(exist('ticks','var'))
     set(gca,'XtickLabel',datestr(ticks,'mmmyy'))
     set(gca,'YtickLabel',datestr(ticks,'mmmyy'))
 end
-caxis([0 1])
+%caxis([0 1])
 
 

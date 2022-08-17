@@ -12,7 +12,9 @@ if(or(rlooks>1,alooks>1))
 else
     suff='';
 end
-
+if(iscell(relDir))
+	relDir=relDir{1};
+end
 tmp=dir([relDir '/rel*' suff '.cor.geo']);
 for j=1:length(tmp)
     t=tmp(j).name;
