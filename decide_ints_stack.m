@@ -47,7 +47,7 @@ n      = rlooks*alooks;
 if(exist('nx','var'))
     newnx  = floor(nx/rlooks);
     newny  = floor(ny/alooks);
-    disp(['nx is ' num2str(newnx)]) 
+    %disp(['nx is ' num2str(newnx)]) 
 else
     file=['merged/SLC' pol '/' dates(1).name '/' dates(1).name '.slc.full.vrt'];
     if(exist(file))
