@@ -9,6 +9,7 @@ end
 lonfile='merged/geom_master/lon.rdr.4alks_15rlks.full';
 latfile='merged/geom_master/lat.rdr.4alks_15rlks.full';
 %load rain dates
+if(0)
 if(exist('dates.list','file'))
     rdates=cellstr(num2str(load('dates.list')));
 else
@@ -16,7 +17,9 @@ else
   
 end
 
-dnr    = datenum(rdates,'yyyymmdd');
+end
+
+%dnr    = datenum(rdates,'yyyymmdd');
 
 
 

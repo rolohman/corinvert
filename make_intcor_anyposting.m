@@ -41,9 +41,12 @@ else
     uwgt=0;
     disp('not using external wgt file')
 end
-
+lpfile=[intfile(1:end-4) '_filt.phs'];
+hpfile=[intfile(1:end-4) '_hp.phs'];
 fid3=fopen(corfile,'w');
 fid4=fopen(intfile,'w');
+fid5=fopen(hpfile,'w');
+fid6=fopen(lpfile,'w');
 im=sqrt(-1);
 
 switch windowtype
@@ -54,8 +57,8 @@ switch windowtype
         windx=zeros(1,rx*2+1); windx((1:rx)+ceil(rx/2))=1;
         windy=zeros(1,ry*2+1); windy((1:ry)+ceil(ry/2))=1;
     case 2
-        windx=exp(-(-rx*2:rx*2).^2/2/(rx/2)^2);
-        windy=exp(-(-ry*2:ry*2).^2/2/(ry/2)^2);
+        windx=exp(-(-rx:rx).^2/2/(rx/2)^2);
+        windy=exp(-(-ry:ry).^2/2/(ry/2)^2);
 end
 windx=windx/sum(windx);
 windy=windy/sum(windy);
@@ -133,19 +136,25 @@ for j=1:ny
             b   = slc2.*conj(slc2);
             c   = slc1.*conj(slc2);
         end
-        a   = windy*a;
-        b   = windy*b;
+	c=c./abs(c);%tmp
+        corig=c;
+        %a   = windy*a;
+        %b   = windy*b;
         c   = windy*c;
         %disp([j length(isnan(a)) length(isnan(b)) length(isnan(c))])
-        asum = conv(a,windx,'same');
-        bsum = conv(b,windx,'same');
+        %asum = conv(a,windx,'same');
+        %bsum = conv(b,windx,'same');
         csum = conv(c,windx,'same');
-        cpx3 = csum./sqrt(asum.*bsum);
+        cpx3=csum;%cpx3 = csum./sqrt(asum.*bsum);
         cpx3 = cpx3(rangevec);
+        hp   = exp(1j*angle(corig(ry+1,rangevec))).*conj(exp(1j*angle(cpx3)));
+       
         
         fwrite(fid3,abs(cpx3),'real*4'); %cor
-        fwrite(fid4,angle(cpx3),'real*4'); %int
-    end    
+        fwrite(fid4,angle(corig(ry+1,rangevec)),'real*4'); %unfiltered int
+        fwrite(fid5,angle(hp),'real*4'); %hp int
+        fwrite(fid6,angle(cpx3),'real*4'); %filtered/downsampled int
+        end    
 end
 
 fclose(fid4);

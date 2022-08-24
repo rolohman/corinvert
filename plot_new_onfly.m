@@ -163,14 +163,14 @@ output.lp   = allintf(:,nrx+1,nry+1);
 %output.phs  = allints(:,nrx+1,nry+1);
 output.cors = allcor(:,nrx+1,nry+1);
 
-if(c0>=0.5)
+if(c0>=0.6)
     disp('good cor')
     output.raincount = sum(rels<0.8,'omitnan');
     disp([num2str(output.raincount) ' rainy dates'])
     if(output.raincount>0)
         disp('doing correction')
         c            = log(rels);
-        goodw        = 1:nd; %1:49 to just use dates before 3rd storm
+        goodw        = setdiff(1:nd,43); %1:49 to just use dates before 3rd storm
         goodp        = abs(c)>0.2;
         for i=1:nrx*2+1
             for j=1:nry*2+1
@@ -183,10 +183,12 @@ if(c0>=0.5)
                 d2(flips)    = d2(flips)-2*pi;
                 flips        = and(goodp',d1<-pi/4);
                 d3(flips)    = d3(flips)+2*pi;
-                      
-                [f1,o1]      = fit(c(goodw),d1(goodw)','poly1','weights',1./mags(goodw).^2);
-                [f2,o2]      = fit(c(goodw),d2(goodw)','poly1','weights',1./mags(goodw).^2);
-                [f3,o3]      = fit(c(goodw),d3(goodw)','poly1','weights',1./mags(goodw).^2);
+                wgt          = 1./mags(goodw).^2;
+	  	wgt(~isfinite(wgt))=eps;	
+		c(~isfinite(c))=eps;
+                [f1,o1]      = fit(c(goodw),d1(goodw)','poly1','weights',wgt);
+                [f2,o2]      = fit(c(goodw),d2(goodw)','poly1','weights',wgt);
+                [f3,o3]      = fit(c(goodw),d3(goodw)','poly1','weights',wgt);
                 
                 newsynth1    = f1(c);
                 newsynth2    = f2(c);
