@@ -170,7 +170,7 @@ if(c0>=0.6)
     if(output.raincount>0)
         disp('doing correction')
         c            = log(rels);
-        goodw        = setdiff(1:nd,43); %1:49 to just use dates before 3rd storm
+        goodw        = setdiff(1:nd,42:43); %1:49 to just use dates before 3rd storm
         goodp        = abs(c)>0.2;
         for i=1:nrx*2+1
             for j=1:nry*2+1
