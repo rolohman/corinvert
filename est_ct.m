@@ -1,11 +1,14 @@
-function [ct_est,c0_est]=est_ct(d,Gi,cpmin)
+function [ct_est,c0_est]=est_ct(d,Gi,cpmin,intid)
 d_orig=d;
 [~,nd]=size(Gi);
 nd=nd+1;
 alpha=100;
-cidl   = tril(ones(nd),-1)==1;
+
+%fill date grid with interferogram values
 jnk=nan(nd);
-jnk(cidl)=d;
+ids=sub2ind([nd,nd],intid(:,1),intid(:,2));
+jnk(ids)=d;
+
 jumps=mean(diff(jnk)','omitnan');
 jumps(1)=jumps(2);
 

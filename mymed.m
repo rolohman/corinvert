@@ -1,8 +1,6 @@
 function value=mymed(crs,wgts)
 
 [nd,nx]    = size(crs);
-cutoff=0.02; %cutoff weight
-wgts(wgts<cutoff)=NaN;
 
 if(nd==1)
     value=crs;
@@ -10,11 +8,13 @@ else
     [s,sortid] = sort(crs);
     
     if(nargin==2)
+        cutoff=0.02; %cutoff weight
+        wgts(wgts<cutoff)=NaN;
         ws         = wgts./repmat(sum(wgts,1,'omitnan'),nd,1);
         is         = repmat(1:nx,nd,1);
         ind        = sub2ind([nd nx],sortid(:),is(:));
         wsa        = reshape(ws(ind),[nd nx]);
-        wss        = cumsum(wsa);
+        wss        = cumsum(wsa,'omitnan');
         [~,id]     = min(abs(wss-0.5),[],1,'omitnan');
         
         ind        = sub2ind([nd nx],id,1:nx);
